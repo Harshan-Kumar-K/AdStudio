@@ -3,5 +3,5 @@
 
 
 ## Tech Stack
-### Backend : Java, Spring Boot, Rest API
+### Backend : Java, Spring Boot, Rest API, Crud operations
 ### Frontend : React
