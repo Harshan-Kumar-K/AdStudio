@@ -29,9 +29,9 @@ export const ENDPOINTS = {
   targetAudiences: "campaign/target-audiences",
 
   // --- media plan & insertion orders ---
-  mediaPlans: "mediaplan/list",
-  lineItems: "mediaplan/line-items",
-  insertionOrders: "mediaplan/insertion-orders",
+  mediaPlans: "api/media-plans",
+  lineItems: "api/line-items",
+  insertionOrders: "api/insertion-orders",
 
   // --- creative ---
   creativeAssets: "creative/assets",
