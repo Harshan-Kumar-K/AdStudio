@@ -21,6 +21,8 @@ public class BrandRequest {
 
     private String currency;
 
+    private BigDecimal spentToDate;
+
     private String color;
 
 }
