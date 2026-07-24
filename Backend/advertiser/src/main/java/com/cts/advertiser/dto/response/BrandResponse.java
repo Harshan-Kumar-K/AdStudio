@@ -17,5 +17,6 @@ public class BrandResponse {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String color;
 
 }

@@ -38,6 +38,7 @@ public class BrandServiceImpl implements BrandService{
             .advertiserId(request.getAdvertiserId())
             .brandName(request.getBrandName())
             .category(request.getCategory())
+            .color(request.getColor())
             .allocatedBudget(request.getAllocatedBudget())
             .build();
 
@@ -91,6 +92,7 @@ public class BrandServiceImpl implements BrandService{
         brand.setBrandName(request.getBrandName());
         brand.setCategory(request.getCategory());
         brand.setAllocatedBudget(request.getAllocatedBudget());
+        brand.setColor(request.getColor());
 
         Brand updated = brandRepository.save(brand);
 
@@ -145,6 +147,7 @@ public class BrandServiceImpl implements BrandService{
         response.setStatus(brand.getStatus() != null ? brand.getStatus().name() : null);
         response.setCreatedAt(brand.getCreatedAt());
         response.setUpdatedAt(brand.getUpdatedAt());
+        response.setColor(brand.getColor());
 
         return response;
 

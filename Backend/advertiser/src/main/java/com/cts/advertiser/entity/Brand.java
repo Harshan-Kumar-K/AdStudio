@@ -43,6 +43,9 @@ public class Brand {
     @Column(name = "Status")
     private BrandStatus status;
 
+    @Column(name = "Color", length = 10)
+    private String color;
+
     @Column(name = "CreatedAt", updatable = false)
     private LocalDateTime createdAt;
 

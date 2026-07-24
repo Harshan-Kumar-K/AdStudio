@@ -26,7 +26,7 @@ export default function BrandGrid({ brands, loading, onSelect }) {
               <div style={{ marginLeft: "auto" }}><StatusBadge status={b.status} /></div>
             </div>
             <div className="bc-budget">
-              <span className="lab">Spent to date</span>
+              <span className="lab">Spent till date ($100)</span>
               <span className="val">{formatCompact(b.spentToDate, { money: true })} / {formatCompact(b.allocatedBudget, { money: true })}</span>
             </div>
             <ProgressBar value={b.spentToDate} max={b.allocatedBudget} />
