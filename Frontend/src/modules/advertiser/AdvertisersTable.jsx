@@ -16,7 +16,7 @@ export default function AdvertisersTable({ advertisers, loading, onEdit }) {
         <span className="meta"><span className="nm">{r.companyName}</span><span className="sb">{r.id} · {r.industry}</span></span>
       </div>
     )},
-    { key: "accountManager", label: "Account Manager", render: (r) => <span className="cell-muted">{r.accountManager}</span> },
+    { key: "accountManager", label: "Account Manager", render: (r) => <span className="cell-muted">{r.accountManagerId}</span> },
     { key: "annualBudget", label: "Annual Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCurrency(r.annualBudget, r.currency)}</span> },
     { key: "currency", label: "Currency", render: (r) => <span className="badge badge-gray">{r.currency}</span> },
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
