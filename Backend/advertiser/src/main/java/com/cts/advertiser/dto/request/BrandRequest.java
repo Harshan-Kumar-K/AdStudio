@@ -21,4 +21,6 @@ public class BrandRequest {
 
     private String currency;
 
+    private String color;
+
 }
