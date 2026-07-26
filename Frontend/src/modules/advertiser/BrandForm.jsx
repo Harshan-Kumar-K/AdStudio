@@ -7,12 +7,12 @@ import { useAuth } from "../../context/AuthContext.jsx";
 /*  Brand create/edit form                                                */
 /* ---------------------------------------------------------------------- */
 export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
-  const isEdit = Boolean(initial?.brandID);
+  const isEdit = Boolean(initial?.brandId);
   const { user } = useAuth();
   const [form, setForm] = useState({
     brandName: initial?.brandName || "",
     category: initial?.category || "",
-    advertiserId: user.userId,
+    advertiserId: initial?.advertiserId || "",
     allocatedBudget: initial?.allocatedBudget ?? "",
     spentToDate: initial?.spentToDate ?? 0,
     status: initial?.status || "ACTIVE",
@@ -28,29 +28,30 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
     setSaving(true);
     setError(null);
     try {
-      const url = isEdit ? `${API_BASE}/${ENDPOINTS.brands}/${initial.brandID}` : `${API_BASE}/${ENDPOINTS.brands}`;
+      const url = isEdit ? `${API_BASE}/${ENDPOINTS.brands}/${initial.brandId}` : `${API_BASE}/${ENDPOINTS.brands}`;
       const method = isEdit ? "PUT" : "POST";
-       const { status,spentToDate,...rest } = form; 
-      if(!isEdit){
        
-        setForm(rest);
-        console.log(form, "  ippiii  ",rest);
-        console.log(" zooo  ",user);
-        
-        
-      }
+      
+      const payload = isEdit
+        ? {
+            ...form,
+            allocatedBudget: Number(form.allocatedBudget),
+            spentToDate: Number(form.spentToDate),
+          }
+        : (() => {
+            const { status, spentToDate, ...rest } = form;
+            return { ...rest, allocatedBudget: Number(form.allocatedBudget) };
+          })();
+
       const res = await fetch(url, {
         method,
-        headers:  { 
-          "Content-Type": "application/json" ,
+        headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${getToken()}`
         },
-        body: JSON.stringify({
-          ...form,
-          allocatedBudget: Number(form.allocatedBudget),
-          spentToDate: Number(form.spentToDate),
-        }),
+        body: JSON.stringify(payload),
       });
+
       if (!res.ok) {
        const errorData = await res.json(); // parse the body
       console.log("error message: ", errorData.message);

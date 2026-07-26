@@ -69,7 +69,7 @@ const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINT
       )}
 
       {advertiserModal && (
-        <Modal title={advertiserModal.id ? "Edit advertiser" : "New advertiser"} onClose={() => setAdvertiserModal(null)}>
+        <Modal title={advertiserModal.advertiserId ? "Edit advertiser" : "New advertiser"} onClose={() => setAdvertiserModal(null)}>
           <AdvertiserForm
             initial={advertiserModal}
             onCancel={() => setAdvertiserModal(null)}
@@ -79,7 +79,7 @@ const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINT
       )}
 
       {brandModal && (
-        <Modal title={brandModal.id ? "Edit brand" : "New brand"} onClose={() => setBrandModal(null)}>
+        <Modal title={brandModal.brandId ? "Edit brand" : "New brand"} onClose={() => setBrandModal(null)}>
           <BrandForm
             initial={brandModal}
             advertisers={advertisers}

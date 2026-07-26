@@ -13,12 +13,12 @@ export default function AdvertisersTable({ advertisers, loading, onEdit }) {
     { key: "companyName", label: "Company", render: (r) => (
       <div className="id-chip">
         <span className="av"><IcBuilding size={17} /></span>
-        <span className="meta"><span className="nm">{r.companyName}</span><span className="sb">{r.id} · {r.industry}</span></span>
+        <span className="meta"><span className="nm">{r.companyName + "   "}</span> <span className="sb">{"  " + r.advertiserId} · {r.industry}</span></span>
       </div>
     )},
-    { key: "accountManager", label: "Account Manager", render: (r) => <span className="cell-muted">{r.accountManagerId}</span> },
+    { key: "accountManager", label: "Account Manager ID", render: (r) => <span className="cell-muted">{r.accountManagerId}</span> },
     { key: "annualBudget", label: "Annual Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCurrency(r.annualBudget, r.currency)}</span> },
-    { key: "currency", label: "Currency", render: (r) => <span className="badge badge-gray">{r.currency}</span> },
+    { key: "advertiserId", label: "Advertiser ID", render: (r) => <span className="badge badge-gray">{r.advertiserId}</span> },
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
     { key: "actions", label: "", align: "right", render: (r) => (
       <div className="t-actions">
