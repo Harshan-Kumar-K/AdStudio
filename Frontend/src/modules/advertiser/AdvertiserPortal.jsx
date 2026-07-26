@@ -18,8 +18,8 @@ import BrandGrid from "./BrandGrid.jsx";
 /* ---------------------------------------------------------------------- */
 export default function AdvertiserPortal() {
   const [tab, setTab] = useState("advertisers");
-  const { data: advertisers, loading: la, isMock, refetch: refetchAdvertisers } = useApiData(ENDPOINTS.advertisers, MOCK_ADVERTISERS);
-  const { data: brands, loading: lb, refetch: refetchBrands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
+const { data: advertisers, loading: la, isMock, reload: refetchAdvertisers } = useApiData(ENDPOINTS.advertisers, MOCK_ADVERTISERS);
+const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
 
   const [advertiserModal, setAdvertiserModal] = useState(null); // null | {} (new) | advertiser (edit)
   const [brandModal, setBrandModal] = useState(null);

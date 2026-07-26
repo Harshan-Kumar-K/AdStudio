@@ -16,7 +16,7 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
     allocatedBudget: initial?.allocatedBudget ?? "",
     spentToDate: initial?.spentToDate ?? 0,
     status: initial?.status || "ACTIVE",
-    color: initial?.color || "#6366F1",
+    color: initial?.color || "#d00303ff",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
