@@ -1,58 +1,120 @@
 import React, { useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
-import DataTable from "../../components/DataTable.jsx";
-import StatusBadge from "../../components/StatusBadge.jsx";
 import Tabs from "../../components/Tabs.jsx";
-import { Loader, MockFlag } from "../../components/Loader.jsx";
+import { MockFlag } from "../../components/Loader.jsx";
 import { useApiData } from "../../hooks/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
-import { IcCampaign, IcPlus, IcCheck, IcClose, IcSend, IcUsers } from "../../assets/icons.jsx";
+import { IcCampaign, IcPlus } from "../../assets/icons.jsx";
 import { MOCK_BRIEFS, MOCK_AUDIENCES } from "../../data/mockData.js";
-import { formatCompact } from "../../utils/format.js";
 
-const OBJECTIVE_TONE = { Awareness: "badge-blue", Consideration: "badge-navy", Conversion: "badge-green", Retention: "badge-amber" };
+import Modal from "./Modal.jsx";
+import BriefsTable from "./BriefsTable.jsx";
+import AudiencesTable from "./AudiencesTable.jsx";
+import CampaignBriefForm from "./forms/CampaignBriefForm.jsx";
+import TargetAudienceForm from "./forms/TargetAudienceForm.jsx";
+
+// Small helper to POST/PATCH JSON against the Spring Boot backend.
+async function postJson(url, body) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Request failed with status ${res.status}`);
+  }
+  return res.json().catch(() => ({}));
+}
+
+async function patchStatus(baseUrl, id, status) {
+  const res = await fetch(`${baseUrl}/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(text || `Request failed with status ${res.status}`);
+  }
+  return res.json().catch(() => ({}));
+}
 
 export default function CampaignBriefs() {
   const [tab, setTab] = useState("briefs");
-  const { data: briefs, loading: lb, isMock } = useApiData(ENDPOINTS.campaignBriefs, MOCK_BRIEFS);
-  const { data: audiences, loading: la } = useApiData(ENDPOINTS.targetAudiences, MOCK_AUDIENCES);
 
-  const briefColumns = [
-    { key: "campaignName", label: "Campaign", render: (r) => (
-      <span className="meta"><div className="strong">{r.campaignName}</div><div className="sb cell-muted">{r.id} · {r.brand}</div></span>
-    )},
-    { key: "objective", label: "Objective", render: (r) => <span className={`badge ${OBJECTIVE_TONE[r.objective] || "badge-gray"}`}>{r.objective}</span> },
-    { key: "geography", label: "Geography", render: (r) => <span className="cell-muted">{r.geography}</span> },
-    { key: "flight", label: "Flight", render: (r) => <span className="cell-muted cell-num">{r.startDate.slice(5)} → {r.endDate.slice(5)}</span> },
-    { key: "totalBudget", label: "Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCompact(r.totalBudget, { money: true })}</span> },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-    { key: "actions", label: "", align: "right", render: (r) => {
-      if (r.status === "Draft") return <div className="t-actions"><button className="btn btn-outline btn-sm"><IcSend size={14} /> Submit</button></div>;
-      if (r.status === "Submitted") return (
-        <div className="t-actions">
-          <button className="btn btn-success btn-sm"><IcCheck size={14} /> Approve</button>
-          <button className="btn btn-danger btn-sm"><IcClose size={14} /> Reject</button>
-        </div>
-      );
-      return <span className="cell-muted txt-sm">—</span>;
-    }},
-  ];
+  const { data: briefsData, loading: lb, isMock } = useApiData(ENDPOINTS.campaignBriefs, MOCK_BRIEFS);
+  const { data: audiencesData, loading: la } = useApiData(ENDPOINTS.targetAudiences, MOCK_AUDIENCES);
 
-  const audColumns = [
-    { key: "id", label: "Audience", render: (r) => (
-      <div className="id-chip"><span className="av"><IcUsers size={16} /></span><span className="meta"><span className="nm">{r.id}</span><span className="sb">{r.brief}</span></span></div>
-    )},
-    { key: "ageRange", label: "Age", render: (r) => <span className="badge badge-gray">{r.ageRange}</span> },
-    { key: "gender", label: "Gender", render: (r) => <span className="cell-muted">{r.gender}</span> },
-    { key: "interests", label: "Interests", render: (r) => <span className="cell-muted">{r.interests}</span> },
-    { key: "deviceType", label: "Device", render: (r) => <span className="badge badge-blue">{r.deviceType}</span> },
-    { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
-  ];
+  // Locally created rows layered on top of whatever the hook returned,
+  // so new items show up immediately without needing the hook to expose
+  // a refetch method.
+  const [extraBriefs, setExtraBriefs] = useState([]);
+  const [extraAudiences, setExtraAudiences] = useState([]);
+  const [statusOverrides, setStatusOverrides] = useState({}); // { [briefId]: newStatus }
+
+  const [briefModalOpen, setBriefModalOpen] = useState(false);
+  const [audienceModalOpen, setAudienceModalOpen] = useState(false);
+
+  const briefs = [...(briefsData || []), ...extraBriefs].map((b) =>
+    statusOverrides[b.id] ? { ...b, status: statusOverrides[b.id] } : b
+  );
+  const audiences = [...(audiencesData || []), ...extraAudiences];
 
   const tabs = [
-    { key: "briefs", label: "Campaign Briefs", count: (briefs || []).length },
-    { key: "audiences", label: "Target Audiences", count: (audiences || []).length },
+    { key: "briefs", label: "Campaign Briefs", count: briefs.length },
+    { key: "audiences", label: "Target Audiences", count: audiences.length },
   ];
+
+  // ---- Create handlers ----
+
+  const handleCreateBrief = async (payload) => {
+    const created = await postJson(ENDPOINTS.campaignBriefs, payload);
+    setExtraBriefs((prev) => [
+      {
+        id: created.id ?? `TMP-${Date.now()}`,
+        brand: created.brand ?? `Brand #${payload.brandId}`,
+        status: created.status ?? "Draft",
+        ...payload,
+        ...created,
+      },
+      ...prev,
+    ]);
+    setBriefModalOpen(false);
+  };
+
+  const handleCreateAudience = async (payload) => {
+    const created = await postJson(ENDPOINTS.targetAudiences, payload);
+    const parentBrief = briefs.find((b) => b.id === payload.briefId);
+    setExtraAudiences((prev) => [
+      {
+        id: created.id ?? `TMP-${Date.now()}`,
+        brief: created.brief ?? parentBrief?.campaignName ?? `Brief #${payload.briefId}`,
+        status: created.status ?? "Active",
+        ...payload,
+        ...created,
+      },
+      ...prev,
+    ]);
+    setAudienceModalOpen(false);
+  };
+
+  // ---- Status transition handlers ----
+
+  const handleSubmitBrief = async (row) => {
+    await patchStatus(ENDPOINTS.campaignBriefs, row.id, "Submitted");
+    setStatusOverrides((prev) => ({ ...prev, [row.id]: "Submitted" }));
+  };
+
+  const handleApproveBrief = async (row) => {
+    await patchStatus(ENDPOINTS.campaignBriefs, row.id, "Approved");
+    setStatusOverrides((prev) => ({ ...prev, [row.id]: "Approved" }));
+  };
+
+  const handleRejectBrief = async (row) => {
+    await patchStatus(ENDPOINTS.campaignBriefs, row.id, "Rejected");
+    setStatusOverrides((prev) => ({ ...prev, [row.id]: "Rejected" }));
+  };
 
   return (
     <div className="page">
@@ -60,16 +122,48 @@ export default function CampaignBriefs() {
         Icon={IcCampaign}
         title="Campaign Planning & Briefing"
         subtitle="Capture briefs, objectives and target audiences, then run the approval workflow"
-        actions={<>{isMock && <MockFlag />}<button className="btn btn-primary btn-sm"><IcPlus /> {tab === "audiences" ? "New audience" : "New brief"}</button></>}
+        actions={
+          <>
+            {isMock && <MockFlag />}
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={() => (tab === "audiences" ? setAudienceModalOpen(true) : setBriefModalOpen(true))}
+            >
+              <IcPlus /> {tab === "audiences" ? "New audience" : "New brief"}
+            </button>
+          </>
+        }
       />
 
-      <div className="toolbar"><Tabs tabs={tabs} active={tab} onChange={setTab} /></div>
+      <div className="toolbar">
+        <Tabs tabs={tabs} active={tab} onChange={setTab} />
+      </div>
 
       <div className="card">
-        {tab === "briefs"
-          ? (lb ? <Loader /> : <DataTable columns={briefColumns} rows={briefs} />)
-          : (la ? <Loader /> : <DataTable columns={audColumns} rows={audiences} />)}
+        {tab === "briefs" ? (
+          <BriefsTable
+            rows={briefs}
+            loading={lb}
+            onSubmit={handleSubmitBrief}
+            onApprove={handleApproveBrief}
+            onReject={handleRejectBrief}
+          />
+        ) : (
+          <AudiencesTable rows={audiences} loading={la} />
+        )}
       </div>
+
+      <Modal open={briefModalOpen} title="New campaign brief" onClose={() => setBriefModalOpen(false)}>
+        <CampaignBriefForm onSubmit={handleCreateBrief} onCancel={() => setBriefModalOpen(false)} />
+      </Modal>
+
+      <Modal open={audienceModalOpen} title="New target audience" onClose={() => setAudienceModalOpen(false)}>
+        <TargetAudienceForm
+          briefs={briefs}
+          onSubmit={handleCreateAudience}
+          onCancel={() => setAudienceModalOpen(false)}
+        />
+      </Modal>
     </div>
   );
 }

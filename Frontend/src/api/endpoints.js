@@ -25,8 +25,8 @@ export const ENDPOINTS = {
   brands: "api/brands",
 
   // --- campaign planning ---
-  campaignBriefs: "campaign/briefs",
-  targetAudiences: "campaign/target-audiences",
+  campaignBriefs: "api/campaign-briefs",
+  targetAudiences: "api/target-audiences",
 
   // --- media plan & insertion orders ---
   mediaPlans: "api/media-plans",
