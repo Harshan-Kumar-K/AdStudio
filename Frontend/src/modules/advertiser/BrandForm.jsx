@@ -148,6 +148,19 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
               </select>
             </div>
             <div className="universal-field">
+              <label className="universal-label">Advertiser</label>
+              <select className="universal-select" value={form.advertiserId} onChange={set("advertiserId")}>
+                {advertisers?.map((a) => (
+                  <option key={a.advertiserId} value={a.advertiserId}>
+                    {a.companyName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
               <label className="universal-label">Color</label>
               <input className="universal-input" type="color" value={form.color} onChange={set("color")} />
             </div>
