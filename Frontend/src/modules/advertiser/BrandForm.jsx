@@ -12,10 +12,10 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
   const [form, setForm] = useState({
     brandName: initial?.brandName || "",
     category: initial?.category || "",
-    advertiserId: initial?.advertiserId || "",
+    advertiserId: initial?.advertiserId || 1,
     allocatedBudget: initial?.allocatedBudget ?? "",
     spentToDate: initial?.spentToDate ?? 0,
-    status: initial?.status || "ACTIVE",
+    status: initial?.status || "Active",
     color: initial?.color || "#d00303ff",
   });
   const [saving, setSaving] = useState(false);
@@ -32,16 +32,11 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
       const method = isEdit ? "PUT" : "POST";
        
       
-      const payload = isEdit
-        ? {
+      const payload = {
             ...form,
             allocatedBudget: Number(form.allocatedBudget),
             spentToDate: Number(form.spentToDate),
-          }
-        : (() => {
-            const { status, spentToDate, ...rest } = form;
-            return { ...rest, allocatedBudget: Number(form.allocatedBudget) };
-          })();
+          };
 
       const res = await fetch(url, {
         method,
@@ -142,9 +137,8 @@ export default function BrandForm({ initial, advertisers, onCancel, onSaved }) {
             <div className="universal-field">
               <label className="universal-label">Status</label>
               <select className="universal-select" value={form.status} onChange={set("status")}>
-                <option value="ACTIVE">Active</option>
-                <option value="PAUSED">Paused</option>
-                <option value="INACTIVE">Inactive</option>
+                <option value="Active">Active</option>
+                <option value="Discontinued">Discontinued</option>
               </select>
             </div>
             <div className="universal-field">
