@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { MockFlag } from "../../components/Loader.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcCampaign, IcPlus } from "../../assets/icons.jsx";
 import { MOCK_BRIEFS, MOCK_AUDIENCES } from "../../data/mockData.js";

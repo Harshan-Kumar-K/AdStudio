@@ -6,7 +6,7 @@ import StatCard from "../../components/StatCard.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import ProgressBar from "../../components/ProgressBar.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcFinance, IcPlus, IcWallet, IcMoney, IcReceipt, IcCheck, IcSend } from "../../assets/icons.jsx";
 import { MOCK_CLIENT_INVOICES, MOCK_PUBLISHER_RECON, MOCK_PAYMENT_TRACKER } from "../../data/mockData.js";
