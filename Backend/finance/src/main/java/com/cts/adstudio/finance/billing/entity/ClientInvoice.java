@@ -37,7 +37,7 @@ public class ClientInvoice {
     private Long campaignBriefId;       // FK -> campaign_brief.id */
 
     @Column(length = 20)
-    private String billingPeriod;       // e.g. "2026-06"  Stores month like "2026-06"
+    private String billingPeriod;       // e.g. "    "  Stores month like "2026-06"
 
     //  Money Fields
     @Column(nullable = false, precision = 15, scale = 2)

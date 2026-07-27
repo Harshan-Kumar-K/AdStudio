@@ -2,6 +2,8 @@ package com.cts.delivery.service;
 
 import java.util.List;
 
+import com.cts.delivery.shared.NotificationClient;
+import com.cts.delivery.shared.PlannerResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class DeliveryService {
 
     private final DeliveryRecordRepository repository;
+    private final NotificationClient notificationClient;
+    private final PlannerResolver plannerResolver;
 
     public DeliveryRecord create(
             DeliveryRequest request) {
@@ -49,7 +53,14 @@ public class DeliveryService {
                                 request.status()))
                 .build();
 
-        return repository.save(record);
+        DeliveryRecord saved = repository.save(record);
+        Integer plannerId = plannerResolver.resolvePlannerId(saved.getLineItemId());
+        notificationClient.notify(plannerId,
+                "Delivery Logged for line item #" + saved.getLineItemId()
+                        + ": " + saved.getDeliveredImpressions() + " impressions.",
+                "Delivery");
+
+        return saved;
     }
 
     public List<DeliveryRecord> getAll() {
@@ -69,6 +80,10 @@ public class DeliveryService {
         var record = getById(id);
 
         repository.delete(record);
+        Integer plannerId = plannerResolver.resolvePlannerId(record.getLineItemId());
+        notificationClient.notify(plannerId,
+                "Delivery Record #" + id + " (line item #" + record.getLineItemId() + ") was deleted.",
+                "Delivery");
     }
 
     public List<DeliveryRecord> getLineItemDeliveries(
