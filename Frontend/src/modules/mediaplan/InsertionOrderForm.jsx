@@ -79,61 +79,123 @@ export default function InsertionOrderForm({ initial, onCancel, onSaved }) {
   };
 
   return (
-    <form onSubmit={submit} className="form-grid">
-      <label className="field">
-        <span>Line Item ID</span>
-        <input
-          required
-          type="number"
-          value={form.lineItemId}
-          onChange={set("lineItemId")}
-          onBlur={(e) => fetchLineItem(e.target.value)}
-          disabled={Boolean(initial?.lineItemId)}
-        />
-      </label>
-      <label className="field">
-        <span>Publisher ID</span>
-        <input required type="number" value={form.publisherId} onChange={set("publisherId")} />
-      </label>
-      <div className="field-row">
-        <label className="field">
-          <span>Committed Impressions</span>
-          <input required type="number" min="1" value={form.committedImpressions} onChange={set("committedImpressions")} />
-        </label>
-        <label className="field">
-          <span>Order Value (auto)</span>
-          <input type="number" value={computedValue.toFixed(2)} readOnly disabled />
-        </label>
-      </div>
-      <div className="field-row">
-        <label className="field">
-          <span>Order Date</span>
-          <input required type="date" value={form.orderDate} onChange={set("orderDate")} />
-        </label>
-        <label className="field">
-          <span>Start Date</span>
-          <input required type="date" value={form.startDate} onChange={set("startDate")} />
-        </label>
-        <label className="field">
-          <span>End Date</span>
-          <input required type="date" min={form.startDate} value={form.endDate} onChange={set("endDate")} />
-        </label>
-      </div>
+    <div className="universal-overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="universal-modal">
+        <span className="universal-orb universal-orb-1" />
+        <span className="universal-orb universal-orb-2" />
 
-      {liInfo && (
-        <p className="cell-muted txt-sm">
-          Line item #{liInfo.lineItemId}: {liInfo.channel} · {liInfo.publisher} · CPM ${liInfo.cpm}.
-          Order value = (committed ÷ 1000) × CPM = <b>{computedValue.toFixed(2)}</b>
-        </p>
-      )}
-      {error && <div className="form-error">{error}</div>}
-
-      <div className="modal-actions">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-          {saving ? "Sending..." : "Generate & send"}
+        <button type="button" className="universal-close" onClick={onCancel} aria-label="Close">
+          ✕
         </button>
+
+        <div className="universal-header">
+          <h2 className="universal-title">Generate purchase order</h2>
+          <p className="universal-subtitle">Fill in the details to generate and send the order.</p>
+        </div>
+
+        <form className="universal-form" onSubmit={submit}>
+          <div className="universal-field">
+            <label className="universal-label">Line Item ID</label>
+            <input
+              className="universal-input"
+              required
+              type="number"
+              value={form.lineItemId}
+              onChange={set("lineItemId")}
+              onBlur={(e) => fetchLineItem(e.target.value)}
+              disabled={Boolean(initial?.lineItemId)}
+            />
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Publisher ID</label>
+            <input
+              className="universal-input"
+              required
+              type="number"
+              value={form.publisherId}
+              onChange={set("publisherId")}
+            />
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Committed Impressions</label>
+              <input
+                className="universal-input"
+                required
+                type="number"
+                min="1"
+                value={form.committedImpressions}
+                onChange={set("committedImpressions")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">Order Value (auto)</label>
+              <input
+                className="universal-input"
+                type="number"
+                value={computedValue.toFixed(2)}
+                readOnly
+                disabled
+              />
+            </div>
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Order Date</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                value={form.orderDate}
+                onChange={set("orderDate")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">Start Date</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                value={form.startDate}
+                onChange={set("startDate")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">End Date</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                min={form.startDate}
+                value={form.endDate}
+                onChange={set("endDate")}
+              />
+            </div>
+          </div>
+
+          {liInfo && (
+            <p className="universal-subtitle" style={{ marginTop: "-8px" }}>
+              Line item #{liInfo.lineItemId}: {liInfo.channel} · {liInfo.publisher} · CPM ${liInfo.cpm}.
+              Order value = (committed ÷ 1000) × CPM = <b>{computedValue.toFixed(2)}</b>
+            </p>
+          )}
+
+          {error && <div className="universal-error-banner">{error}</div>}
+
+          <div className="universal-actions">
+            <button type="button" className="universal-btn universal-btn-ghost" onClick={onCancel} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit" className="universal-btn universal-btn-primary" disabled={saving}>
+              {saving && <span className="universal-spinner" />}
+              {saving ? "Sending..." : "Generate & send"}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }
