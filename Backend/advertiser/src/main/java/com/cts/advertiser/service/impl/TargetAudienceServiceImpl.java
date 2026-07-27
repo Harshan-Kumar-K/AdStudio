@@ -3,6 +3,8 @@ package com.cts.advertiser.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cts.advertiser.repository.CampaignBriefRepository;
+import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,9 @@ import com.cts.advertiser.entity.TargetAudience;
 import com.cts.advertiser.exception.ResourceNotFoundException;
 import com.cts.advertiser.repository.TargetAudienceRepository;
 import com.cts.advertiser.service.TargetAudienceService;
+import com.cts.advertiser.entity.CampaignBrief;
+import com.cts.advertiser.repository.CampaignBriefRepository;
+import com.cts.advertiser.shared.NotificationClient;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +27,8 @@ public class TargetAudienceServiceImpl implements TargetAudienceService {
 
     // Injected automatically by Spring via @RequiredArgsConstructor
     private final TargetAudienceRepository targetAudienceRepository;
+    private final CampaignBriefRepository campaignBriefRepository;
+    private final NotificationClient notificationClient;
 
     // Converts request DTO to entity and saves to database
     @Override
@@ -38,6 +45,11 @@ public class TargetAudienceServiceImpl implements TargetAudienceService {
             .build();
 
         TargetAudience saved = targetAudienceRepository.save(audience);
+
+        campaignBriefRepository.findById(saved.getBriefId()).ifPresent(brief ->
+                notificationClient.notify(brief.getSubmittedById(),
+                        "A target audience was added to campaign brief #" + saved.getBriefId() + ".",
+                        "Brief"));
 
         return mapToResponse(saved);
 
@@ -92,6 +104,11 @@ public class TargetAudienceServiceImpl implements TargetAudienceService {
 
         TargetAudience updated = targetAudienceRepository.save(audience);
 
+        campaignBriefRepository.findById(updated.getBriefId()).ifPresent(brief ->
+                notificationClient.notify(brief.getSubmittedById(),
+                        "Target Audience #" + id + " was updated.",
+                        "Brief"));
+
         return mapToResponse(updated);
         
     }
@@ -100,11 +117,15 @@ public class TargetAudienceServiceImpl implements TargetAudienceService {
     @Override
     @Transactional
     public void deleteTargetAudience(Integer id) {
-        
-        if(!targetAudienceRepository.existsById(id)) throw new ResourceNotFoundException("Target audience not found with ID: " + id);
+        TargetAudience audience = targetAudienceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Target audience not found with ID: " + id));
 
         targetAudienceRepository.deleteById(id);
 
+        campaignBriefRepository.findById(audience.getBriefId()).ifPresent(brief ->
+                notificationClient.notify(brief.getSubmittedById(),
+                        "Target Audience #" + id + " was deleted.",
+                        "Brief"));
     }
 
         // Maps entity fields to response DTO

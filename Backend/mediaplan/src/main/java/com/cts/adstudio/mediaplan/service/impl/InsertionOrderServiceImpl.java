@@ -10,6 +10,7 @@ import com.cts.adstudio.mediaplan.repository.MediaLineItemRepository;
 import com.cts.adstudio.mediaplan.service.InsertionOrderService;
 import com.cts.adstudio.mediaplan.shared.AuditLogService;
 import com.cts.adstudio.mediaplan.shared.StatusTransitionValidator;
+import com.cts.adstudio.mediaplan.shared.NotificationClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class InsertionOrderServiceImpl implements InsertionOrderService {
     private final MediaLineItemRepository lineItemRepository;
     private final AuditLogService auditLogService;            // shared utility
     private final StatusTransitionValidator statusValidator;  // shared utility
+    private final NotificationClient notificationClient;      // shared utility
 
     @Override
     public InsertionOrderResponse createInsertionOrder(InsertionOrderRequest request) {
@@ -50,6 +52,12 @@ public class InsertionOrderServiceImpl implements InsertionOrderService {
         // 3. Audit: record that an IO was created and sent
         auditLogService.log(request.getPublisherId(), "IO_CREATED_AND_SENT",
                 "InsertionOrder", saved.getIoId());
+
+        // 4. Notify the publisher — they're the one who needs to confirm it
+        notificationClient.notify(request.getPublisherId(),
+                "New Insertion Order #" + saved.getIoId() + " sent for your confirmation (line item #"
+                        + request.getLineItemId() + ").",
+                "InsertionOrder");
 
         log.info("Insertion Order {} created for line item {}",
                 saved.getIoId(), request.getLineItemId());
@@ -102,6 +110,11 @@ public class InsertionOrderServiceImpl implements InsertionOrderService {
         auditLogService.log(io.getPublisherId(),
                 "IO_STATUS_CHANGED_TO_" + newStatus,
                 "InsertionOrder", ioId);
+
+        // Notify the planner — they're waiting on the publisher's response
+        notificationClient.notify(io.getMediaLineItem().getMediaPlan().getPlannerId(),
+                "Insertion Order #" + ioId + " status changed to " + newStatus + ".",
+                "InsertionOrder");
 
         log.info("Insertion Order {} status changed to {}", ioId, newStatus);
         return mapToResponse(saved);

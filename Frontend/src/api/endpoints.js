@@ -58,8 +58,11 @@ export const ENDPOINTS = {
   analyticsSpendByChannel: "analytics/spend-by-channel",
   analyticsChannelPerf: "analytics/channel-performance",
 
-  // --- notifications ---
-  notifications: "notifications/list",
+  // --- notifications (real: notification service via gateway) ---
+  // both need a userId query param appended by the caller, e.g.
+  // `${ENDPOINTS.notifications}?userId=${user.userId}`
+  notifications: "api/notifications",
+  notificationsUnreadCount: "api/notifications/unread-count",
 
   // --- admin ---
   adminUsers: "admin/users",

@@ -9,6 +9,7 @@ import com.cts.adstudio.mediaplan.repository.MediaLineItemRepository;
 import com.cts.adstudio.mediaplan.repository.MediaPlanRepository;
 import com.cts.adstudio.mediaplan.service.MediaLineItemService;
 import com.cts.adstudio.mediaplan.shared.StatusTransitionValidator;
+import com.cts.adstudio.mediaplan.shared.NotificationClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
     private final MediaLineItemRepository lineItemRepository;
     private final MediaPlanRepository mediaPlanRepository;
     private final StatusTransitionValidator statusValidator;
+    private final NotificationClient notificationClient;
 
     @Override
     public MediaLineItemResponse createLineItem(Integer planId, MediaLineItemRequest request) {
@@ -54,7 +56,12 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
                 .build();
 
         MediaLineItem saved = lineItemRepository.save(item);
-        log.info("Line item {} created under plan {}", saved.getLineItemId(), planId);
+        log.info("Line Item {} created under plan {}", saved.getLineItemId(), planId);
+
+        notificationClient.notify(plan.getPlannerId(),
+                "Line Item #" + saved.getLineItemId() + " (" + channel + ") created under plan #" + planId + ".",
+                "LineItem");
+
         return mapToResponse(saved);
     }
 
@@ -94,7 +101,13 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
         item.setFlightStart(request.getFlightStart());
         item.setFlightEnd(request.getFlightEnd());
 
-        return mapToResponse(lineItemRepository.save(item));
+        MediaLineItem saved = lineItemRepository.save(item);
+
+        notificationClient.notify(item.getMediaPlan().getPlannerId(),
+                "Line Item #" + lineItemId + " was updated.",
+                "LineItem");
+
+        return mapToResponse(saved);
     }
 
     @Override
@@ -115,16 +128,28 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
         statusValidator.validateLineItem(item.getStatus(), status);
 
         item.setStatus(status);
-        log.info("Line item {} status updated to {}", lineItemId, newStatus);
-        return mapToResponse(lineItemRepository.save(item));
+        MediaLineItem saved = lineItemRepository.save(item);
+        log.info("Line Item {} status updated to {}", lineItemId, newStatus);
+
+        notificationClient.notify(item.getMediaPlan().getPlannerId(),
+                "Line item #" + lineItemId + " status changed to " + newStatus + ".",
+                "LineItem");
+
+        return mapToResponse(saved);
     }
 
     @Override
     public void deleteLineItem(Integer lineItemId) {
-        if (!lineItemRepository.existsById(lineItemId)) {
-            throw new ResourceNotFoundException("Line Item not found with ID: " + lineItemId);
-        }
+        // Fetch (not just existsById) so we still have the plan's plannerId to notify after deletion.
+        MediaLineItem item = lineItemRepository.findById(lineItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Line Item not found with ID: " + lineItemId));
+
+        Integer plannerId = item.getMediaPlan().getPlannerId();
         lineItemRepository.deleteById(lineItemId);
+
+        notificationClient.notify(plannerId,
+                "Line Item #" + lineItemId + " was deleted.",
+                "LineItem");
     }
 
     private MediaLineItem.Channel parseChannel(String channelText) {

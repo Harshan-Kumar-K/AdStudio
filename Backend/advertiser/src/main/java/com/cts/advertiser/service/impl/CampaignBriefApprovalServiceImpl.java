@@ -3,6 +3,7 @@ package com.cts.advertiser.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
     private final CampaignBriefRepository campaignBriefRepository;
     private final CampaignBriefApprovalRepository campaignBriefApprovalRepository;
     private final StatusTransitionValidator statusTransitionValidator;
+    private final NotificationClient notificationClient;
 
     // Submits a brief for approval - validates current status is Draft
     @Override
@@ -43,6 +45,10 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
         brief.setStatus(CampaignBrief.CampaignStatus.Submitted);
 
         CampaignBrief updated = campaignBriefRepository.save(brief);
+
+        notificationClient.notify(updated.getSubmittedById(),
+                "Campaign Brief #" + briefId + " was submitted for approval.",
+                "Brief");
 
         return mapBriefToResponse(updated);
 
@@ -80,6 +86,10 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
 
         CampaignBriefApproval saved = campaignBriefApprovalRepository.save(approval);
 
+        notificationClient.notify(brief.getSubmittedById(),
+                "Campaign Brief #" + briefId + " was " + decision + ".",
+                "Brief");
+
         return mapApprovalToResponse(saved);
 
     }
@@ -98,6 +108,10 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
         brief.setStatus(CampaignBrief.CampaignStatus.Active);
 
         CampaignBrief updated = campaignBriefRepository.save(brief);
+
+        notificationClient.notify(updated.getSubmittedById(),
+                "Campaign Brief #" + briefId + " was activated.",
+                "Brief");
 
         return mapBriefToResponse(updated);
         

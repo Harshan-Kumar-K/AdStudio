@@ -3,6 +3,8 @@ import PageHeader from "../../components/PageHeader.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
 import { useApiData } from "../../hooks/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
+import apiClient from "../../api/apiClient.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 import {
   IcBell, IcCheckList, IcSend, IcAlert, IcCampaign, IcCreative,
   IcReceipt, IcMediaPlan, IcInbox,
@@ -11,6 +13,7 @@ import { MOCK_NOTIFICATIONS } from "../../data/mockData.js";
 
 const CAT_META = {
   InsertionOrder: { Icon: IcSend, tone: "ai-blue" },
+  LineItem: { Icon: IcMediaPlan, tone: "ai-blue" },
   Pacing: { Icon: IcAlert, tone: "ai-red" },
   Brief: { Icon: IcCampaign, tone: "ai-navy" },
   Creative: { Icon: IcCreative, tone: "ai-green" },
@@ -18,15 +21,37 @@ const CAT_META = {
   MediaPlan: { Icon: IcMediaPlan, tone: "ai-blue" },
 };
 
+// Backend sends createdDate as an ISO LocalDateTime string; mock data uses
+// pre-baked strings like "12 min ago" — pass those through unchanged.
+function timeAgo(value) {
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)} hour${seconds < 7200 ? "" : "s"} ago`;
+  if (seconds < 172800) return "Yesterday";
+  return `${Math.floor(seconds / 86400)} days ago`;
+}
+
 export default function Notifications() {
-  const { data, loading, isMock } = useApiData(ENDPOINTS.notifications, MOCK_NOTIFICATIONS);
+  const { user } = useAuth();
+  const endpoint = `${ENDPOINTS.notifications}${user?.userId ? `?userId=${user.userId}` : ""}`;
+  const { data, loading, isMock } = useApiData(endpoint, MOCK_NOTIFICATIONS, [user?.userId]);
   const [items, setItems] = useState(null);
 
-  const list = items || data || [];
+  const list = (items || data || []).map((n) => ({ ...n, _id: n.notificationId ?? n.id }));
   const unread = list.filter((n) => n.status === "Unread").length;
 
-  const markAll = () => setItems(list.map((n) => ({ ...n, status: "Read" })));
-  const markOne = (id) => setItems(list.map((n) => (n.id === id ? { ...n, status: "Read" } : n)));
+  const markAll = () => {
+    const unreadIds = list.filter((n) => n.status === "Unread").map((n) => n._id);
+    setItems(list.map((n) => ({ ...n, status: "Read" })));
+    unreadIds.forEach((id) => apiClient.put(`api/notifications/${id}/read`).catch(() => {}));
+  };
+  const markOne = (id) => {
+    setItems(list.map((n) => (n._id === id ? { ...n, status: "Read" } : n)));
+    apiClient.put(`api/notifications/${id}/read`).catch(() => {});
+  };
 
   return (
     <div className="page">
@@ -47,13 +72,13 @@ export default function Notifications() {
               const Icon = meta.Icon;
               const unreadCls = n.status === "Unread" ? "unread" : "";
               return (
-                <div className={`notif-item ${unreadCls}`} key={n.id} onClick={() => markOne(n.id)}>
+                <div className={`notif-item ${unreadCls}`} key={n._id} onClick={() => markOne(n._id)}>
                   <div className={`nf-ic ${meta.tone}`}><Icon /></div>
                   <div className="nf-body">
                     <div className="nf-msg" dangerouslySetInnerHTML={{ __html: n.message }} />
                     <div className="nf-meta">
-                      <span className="cat">{n.category.replace(/([a-z])([A-Z])/g, "$1 $2")}</span>
-                      <span>{n.createdDate}</span>
+                      <span className="cat">{(n.category || "").replace(/([a-z])([A-Z])/g, "$1 $2")}</span>
+                      <span>{timeAgo(n.createdDate)}</span>
                     </div>
                   </div>
                 </div>
