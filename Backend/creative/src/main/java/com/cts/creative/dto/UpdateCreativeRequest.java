@@ -4,20 +4,30 @@ import com.cts.creative.entity.CreativeAsset;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import org.springframework.web.bind.annotation.BindParam;
 
-@Data
-public class UpdateCreativeRequest {
+/**
+ * Multipart form fields for asset update. The (optional) replacement
+ * file is bound separately in the controller.
+ *
+ * See UploadCreativeRequest for why @BindParam is needed.
+ */
+public record UpdateCreativeRequest(
 
-    @NotBlank(message = "Asset Name is required")
-    private String assetName;
+        @BindParam("assetName")
+        @NotBlank(message = "Asset Name is required")
+        String assetName,
 
-    @NotNull(message = "Asset Type is required")
-    private CreativeAsset.AssetType assetType;
+        @BindParam("assetType")
+        @NotNull(message = "Asset Type is required")
+        CreativeAsset.AssetType assetType,
 
-    @NotNull(message = "Width is required")
-    private Integer width;
+        @BindParam("width")
+        @NotNull(message = "Width is required")
+        Integer width,
 
-    @NotNull(message = "Height is required")
-    private Integer height;
+        @BindParam("height")
+        @NotNull(message = "Height is required")
+        Integer height
+) {
 }
