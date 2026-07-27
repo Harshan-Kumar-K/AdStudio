@@ -16,7 +16,7 @@ import {
   MOCK_DASHBOARD_SUMMARY, MOCK_SPEND_TREND, MOCK_CHANNEL_MIX,
   MOCK_RECENT_CAMPAIGNS, MOCK_PACING_ALERTS,
 } from "../../data/mockData.js";
-import { formatCompact } from "../../utils/format.js";
+import { formatCompact } from "../../api/utils/format.js";
 
 const ALERT_TONE = {
   UnderDelivery: "ai-red", BudgetExhausted: "ai-red",

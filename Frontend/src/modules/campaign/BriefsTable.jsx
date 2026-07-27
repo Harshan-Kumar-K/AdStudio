@@ -3,7 +3,7 @@ import DataTable from "../../components/DataTable.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import { Loader } from "../../components/Loader.jsx";
 import { IcCheck, IcClose, IcSend } from "../../assets/icons.jsx";
-import { formatCompact } from "../../utils/format.js";
+import { formatCompact } from "../../api/utils/format.js";
 import "./forms-and-modal.css";
 
 const OBJECTIVE_TONE = {

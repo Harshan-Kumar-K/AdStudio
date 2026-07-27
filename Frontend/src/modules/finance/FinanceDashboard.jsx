@@ -10,7 +10,7 @@ import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcFinance, IcPlus, IcWallet, IcMoney, IcReceipt, IcCheck, IcSend } from "../../assets/icons.jsx";
 import { MOCK_CLIENT_INVOICES, MOCK_PUBLISHER_RECON, MOCK_PAYMENT_TRACKER } from "../../data/mockData.js";
-import { formatCompact, formatCurrency } from "../../utils/format.js";
+import { formatCompact, formatCurrency } from "../../api/utils/format.js";
 
 export default function FinanceDashboard() {
   const [tab, setTab] = useState("client");
