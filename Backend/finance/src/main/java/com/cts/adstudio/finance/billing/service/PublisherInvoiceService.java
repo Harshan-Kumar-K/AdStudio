@@ -5,9 +5,10 @@ import com.cts.adstudio.finance.billing.dto.ReconciliationResultResponse;
 import com.cts.adstudio.finance.billing.dto.SubmitPublisherInvoiceRequest;
 import com.cts.adstudio.finance.billing.entity.PublisherInvoice;
 import com.cts.adstudio.finance.billing.enums.PublisherInvoiceStatus;
-import com.cts.adstudio.finance.billing.exception.InvoiceNotFoundException;
 import com.cts.adstudio.finance.billing.exception.BillingRuleException;
+import com.cts.adstudio.finance.billing.exception.InvoiceNotFoundException;
 import com.cts.adstudio.finance.billing.repository.PublisherInvoiceRepository;
+import com.cts.adstudio.finance.billing.shared.NotificationClient;
 import com.cts.adstudio.finance.shared.AuditLogService;
 import com.cts.adstudio.finance.shared.BudgetCalculationService;
 import com.cts.adstudio.finance.shared.StatusTransitionValidator;
@@ -20,13 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Publisher invoice submission + reconciliation (Backend Plan §4.7, Days 4-13).
- *
- * Reconciliation: VarianceAmount = InvoiceAmount - DeliveredValue, where
- * DeliveredValue is the accepted delivered value for the IO (BudgetCalculationService).
- * Within {@link #RECONCILE_TOLERANCE} the invoice is RECONCILED; otherwise DISCREPANCY.
- */
 @Service
 @RequiredArgsConstructor
 public class PublisherInvoiceService {
@@ -38,6 +32,7 @@ public class PublisherInvoiceService {
     private final StatusTransitionValidator statusValidator;
     private final AuditLogService auditLog;
     private final BudgetCalculationService budgetCalc;
+    private final NotificationClient notificationClient;
 
     public PublisherInvoice getEntity(Long id) {
         return repository.findById(id)
@@ -48,9 +43,13 @@ public class PublisherInvoiceService {
         return PublisherInvoiceResponse.from(getEntity(id));
     }
 
-    public Page<PublisherInvoiceResponse> list(Long publisherId, PublisherInvoiceStatus status,
-                                               Pageable pageable) {
+    public Page<PublisherInvoiceResponse> list(
+            Long publisherId,
+            PublisherInvoiceStatus status,
+            Pageable pageable) {
+
         Page<PublisherInvoice> page;
+
         if (publisherId != null) {
             page = repository.findByPublisherId(publisherId, pageable);
         } else if (status != null) {
@@ -58,63 +57,134 @@ public class PublisherInvoiceService {
         } else {
             page = repository.findAll(pageable);
         }
+
         return page.map(PublisherInvoiceResponse::from);
     }
 
     @Transactional
-    public PublisherInvoiceResponse submit(SubmitPublisherInvoiceRequest req, Long actingUserId) {
+    public PublisherInvoiceResponse submit(
+            SubmitPublisherInvoiceRequest req,
+            Long actingUserId) {
+
         PublisherInvoice invoice = PublisherInvoice.builder()
                 .publisherId(req.publisherId())
                 .ioId(req.ioId())
                 .invoiceAmount(req.invoiceAmount())
                 .deliveredValue(BigDecimal.ZERO)
                 .varianceAmount(BigDecimal.ZERO)
-                .receivedDate(req.receivedDate() != null ? req.receivedDate() : LocalDate.now())
+                .receivedDate(
+                        req.receivedDate() != null
+                                ? req.receivedDate()
+                                : LocalDate.now())
                 .status(PublisherInvoiceStatus.RECEIVED)
                 .build();
+
         PublisherInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "PUBLISHER_INVOICE_RECEIVED", "PublisherInvoice", saved.getId());
+
+        auditLog.log(
+                actingUserId,
+                "PUBLISHER_INVOICE_RECEIVED",
+                "PublisherInvoice",
+                saved.getId());
+
+        notificationClient.notify(
+                saved.getPublisherId(),
+                "Publisher Invoice #" + saved.getId()
+                        + " was submitted and marked as RECEIVED.",
+                "PublisherInvoice");
+
         return PublisherInvoiceResponse.from(saved);
     }
 
-    /** Reconcile against delivered value; sets variance and RECONCILED / DISCREPANCY. */
+    /**
+     * Reconcile against delivered value; sets variance and
+     * RECONCILED / DISCREPANCY.
+     */
     @Transactional
-    public ReconciliationResultResponse reconcile(Long id, Long actingUserId) {
+    public ReconciliationResultResponse reconcile(
+            Long id,
+            Long actingUserId) {
+
         PublisherInvoice invoice = getEntity(id);
 
-        BigDecimal deliveredValue = budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
-        if (deliveredValue == null) deliveredValue = BigDecimal.ZERO;
-        BigDecimal variance = invoice.getInvoiceAmount().subtract(deliveredValue);
+        BigDecimal deliveredValue =
+                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
 
-        PublisherInvoiceStatus target = variance.abs().compareTo(RECONCILE_TOLERANCE) <= 0
-                ? PublisherInvoiceStatus.RECONCILED
-                : PublisherInvoiceStatus.DISCREPANCY;
-        statusValidator.validate(invoice.getStatus(), target);   // throws 422 if illegal
+        if (deliveredValue == null) {
+            deliveredValue = BigDecimal.ZERO;
+        }
+
+        BigDecimal variance =
+                invoice.getInvoiceAmount().subtract(deliveredValue);
+
+        PublisherInvoiceStatus target =
+                variance.abs().compareTo(RECONCILE_TOLERANCE) <= 0
+                        ? PublisherInvoiceStatus.RECONCILED
+                        : PublisherInvoiceStatus.DISCREPANCY;
+
+        statusValidator.validate(invoice.getStatus(), target);
 
         invoice.setDeliveredValue(deliveredValue);
         invoice.setVarianceAmount(variance);
         invoice.setStatus(target);
+
         PublisherInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "PUBLISHER_INVOICE_RECONCILED", "PublisherInvoice", id);
+
+        auditLog.log(
+                actingUserId,
+                "PUBLISHER_INVOICE_RECONCILED",
+                "PublisherInvoice",
+                id);
+
+        notificationClient.notify(
+                saved.getPublisherId(),
+                "Publisher Invoice #" + id
+                        + " reconciliation completed with status "
+                        + target + ".",
+                "PublisherInvoice");
+
         return ReconciliationResultResponse.from(saved);
     }
 
     @Transactional
-    public PublisherInvoiceResponse changeStatus(Long id, String targetStatus, Long actingUserId) {
+    public PublisherInvoiceResponse changeStatus(
+            Long id,
+            String targetStatus,
+            Long actingUserId) {
+
         PublisherInvoice invoice = getEntity(id);
+
         PublisherInvoiceStatus target = parseStatus(targetStatus);
+
         statusValidator.validate(invoice.getStatus(), target);
+
         invoice.setStatus(target);
+
         PublisherInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "PUBLISHER_INVOICE_STATUS_" + target.name(), "PublisherInvoice", id);
+
+        auditLog.log(
+                actingUserId,
+                "PUBLISHER_INVOICE_STATUS_" + target.name(),
+                "PublisherInvoice",
+                id);
+
+        notificationClient.notify(
+                saved.getPublisherId(),
+                "Publisher Invoice #" + id
+                        + " status changed to "
+                        + target + ".",
+                "PublisherInvoice");
+
         return PublisherInvoiceResponse.from(saved);
     }
 
     private PublisherInvoiceStatus parseStatus(String raw) {
         try {
-            return PublisherInvoiceStatus.valueOf(raw.trim().toUpperCase());
+            return PublisherInvoiceStatus.valueOf(
+                    raw.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BillingRuleException("Unknown publisher invoice status: " + raw);
+            throw new BillingRuleException(
+                    "Unknown publisher invoice status: " + raw);
         }
     }
 }

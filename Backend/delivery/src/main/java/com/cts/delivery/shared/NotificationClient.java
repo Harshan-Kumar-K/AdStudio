@@ -1,7 +1,7 @@
-package com.cts.adstudio.mediaplan.shared;
+package com.cts.delivery.shared;
 
-import com.cts.adstudio.mediaplan.client.NotificationFeignClient;
-import com.cts.adstudio.mediaplan.client.NotificationFeignClient.NotificationPayload;
+import com.cts.delivery.client.NotificationFeignClient;
+import com.cts.delivery.client.NotificationFeignClient.NotificationPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

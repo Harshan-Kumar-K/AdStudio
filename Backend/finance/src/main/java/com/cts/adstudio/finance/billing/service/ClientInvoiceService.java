@@ -8,6 +8,7 @@ import com.cts.adstudio.finance.billing.exception.InvoiceNotFoundException;
 import com.cts.adstudio.finance.billing.repository.ClientInvoiceRepository;
 import com.cts.adstudio.finance.shared.AuditLogService;
 import com.cts.adstudio.finance.shared.BudgetCalculationService;
+import com.cts.adstudio.finance.billing.shared.NotificationClient;
 import com.cts.adstudio.finance.shared.StatusTransitionValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +24,6 @@ import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Client billing (Backend Plan §4.7, Days 4-13).
- *
- * COMMISSION MODEL (the one business rule to confirm with Finance/BA):
- *   agencyCommission = invoiceAmount * commissionRate
- *   netBillable      = invoiceAmount + agencyCommission     (commission billed on top)
- * If the agency works on a commission-inclusive basis instead, change
- * {@link #computeCommercials} to subtract. Default rate is {@link #DEFAULT_COMMISSION_RATE}.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -44,6 +36,7 @@ public class ClientInvoiceService {
     private final StatusTransitionValidator statusValidator;
     private final AuditLogService auditLog;
     private final BudgetCalculationService budgetCalc;
+    private final NotificationClient notificationClient;
 
     // ---- reads ---------------------------------------------------------------
 
@@ -60,6 +53,7 @@ public class ClientInvoiceService {
         Page<ClientInvoice> page = (status == null)
                 ? repository.findAll(pageable)
                 : repository.findByStatus(status, pageable);
+
         return page.map(ClientInvoiceResponse::from);
     }
 
@@ -68,8 +62,13 @@ public class ClientInvoiceService {
     /** Manual creation: Finance supplies the media amount. */
     @Transactional
     public ClientInvoiceResponse create(CreateClientInvoiceRequest req, Long actingUserId) {
-        BigDecimal[] c = computeCommercials(req.invoiceAmount(), req.commissionRate());
+
+        BigDecimal[] c = computeCommercials(
+                req.invoiceAmount(),
+                req.commissionRate());
+
         log.info("commission rate calculation: {}", Arrays.toString(c));
+
         ClientInvoice invoice = ClientInvoice.builder()
                 .advertiserId(req.advertiserId())
                 .campaignBriefId(req.campaignBriefId())
@@ -79,18 +78,27 @@ public class ClientInvoiceService {
                 .netBillable(c[1])
                 .status(ClientInvoiceStatus.DRAFT)
                 .build();
+
         return saveNew(invoice, actingUserId);
     }
 
     /** Generate from approved delivery: media amount comes from BudgetCalculationService. */
     @Transactional
     public ClientInvoiceResponse generate(GenerateClientInvoiceRequest req, Long actingUserId) {
-        BigDecimal mediaAmount = budgetCalc.deliveredSpendForCampaign(req.campaignBriefId());
+
+        BigDecimal mediaAmount =
+                budgetCalc.deliveredSpendForCampaign(req.campaignBriefId());
+
         if (mediaAmount == null || mediaAmount.signum() <= 0) {
             throw new BillingRuleException(
-                    "No approved delivery to invoice for campaign " + req.campaignBriefId());
+                    "No approved delivery to invoice for campaign "
+                            + req.campaignBriefId());
         }
-        BigDecimal[] c = computeCommercials(mediaAmount, req.commissionRate());
+
+        BigDecimal[] c = computeCommercials(
+                mediaAmount,
+                req.commissionRate());
+
         ClientInvoice invoice = ClientInvoice.builder()
                 .advertiserId(req.advertiserId())
                 .campaignBriefId(req.campaignBriefId())
@@ -100,92 +108,185 @@ public class ClientInvoiceService {
                 .netBillable(c[1])
                 .status(ClientInvoiceStatus.DRAFT)
                 .build();
+
         return saveNew(invoice, actingUserId);
     }
 
     private ClientInvoiceResponse saveNew(ClientInvoice invoice, Long actingUserId) {
+
         ClientInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "CLIENT_INVOICE_CREATED", "ClientInvoice", saved.getId());
+
+        auditLog.log(
+                actingUserId,
+                "CLIENT_INVOICE_CREATED",
+                "ClientInvoice",
+                saved.getId());
+
+        notificationClient.notify(
+                actingUserId,
+                "Client Invoice #" + saved.getId()
+                        + " was created and set to DRAFT.",
+                "ClientInvoice");
+
         return ClientInvoiceResponse.from(saved);
     }
 
     // ---- update --------------------------------------------------------------
 
     @Transactional
-    public ClientInvoiceResponse update(Long id, UpdateClientInvoiceRequest req, Long actingUserId) {
+    public ClientInvoiceResponse update(
+            Long id,
+            UpdateClientInvoiceRequest req,
+            Long actingUserId) {
+
         ClientInvoice invoice = getEntity(id);
+
         if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
-            throw new BillingRuleException("Only DRAFT invoices can be edited");
+            throw new BillingRuleException(
+                    "Only DRAFT invoices can be edited");
         }
-        BigDecimal[] c = computeCommercials(req.invoiceAmount(), req.commissionRate());
+
+        BigDecimal[] c = computeCommercials(
+                req.invoiceAmount(),
+                req.commissionRate());
+
         invoice.setCampaignBriefId(req.campaignBriefId());
         invoice.setBillingPeriod(req.billingPeriod());
         invoice.setInvoiceAmount(req.invoiceAmount());
         invoice.setAgencyCommission(c[0]);
         invoice.setNetBillable(c[1]);
+
         ClientInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "CLIENT_INVOICE_UPDATED", "ClientInvoice", id);
+
+        auditLog.log(
+                actingUserId,
+                "CLIENT_INVOICE_UPDATED",
+                "ClientInvoice",
+                id);
+
+        notificationClient.notify(
+                actingUserId,
+                "Client Invoice #" + id + " was updated.",
+                "ClientInvoice");
+
         return ClientInvoiceResponse.from(saved);
     }
 
     // ---- status flow ---------------------------------------------------------
 
     @Transactional
-    public ClientInvoiceResponse changeStatus(Long id, String targetStatus, Long actingUserId) {
+    public ClientInvoiceResponse changeStatus(
+            Long id,
+            String targetStatus,
+            Long actingUserId) {
+
         ClientInvoice invoice = getEntity(id);
+
         ClientInvoiceStatus target = parseStatus(targetStatus);
-        statusValidator.validate(invoice.getStatus(), target);   // throws 422 if illegal
+
+        statusValidator.validate(invoice.getStatus(), target);
+
         invoice.setStatus(target);
-        if (target == ClientInvoiceStatus.ISSUED && invoice.getIssuedDate() == null) {
+
+        if (target == ClientInvoiceStatus.ISSUED
+                && invoice.getIssuedDate() == null) {
             invoice.setIssuedDate(LocalDate.now());
         }
+
         ClientInvoice saved = repository.save(invoice);
-        auditLog.log(actingUserId, "CLIENT_INVOICE_STATUS_" + target.name(), "ClientInvoice", id);
+
+        auditLog.log(
+                actingUserId,
+                "CLIENT_INVOICE_STATUS_" + target.name(),
+                "ClientInvoice",
+                id);
+
+        notificationClient.notify(
+                actingUserId,
+                "Client Invoice #" + id
+                        + " status changed to "
+                        + target + ".",
+                "ClientInvoice");
+
         return ClientInvoiceResponse.from(saved);
     }
 
     // ---- payment tracker -----------------------------------------------------
 
-    /**
-     * Payment tracker rollup. With no Payment table in the 17-table schema,
-     * "paid" is derived from invoice status: PAID = collected, ISSUED/OVERDUE =
-     * outstanding, OVERDUE = the overdue slice of that.
-     */
     public PaymentSummaryResponse paymentSummary(Long advertiserId) {
-        BigDecimal billed = repository.sumNetBillableByAdvertiser(advertiserId);
-        BigDecimal paid = repository.sumNetBillableByAdvertiserAndStatus(advertiserId, ClientInvoiceStatus.PAID);
-        BigDecimal issued = repository.sumNetBillableByAdvertiserAndStatus(advertiserId, ClientInvoiceStatus.ISSUED);
-        BigDecimal overdue = repository.sumNetBillableByAdvertiserAndStatus(advertiserId, ClientInvoiceStatus.OVERDUE);
+
+        BigDecimal billed =
+                repository.sumNetBillableByAdvertiser(advertiserId);
+
+        BigDecimal paid =
+                repository.sumNetBillableByAdvertiserAndStatus(
+                        advertiserId,
+                        ClientInvoiceStatus.PAID);
+
+        BigDecimal issued =
+                repository.sumNetBillableByAdvertiserAndStatus(
+                        advertiserId,
+                        ClientInvoiceStatus.ISSUED);
+
+        BigDecimal overdue =
+                repository.sumNetBillableByAdvertiserAndStatus(
+                        advertiserId,
+                        ClientInvoiceStatus.OVERDUE);
+
         BigDecimal outstanding = issued.add(overdue);
-        return new PaymentSummaryResponse(advertiserId, billed, paid, outstanding, overdue);
+
+        return new PaymentSummaryResponse(
+                advertiserId,
+                billed,
+                paid,
+                outstanding,
+                overdue);
     }
 
     // ---- billing calendar ----------------------------------------------------
 
     /** Invoices issued within the given month, e.g. month = "2026-05". */
     public List<BillingCalendarEntryResponse> calendar(YearMonth month) {
+
         LocalDate start = month.atDay(1);
         LocalDate end = month.atEndOfMonth();
-        return repository.findByIssuedDateBetween(start, end).stream()
+
+        return repository.findByIssuedDateBetween(start, end)
+                .stream()
                 .map(BillingCalendarEntryResponse::from)
                 .toList();
     }
 
     // ---- helpers -------------------------------------------------------------
 
-    /** Returns [agencyCommission, netBillable]. */  // 1000 rupees               0.2 = 20% of commision
-    private BigDecimal[] computeCommercials(BigDecimal invoiceAmount, BigDecimal commissionRate) {
-        BigDecimal rate = (commissionRate == null) ? DEFAULT_COMMISSION_RATE : commissionRate;
-        BigDecimal commission = invoiceAmount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal netBillable = invoiceAmount.add(commission).setScale(2, RoundingMode.HALF_UP);
+    /** Returns [agencyCommission, netBillable]. */
+    private BigDecimal[] computeCommercials(
+            BigDecimal invoiceAmount,
+            BigDecimal commissionRate) {
+
+        BigDecimal rate =
+                (commissionRate == null)
+                        ? DEFAULT_COMMISSION_RATE
+                        : commissionRate;
+
+        BigDecimal commission = invoiceAmount
+                .multiply(rate)
+                .setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal netBillable = invoiceAmount
+                .add(commission)
+                .setScale(2, RoundingMode.HALF_UP);
+
         return new BigDecimal[]{commission, netBillable};
     }
 
     private ClientInvoiceStatus parseStatus(String raw) {
         try {
-            return ClientInvoiceStatus.valueOf(raw.trim().toUpperCase());
+            return ClientInvoiceStatus.valueOf(
+                    raw.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new BillingRuleException("Unknown client invoice status: " + raw);
+            throw new BillingRuleException(
+                    "Unknown client invoice status: " + raw);
         }
     }
 }
