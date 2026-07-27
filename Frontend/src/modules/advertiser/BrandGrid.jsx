@@ -2,7 +2,7 @@ import React from "react";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import ProgressBar from "../../components/ProgressBar.jsx";
 import { Loader } from "../../components/Loader.jsx";
-import { formatCompact } from "../../utils/format.js";
+import { formatCompact } from "../../api/utils/format.js";
 
 /* ---------------------------------------------------------------------- */
 /*  Brands tab: card grid                                                 */

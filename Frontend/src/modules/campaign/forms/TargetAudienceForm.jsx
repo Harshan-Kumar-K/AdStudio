@@ -92,8 +92,8 @@ export default function TargetAudienceForm({ briefs = [], onSubmit, onCancel }) 
             >
               <option value="">Select a brief…</option>
               {briefs.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.id} · {b.campaignName}
+                <option key={b.briefId} value={b.briefId}>
+                  {b.briefId} · {b.campaignName}
                 </option>
               ))}
             </select>

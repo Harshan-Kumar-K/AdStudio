@@ -9,7 +9,7 @@ import { ENDPOINTS } from "../../api/endpoints.js";
 import apiClient from "../../api/apiClient.js";
 import { IcMediaPlan, IcPlus, IcSend, IcCheck, IcClose, IcEdit, IcTrash } from "../../assets/icons.jsx";
 import { MOCK_MEDIA_PLANS, MOCK_LINE_ITEMS, MOCK_INSERTION_ORDERS } from "../../data/mockData.js";
-import { formatCompact, formatNumber } from "../../utils/format.js";
+import { formatCompact, formatNumber } from "../../api/utils/format.js";
 
 import Modal from "../advertiser/Modal.jsx";
 import MediaPlanForm from "./MediaPlanForm.jsx";

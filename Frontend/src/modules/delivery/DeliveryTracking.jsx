@@ -9,7 +9,7 @@ import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcDelivery, IcPlus, IcEye, IcPointer, IcWallet, IcAlert, IcCheck } from "../../assets/icons.jsx";
 import { MOCK_DELIVERY_RECORDS, MOCK_PACING_ALERTS } from "../../data/mockData.js";
-import { formatCompact, formatNumber } from "../../utils/format.js";
+import { formatCompact, formatNumber } from "../../api/utils/format.js";
 
 const ALERT_TONE = { UnderDelivery: "badge-red", OverDelivery: "badge-amber", BudgetExhausted: "badge-red", FlightEndApproaching: "badge-amber" };
 

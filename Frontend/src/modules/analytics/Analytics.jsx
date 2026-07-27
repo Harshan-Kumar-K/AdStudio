@@ -8,7 +8,7 @@ import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcAnalytics, IcDownload, IcEye, IcPointer, IcPercent, IcWallet, IcMoney, IcChart, IcCheckCircle, IcTrendUp } from "../../assets/icons.jsx";
 import { MOCK_ANALYTICS_KPIS, MOCK_IMPRESSIONS_TREND, MOCK_SPEND_BY_CHANNEL, MOCK_CHANNEL_PERF } from "../../data/mockData.js";
-import { formatCompact, formatNumber } from "../../utils/format.js";
+import { formatCompact, formatNumber } from "../../api/utils/format.js";
 
 const CHANNEL_TONE = { Display: "badge-blue", Video: "badge-navy", Social: "badge-green", Search: "badge-amber", OOH: "badge-gray" };
 

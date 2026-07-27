@@ -3,7 +3,7 @@ import DataTable from "../../components/DataTable.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import { Loader } from "../../components/Loader.jsx";
 import { IcBuilding, IcEdit } from "../../assets/icons.jsx";
-import { formatCurrency } from "../../utils/format.js";
+import { formatCurrency } from "../../api/utils/format.js";
 
 /* ---------------------------------------------------------------------- */
 /*  Advertisers tab: data table                                           */

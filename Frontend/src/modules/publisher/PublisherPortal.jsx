@@ -8,7 +8,7 @@ import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcPublisher, IcCheck, IcClose, IcSend, IcInbox, IcReceipt } from "../../assets/icons.jsx";
 import { MOCK_PUBLISHER_INBOX, MOCK_PUBLISHER_DELIVERY, MOCK_PUBLISHER_INVOICES } from "../../data/mockData.js";
-import { formatCompact, formatNumber } from "../../utils/format.js";
+import { formatCompact, formatNumber } from "../../api/utils/format.js";
 
 export default function PublisherPortal() {
   const [tab, setTab] = useState("inbox");
