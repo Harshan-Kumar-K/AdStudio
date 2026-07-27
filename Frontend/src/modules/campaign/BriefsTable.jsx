@@ -33,7 +33,7 @@ export default function BriefsTable({ rows, loading, onSubmit, onApprove, onReje
         <span className="meta">
           <div className="strong">{r.campaignName}</div>
           <div className="sb cell-muted">
-            {r.id} · {r.brand}
+            {r.briefId} · {r.brand}
           </div>
         </span>
       ),

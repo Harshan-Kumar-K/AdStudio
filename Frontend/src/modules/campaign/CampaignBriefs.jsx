@@ -51,7 +51,7 @@ export default function CampaignBriefs() {
   // ---- Status transition handlers ----
 
   const handleSubmitBrief = async (row) => {
-    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.id}/status`, {
+    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.briefId}/status`, {
       method: "PATCH",
       body: { status: "Submitted" },
     });
@@ -59,7 +59,7 @@ export default function CampaignBriefs() {
   };
 
   const handleApproveBrief = async (row) => {
-    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.id}/status`, {
+    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.briefId}/status`, {
       method: "PATCH",
       body: { status: "Approved" },
     });
@@ -67,7 +67,7 @@ export default function CampaignBriefs() {
   };
 
   const handleRejectBrief = async (row) => {
-    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.id}/status`, {
+    await apiRequest(`${ENDPOINTS.campaignBriefs}/${row.briefId}/status`, {
       method: "PATCH",
       body: { status: "Rejected" },
     });
