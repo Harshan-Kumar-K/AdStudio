@@ -16,12 +16,12 @@ export default function BrandGrid({ brands, loading, onSelect }) {
         const pct = b.allocatedBudget ? (b.spentToDate / b.allocatedBudget) * 100 : 0;
         const remaining = b.allocatedBudget - b.spentToDate;
         return (
-          <div className="brand-card" key={b.id} onClick={() => onSelect(b)}>
+          <div className="brand-card" key={b.brandId} onClick={() => onSelect(b)}>
             <div className="bc-top">
               <div className="bc-logo" style={{ background: b.color }}>{b.brandName[0]}</div>
               <div>
                 <div className="bc-name">{b.brandName}</div>
-                <div className="bc-cat">{b.category} · {b.advertiser}</div>
+                <div className="bc-cat">{b.category} · {b.advertiserId}</div>
               </div>
               <div style={{ marginLeft: "auto" }}><StatusBadge status={b.status} /></div>
             </div>

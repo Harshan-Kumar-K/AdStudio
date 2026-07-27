@@ -8,8 +8,8 @@
    ============================================================ */
 
 import { useState, useEffect, useCallback } from "react";
-import { API_BASE } from "../api/endpoints";
-import { getToken } from "../api/apiClient";
+import { API_BASE } from "./endpoints";
+import { getToken } from "./apiClient";
 
 export function useApiData(endpoint, mockData, deps = []) {
   const [data, setData] = useState(null);

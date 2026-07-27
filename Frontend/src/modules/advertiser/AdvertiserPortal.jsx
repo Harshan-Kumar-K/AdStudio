@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PageHeader from "../../components/PageHeader.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { MockFlag } from "../../components/Loader.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcAdvertiser, IcPlus } from "../../assets/icons.jsx";
 import { MOCK_ADVERTISERS, MOCK_BRANDS } from "../../data/mockData.js";
@@ -18,8 +18,8 @@ import BrandGrid from "./BrandGrid.jsx";
 /* ---------------------------------------------------------------------- */
 export default function AdvertiserPortal() {
   const [tab, setTab] = useState("advertisers");
-  const { data: advertisers, loading: la, isMock, refetch: refetchAdvertisers } = useApiData(ENDPOINTS.advertisers, MOCK_ADVERTISERS);
-  const { data: brands, loading: lb, refetch: refetchBrands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
+const { data: advertisers, loading: la, isMock, reload: refetchAdvertisers } = useApiData(ENDPOINTS.advertisers, MOCK_ADVERTISERS);
+const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
 
   const [advertiserModal, setAdvertiserModal] = useState(null); // null | {} (new) | advertiser (edit)
   const [brandModal, setBrandModal] = useState(null);
@@ -69,7 +69,7 @@ export default function AdvertiserPortal() {
       )}
 
       {advertiserModal && (
-        <Modal title={advertiserModal.id ? "Edit advertiser" : "New advertiser"} onClose={() => setAdvertiserModal(null)}>
+        <Modal title={advertiserModal.advertiserId ? "Edit advertiser" : "New advertiser"} onClose={() => setAdvertiserModal(null)}>
           <AdvertiserForm
             initial={advertiserModal}
             onCancel={() => setAdvertiserModal(null)}
@@ -79,7 +79,7 @@ export default function AdvertiserPortal() {
       )}
 
       {brandModal && (
-        <Modal title={brandModal.id ? "Edit brand" : "New brand"} onClose={() => setBrandModal(null)}>
+        <Modal title={brandModal.brandId ? "Edit brand" : "New brand"} onClose={() => setBrandModal(null)}>
           <BrandForm
             initial={brandModal}
             advertisers={advertisers}

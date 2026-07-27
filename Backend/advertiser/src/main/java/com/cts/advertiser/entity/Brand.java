@@ -1,5 +1,6 @@
 package com.cts.advertiser.entity;
 
+import com.cts.advertiser.shared.BrandStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -65,8 +66,6 @@ public class Brand {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public enum BrandStatus {
-        Active, Discontinued
-    }
+
 
 }

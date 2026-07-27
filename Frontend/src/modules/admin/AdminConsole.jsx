@@ -4,7 +4,7 @@ import DataTable from "../../components/DataTable.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import {
   IcAdmin, IcPlus, IcUser, IcCheck, IcClose, IcEdit,

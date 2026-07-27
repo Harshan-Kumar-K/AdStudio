@@ -2,6 +2,7 @@ package com.cts.advertiser.dto.request;
 
 import java.math.BigDecimal;
 
+import com.cts.advertiser.shared.BrandStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class BrandRequest {
 
     private BigDecimal allocatedBudget;
 
-    private String currency;
+    private BrandStatus status;
 
     private BigDecimal spentToDate;
 

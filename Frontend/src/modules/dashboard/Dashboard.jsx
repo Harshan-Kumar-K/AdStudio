@@ -6,7 +6,7 @@ import StatusBadge from "../../components/StatusBadge.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
 import LineChart from "../../components/charts/LineChart.jsx";
 import DonutChart from "../../components/charts/DonutChart.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import {
   IcDashboard, IcCampaign, IcWallet, IcEye, IcPercent,

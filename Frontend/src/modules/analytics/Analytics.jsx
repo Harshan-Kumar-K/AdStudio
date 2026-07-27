@@ -4,7 +4,7 @@ import DataTable from "../../components/DataTable.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
 import LineChart from "../../components/charts/LineChart.jsx";
 import BarChart from "../../components/charts/BarChart.jsx";
-import { useApiData } from "../../hooks/useApiData.js";
+import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcAnalytics, IcDownload, IcEye, IcPointer, IcPercent, IcWallet, IcMoney, IcChart, IcCheckCircle, IcTrendUp } from "../../assets/icons.jsx";
 import { MOCK_ANALYTICS_KPIS, MOCK_IMPRESSIONS_TREND, MOCK_SPEND_BY_CHANNEL, MOCK_CHANNEL_PERF } from "../../data/mockData.js";
