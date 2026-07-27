@@ -34,9 +34,8 @@ export const ENDPOINTS = {
   insertionOrders: "api/insertion-orders",
 
   // --- creative ---
-  creativeAssets: "creative/assets",
-  creativeApprovals: "creative/approvals",
-  assetLinks: "creative/asset-links",
+  creativeAssets: "api/creative-assets",
+  assetLinks: "api/asset-links",
 
   // --- delivery & pacing ---
   deliveryRecords: "delivery/records",
