@@ -3,6 +3,7 @@ package com.cts.advertiser.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     // Injected automatically by Spring via @RequiredArgsConstructor
     private final CampaignBriefRepository campaignBriefRepository;
     private final StatusTransitionValidator statusTransitionValidator;
+    private final NotificationClient notificationClient;
 
     // Converts request DTO to entity and saves to database
     @Override
@@ -44,6 +46,10 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
             .build();
 
         CampaignBrief saved = campaignBriefRepository.save(brief);
+
+        notificationClient.notify(saved.getSubmittedById(),
+                "Campaign Brief " + saved.getCampaignName() + " (#" + saved.getBriefId() + ") was created.",
+                "Brief");
 
         return mapToResponse(saved);
         
@@ -85,7 +91,7 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     public CampaignBriefResponse updateCampaignBrief(Integer id, CampaignBriefRequest request) {
         
         CampaignBrief brief = campaignBriefRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
 
         brief.setCampaignName(request.getCampaignName());
         brief.setObjective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null);
@@ -98,6 +104,10 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
 
         CampaignBrief updated = campaignBriefRepository.save(brief);
 
+        notificationClient.notify(updated.getSubmittedById(),
+                "Campaign Brief #" + id + " details were updated.",
+                "Brief");
+
         return mapToResponse(updated);
 
     }
@@ -108,7 +118,7 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     public CampaignBriefResponse updateCampaignBriefStatus(Integer id, String status) {
         
         CampaignBrief brief = campaignBriefRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
 
         CampaignBrief.CampaignStatus targetStatus = CampaignBrief.CampaignStatus.valueOf(status);
 
@@ -119,6 +129,10 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
 
         CampaignBrief updated = campaignBriefRepository.save(brief);
 
+        notificationClient.notify(updated.getSubmittedById(),
+                "Campaign Brief #" + id + " status changed to " + status + ".",
+                "Brief");
+
         return mapToResponse(updated);
         
     }
@@ -127,11 +141,14 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     @Override
     @Transactional
     public void deleteCampaignBrief(Integer id) {
-        
-        if(!campaignBriefRepository.existsById(id)) throw new ResourceNotFoundException("Campaign brief not found with ID: " + id);
+        CampaignBrief brief = campaignBriefRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
 
         campaignBriefRepository.deleteById(id);
 
+        notificationClient.notify(brief.getSubmittedById(),
+                "Campaign Brief #" + id + " was deleted.",
+                "Brief");
     }
 
     private CampaignBriefResponse mapToResponse(CampaignBrief brief) {

@@ -13,6 +13,7 @@ import com.cts.adstudio.mediaplan.shared.PagedResponse;
 import com.cts.adstudio.mediaplan.shared.PaginationHelper;
 import org.springframework.data.domain.Pageable;
 import com.cts.adstudio.mediaplan.shared.StatusTransitionValidator;
+import com.cts.adstudio.mediaplan.shared.NotificationClient;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class MediaPlanServiceImpl implements MediaPlanService {
 
     private final MediaPlanRepository mediaPlanRepository;
     private final StatusTransitionValidator statusValidator;
+    private final NotificationClient notificationClient;
 
     @Override
     public MediaPlanResponse createMediaPlan(MediaPlanRequest request) {
@@ -38,6 +40,11 @@ public class MediaPlanServiceImpl implements MediaPlanService {
 
         MediaPlan saved = mediaPlanRepository.save(plan);
         log.info("Media plan created with ID: {}", saved.getPlanId());
+
+        notificationClient.notify(saved.getPlannerId(),
+                "Media Plan #" + saved.getPlanId() + " was created and set to Draft.",
+                "MediaPlan");
+
         return mapToResponse(saved);
     }
 
@@ -67,7 +74,13 @@ public class MediaPlanServiceImpl implements MediaPlanService {
         plan.setStartDate(request.getStartDate());
         plan.setEndDate(request.getEndDate());
 
-        return mapToResponse(mediaPlanRepository.save(plan));
+        MediaPlan saved = mediaPlanRepository.save(plan);
+
+        notificationClient.notify(saved.getPlannerId(),
+                "Media Plan #" + planId + " was updated.",
+                "MediaPlan");
+
+        return mapToResponse(saved);
     }
 
     @Override
@@ -87,16 +100,27 @@ public class MediaPlanServiceImpl implements MediaPlanService {
         statusValidator.validatePlan(plan.getStatus(), status);
 
         plan.setStatus(status);
-        log.info("Media plan {} status updated to {}", planId, newStatus);
-        return mapToResponse(mediaPlanRepository.save(plan));
+        MediaPlan saved = mediaPlanRepository.save(plan);
+        log.info("Media Plan {} status updated to {}", planId, newStatus);
+
+        notificationClient.notify(saved.getPlannerId(),
+                "Media Plan #" + planId + " status changed to " + newStatus + ".",
+                "MediaPlan");
+
+        return mapToResponse(saved);
     }
 
     @Override
     public void deleteMediaPlan(Integer planId) {
-        if (!mediaPlanRepository.existsById(planId)) {
-            throw new ResourceNotFoundException("Media Plan not found with ID: " + planId);
-        }
+        // Fetch (not just existsById) so we still have plannerId to notify after deletion.
+        MediaPlan plan = mediaPlanRepository.findById(planId)
+                .orElseThrow(() -> new ResourceNotFoundException("Media Plan not found with ID: " + planId));
+
         mediaPlanRepository.deleteById(planId);
+
+        notificationClient.notify(plan.getPlannerId(),
+                "Media Plan #" + planId + " was deleted.",
+                "MediaPlan");
     }
 
     private MediaPlanResponse mapToResponse(MediaPlan plan) {

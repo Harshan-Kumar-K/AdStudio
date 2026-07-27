@@ -3,6 +3,7 @@ package com.cts.advertiser.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class AdvertiserServiceImpl implements AdvertiserService {
     
     // Injected automatically by Spring via @RequiredArgsConstructor
     private final AdvertiserRepository advertiserRepository;
+    private final NotificationClient notificationClient;
 
     // Converts request DTO to entity and saves to database
     @Override
@@ -36,6 +38,10 @@ public class AdvertiserServiceImpl implements AdvertiserService {
             .build();
 
         Advertiser saved = advertiserRepository.save(advertiser);
+
+        notificationClient.notify(saved.getAccountManagerId(),
+                "Advertiser " + saved.getCompanyName() + " (#" + saved.getAdvertiserId() + ") was created.",
+                "Advertiser");
 
         return mapToResponse(saved);
     }
@@ -72,16 +78,26 @@ public class AdvertiserServiceImpl implements AdvertiserService {
 
         Advertiser updated = advertiserRepository.save(advertiser);
 
+        notificationClient.notify(updated.getAccountManagerId(),
+                "Advertiser #" + id + " details were updated.",
+                "Advertiser");
+
         return mapToResponse(updated);
+
     }
 
     // Deletes advertiser by ID or throws exception if not found
     @Override
     @Transactional
     public void deleteAdvertiser(Integer id) {
-        if(!advertiserRepository.existsById(id)) throw new ResourceNotFoundException("Advertiser not found with ID: " + id);
+        Advertiser advertiser = advertiserRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Advertiser not found with ID: " + id));
 
         advertiserRepository.deleteById(id);
+
+        notificationClient.notify(advertiser.getAccountManagerId(),
+                "Advertiser #" + id + " was deleted.",
+                "Advertiser");
     }
 
     // Maps entity fields to response DTO

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
+import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class BrandServiceImpl implements BrandService{
     // Inject automatically by Spring via @RequiredArgsConstructor
     private final BrandRepository brandRepository;
     private final AdvertiserRepository advertiserRepository;
+    private final NotificationClient notificationClient;
 
     // Converts request DTO to entity and saves to database
     @Override
@@ -45,6 +47,11 @@ public class BrandServiceImpl implements BrandService{
             .build();
 
         Brand saved = brandRepository.save(brand);
+
+        advertiserRepository.findById(saved.getAdvertiserId()).ifPresent(owner ->
+                notificationClient.notify(owner.getAccountManagerId(),
+                        "Brand " + saved.getBrandName() + " (#" + saved.getBrandId() + ") was created.",
+                        "Brand"));
 
         return mapToResponse(saved);
 
@@ -101,6 +108,11 @@ public class BrandServiceImpl implements BrandService{
 
         Brand updated = brandRepository.save(brand);
 
+        advertiserRepository.findById(updated.getAdvertiserId()).ifPresent(owner ->
+                notificationClient.notify(owner.getAccountManagerId(),
+                        "Brand #" + id + " details were updated.",
+                        "Brand"));
+
         return mapToResponse(updated);
 
     }
@@ -109,11 +121,15 @@ public class BrandServiceImpl implements BrandService{
     @Override
     @Transactional
     public void deleteBrand(Integer id) {
-        
-        if(!brandRepository.existsById(id)) throw new ResourceNotFoundException("Brand not found with ID: " + id);
+        Brand brand = brandRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found with ID: " + id));
 
         brandRepository.deleteById(id);
-        
+
+        advertiserRepository.findById(brand.getAdvertiserId()).ifPresent(owner ->
+                notificationClient.notify(owner.getAccountManagerId(),
+                        "Brand #" + id + " was deleted.",
+                        "Brand"));
     }
 
     // Validates that the requested budget does not exceed advertiser's remaining budget headroom

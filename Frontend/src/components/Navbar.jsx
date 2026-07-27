@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { IcMenu, IcSearch, IcBell, IcChevronDown, IcUser, IcSettings, IcLogout } from "../assets/icons.jsx";
 import { getPortalByPath } from "../config/portals.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { ENDPOINTS } from "../api/endpoints.js";
+import apiClient from "../api/apiClient.js";
 import { MOCK_NOTIFICATIONS } from "../data/mockData.js";
 
 function initials(name = "") {
@@ -17,7 +19,7 @@ export default function Navbar({ onBurger }) {
   const menuRef = useRef(null);
 
   const portal = getPortalByPath(location.pathname);
-  const unread = MOCK_NOTIFICATIONS.filter((n) => n.status === "Unread").length;
+  const [unread, setUnread] = useState(() => MOCK_NOTIFICATIONS.filter((n) => n.status === "Unread").length);
 
   useEffect(() => {
     const onClick = (e) => {
@@ -26,6 +28,15 @@ export default function Navbar({ onBurger }) {
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
+
+  useEffect(() => {
+    if (!user?.userId) return;
+    let cancelled = false;
+    apiClient.get(`${ENDPOINTS.notificationsUnreadCount}?userId=${user.userId}`)
+      .then((res) => { if (!cancelled) setUnread(res?.unreadCount ?? 0); })
+      .catch(() => {}); // backend unreachable -> keep the mock-derived count
+    return () => { cancelled = true; };
+  }, [user?.userId]);
 
   return (
     <header className="navbar">
