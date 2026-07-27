@@ -47,9 +47,9 @@ export const ENDPOINTS = {
   publisherInvoices: "publisher/invoices",
 
   // --- finance ---
-  clientInvoices: "finance/client-invoices",
-  publisherInvoiceRecon: "finance/publisher-invoices",
-  paymentTracker: "finance/payment-tracker",
+  clientInvoices: "api/client-invoices",
+  publisherInvoiceRecon: "api/publisher-invoices",
+  // paymentTracker: "finance/payment-tracker",
 
   // --- analytics ---
   analyticsKpis: "analytics/kpis",
