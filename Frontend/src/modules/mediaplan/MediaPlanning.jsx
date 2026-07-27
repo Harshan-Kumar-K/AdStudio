@@ -207,7 +207,7 @@ export default function MediaPlanning() {
         {r.status === "Sent" && (
           <>
             <button className="btn btn-success btn-sm" onClick={() => changeIoStatus(r.ioId, "Confirmed")}><IcCheck size={14} /> Confirm</button>
-            <button className="btn btn-danger btn-sm" onClick={() => changeIoStatus(r.ioId, "Rejected")}><IcClose size={14} /></button>
+            <button className="btn btn-danger btn-sm" onClick={() => changeIoStatus(r.ioId, "Rejected")}><IcClose size={14} />Reject</button>
           </>
         )}
         {r.status === "Confirmed" && (

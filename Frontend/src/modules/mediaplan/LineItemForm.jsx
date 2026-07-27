@@ -52,63 +52,132 @@ export default function LineItemForm({ plans, initialPlanId, onCancel, onSaved }
   };
 
   return (
-    <form onSubmit={submit} className="form-grid">
-      <label className="field">
-        <span>Media Plan</span>
-        <select value={form.planId} onChange={set("planId")} required>
-          <option value="">-- choose a plan --</option>
-          {plans.map((p) => (
-            <option key={p.planId} value={p.planId}>#{p.planId} — Brief #{p.briefId}</option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        <span>Channel</span>
-        <select value={form.channel} onChange={set("channel")}>
-          {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-      </label>
-      <label className="field">
-        <span>Publisher</span>
-        <input required value={form.publisher} onChange={set("publisher")} placeholder="Times Network" />
-      </label>
-      <label className="field">
-        <span>Format</span>
-        <input value={form.format} onChange={set("format")} placeholder="Banner 728x90" />
-      </label>
-      <div className="field-row">
-        <label className="field">
-          <span>Planned Impressions</span>
-          <input required type="number" min="1" value={form.plannedImpressions} onChange={set("plannedImpressions")} />
-        </label>
-        <label className="field">
-          <span>CPM</span>
-          <input required type="number" step="0.01" value={form.cpm} onChange={set("cpm")} />
-        </label>
-      </div>
-      <label className="field">
-        <span>Planned Budget (auto)</span>
-        <input type="number" value={computedBudget.toFixed(2)} readOnly disabled />
-      </label>
-      <div className="field-row">
-        <label className="field">
-          <span>Flight Start</span>
-          <input required type="date" value={form.flightStart} onChange={set("flightStart")} />
-        </label>
-        <label className="field">
-          <span>Flight End</span>
-          <input required type="date" min={form.flightStart} value={form.flightEnd} onChange={set("flightEnd")} />
-        </label>
-      </div>
+    <div className="universal-overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="universal-modal">
+        <span className="universal-orb universal-orb-1" />
+        <span className="universal-orb universal-orb-2" />
 
-      {error && <div className="form-error">{error}</div>}
-
-      <div className="modal-actions">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-          {saving ? "Creating..." : "Create line item"}
+        <button type="button" className="universal-close" onClick={onCancel} aria-label="Close">
+          ✕
         </button>
+
+        <div className="universal-header">
+          <h2 className="universal-title">Create line item</h2>
+          <p className="universal-subtitle">Fill in the details to add a new line item.</p>
+        </div>
+
+        <form className="universal-form" onSubmit={submit}>
+          <div className="universal-field">
+            <label className="universal-label">Media Plan</label>
+            <select className="universal-select" value={form.planId} onChange={set("planId")} required>
+              <option value="">-- choose a plan --</option>
+              {plans.map((p) => (
+                <option key={p.planId} value={p.planId}>#{p.planId} — Brief #{p.briefId}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Channel</label>
+            <select className="universal-select" value={form.channel} onChange={set("channel")}>
+              {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Publisher</label>
+            <input
+              className="universal-input"
+              required
+              value={form.publisher}
+              onChange={set("publisher")}
+              placeholder="Times Network"
+            />
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Format</label>
+            <input
+              className="universal-input"
+              value={form.format}
+              onChange={set("format")}
+              placeholder="Banner 728x90"
+            />
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Planned Impressions</label>
+              <input
+                className="universal-input"
+                required
+                type="number"
+                min="1"
+                value={form.plannedImpressions}
+                onChange={set("plannedImpressions")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">CPM</label>
+              <input
+                className="universal-input"
+                required
+                type="number"
+                step="0.01"
+                value={form.cpm}
+                onChange={set("cpm")}
+              />
+            </div>
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Planned Budget (auto)</label>
+            <input
+              className="universal-input"
+              type="number"
+              value={computedBudget.toFixed(2)}
+              readOnly
+              disabled
+            />
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Flight Start</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                value={form.flightStart}
+                onChange={set("flightStart")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">Flight End</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                min={form.flightStart}
+                value={form.flightEnd}
+                onChange={set("flightEnd")}
+              />
+            </div>
+          </div>
+
+          {error && <div className="universal-error-banner">{error}</div>}
+
+          <div className="universal-actions">
+            <button type="button" className="universal-btn universal-btn-ghost" onClick={onCancel} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit" className="universal-btn universal-btn-primary" disabled={saving}>
+              {saving && <span className="universal-spinner" />}
+              {saving ? "Creating..." : "Create line item"}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }

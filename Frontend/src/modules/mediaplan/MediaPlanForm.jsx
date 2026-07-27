@@ -43,45 +43,109 @@ export default function MediaPlanForm({ initial, onCancel, onSaved }) {
     }
   };
 
-  return (
-    <form onSubmit={submit} className="form-grid">
-      <div className="field-row">
-        <label className="field">
-          <span>Brief ID</span>
-          <input required type="number" value={form.briefId} onChange={set("briefId")} />
-        </label>
-        <label className="field">
-          <span>Planner ID</span>
-          <input required type="number" value={form.plannerId} onChange={set("plannerId")} />
-        </label>
-      </div>
-      <label className="field">
-        <span>Total Budget</span>
-        <input required type="number" min="0.01" step="0.01" value={form.totalBudgetAllocated} onChange={set("totalBudgetAllocated")} />
-      </label>
-      <label className="field">
-        <span>Channel Mix</span>
-        <input value={form.channelMix} onChange={set("channelMix")} placeholder="Display, Video, Social" />
-      </label>
-      <div className="field-row">
-        <label className="field">
-          <span>Start Date</span>
-          <input required type="date" value={form.startDate} onChange={set("startDate")} />
-        </label>
-        <label className="field">
-          <span>End Date</span>
-          <input required type="date" min={form.startDate} value={form.endDate} onChange={set("endDate")} />
-        </label>
-      </div>
+ return (
+    <div className="universal-overlay" onClick={(e) => e.target === e.currentTarget && onCancel()}>
+      <div className="universal-modal">
+        <span className="universal-orb universal-orb-1" />
+        <span className="universal-orb universal-orb-2" />
 
-      {error && <div className="form-error">{error}</div>}
-
-      <div className="modal-actions">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel} disabled={saving}>Cancel</button>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={saving}>
-          {saving ? "Saving..." : isEdit ? "Save changes" : "Create media plan"}
+        <button type="button" className="universal-close" onClick={onCancel} aria-label="Close">
+          ✕
         </button>
+
+        <div className="universal-header">
+          <h2 className="universal-title">
+            {isEdit ? "Edit media plan" : "Create media plan"}
+          </h2>
+          <p className="universal-subtitle">
+            {isEdit ? "Update the media plan's details." : "Fill in the details to add a new media plan."}
+          </p>
+        </div>
+
+        <form className="universal-form" onSubmit={submit}>
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Brief ID</label>
+              <input
+                className="universal-input"
+                required
+                type="number"
+                value={form.briefId}
+                onChange={set("briefId")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">Planner ID</label>
+              <input
+                className="universal-input"
+                required
+                type="number"
+                value={form.plannerId}
+                onChange={set("plannerId")}
+              />
+            </div>
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Total Budget</label>
+            <input
+              className="universal-input"
+              required
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={form.totalBudgetAllocated}
+              onChange={set("totalBudgetAllocated")}
+            />
+          </div>
+
+          <div className="universal-field">
+            <label className="universal-label">Channel Mix</label>
+            <input
+              className="universal-input"
+              value={form.channelMix}
+              onChange={set("channelMix")}
+              placeholder="Display, Video, Social"
+            />
+          </div>
+
+          <div className="universal-field-row">
+            <div className="universal-field">
+              <label className="universal-label">Start Date</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                value={form.startDate}
+                onChange={set("startDate")}
+              />
+            </div>
+            <div className="universal-field">
+              <label className="universal-label">End Date</label>
+              <input
+                className="universal-input"
+                required
+                type="date"
+                min={form.startDate}
+                value={form.endDate}
+                onChange={set("endDate")}
+              />
+            </div>
+          </div>
+
+          {error && <div className="universal-error-banner">{error}</div>}
+
+          <div className="universal-actions">
+            <button type="button" className="universal-btn universal-btn-ghost" onClick={onCancel} disabled={saving}>
+              Cancel
+            </button>
+            <button type="submit" className="universal-btn universal-btn-primary" disabled={saving}>
+              {saving && <span className="universal-spinner" />}
+              {saving ? "Saving..." : isEdit ? "Save changes" : "Create media plan"}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }
