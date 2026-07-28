@@ -14,6 +14,7 @@ import com.cts.creative.dto.ApprovalRequest;
 import com.cts.creative.dto.ApprovalResponse;
 import com.cts.creative.dto.AssetLinkRequest;
 import com.cts.creative.dto.AssetLinkResponse;
+import com.cts.creative.dto.AssetLinkStatusResponse;
 import com.cts.creative.dto.UpdateCreativeRequest;
 import com.cts.creative.dto.UploadCreativeRequest;
 import com.cts.creative.entity.AssetLineItemLink;
@@ -217,6 +218,33 @@ public class CreativeService {
                 "Asset deleted {}",
                 assetId);
     }
+
+public List<AssetLinkStatusResponse> getAllAssetLinkStatus() {
+
+    log.info("Fetching all assets with link status");
+
+    return assetRepo.findAll()
+            .stream()
+            .map(asset ->
+                    AssetLinkStatusResponse.builder()
+                            .assetId(asset.getAssetId())
+                            .brandId(asset.getBrandId())
+                            .campaignBriefId(asset.getCampaignBriefId())
+                            .assetName(asset.getAssetName())
+                            .filePath(asset.getFilePath())
+                            .fileSizeKB(asset.getFileSizeKB())
+                            .version(asset.getVersion())
+                            .uploadedById(asset.getUploadedById())
+                            .width(asset.getWidth())
+                            .height(asset.getHeight())
+                            .assetType(asset.getAssetType())
+                            .status(asset.getStatus())
+                            .isLinked(
+                                    asset.getLinks() != null
+                                    && !asset.getLinks().isEmpty())
+                            .build())
+            .toList();
+}
 
     public CreativeApproval approveAsset(
             Long assetId,

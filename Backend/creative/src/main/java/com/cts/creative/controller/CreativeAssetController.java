@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cts.creative.dto.ApiResponse;
 import com.cts.creative.dto.UpdateCreativeRequest;
 import com.cts.creative.dto.UploadCreativeRequest;
-import com.cts.creative.entity.CreativeAsset;
 import com.cts.creative.service.CreativeService;
 
 import jakarta.validation.Valid;
@@ -125,4 +124,18 @@ public class CreativeAssetController {
                 )
         );
     }
+    @GetMapping("/link-status")
+public ResponseEntity<ApiResponse<?>> getAllAssetLinkStatus() {
+
+    log.info("Fetching all assets with link status");
+
+    return ResponseEntity.ok(
+            new ApiResponse<>(
+                    true,
+                    "Asset link status fetched successfully",
+                    service.getAllAssetLinkStatus(),
+                    LocalDateTime.now()
+            )
+    );
+}
 }
