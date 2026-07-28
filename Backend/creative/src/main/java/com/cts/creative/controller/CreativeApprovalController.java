@@ -45,5 +45,18 @@ public class CreativeApprovalController {
                         LocalDateTime.now()
                 )
         );
-    }
+    }@GetMapping
+public ResponseEntity<ApiResponse<?>> getAllApprovals() {
+
+    log.info("Fetching all approvals");
+
+    return ResponseEntity.ok(
+            new ApiResponse<>(
+                    true,
+                    "Approvals fetched successfully",
+                    service.getAllApprovals(),
+                    LocalDateTime.now()
+            )
+    );
+}
 }

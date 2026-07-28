@@ -11,7 +11,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cts.creative.creativeexception.CreativeNotFoundException;
 import com.cts.creative.dto.ApprovalRequest;
+import com.cts.creative.dto.ApprovalResponse;
 import com.cts.creative.dto.AssetLinkRequest;
+import com.cts.creative.dto.AssetLinkResponse;
 import com.cts.creative.dto.UpdateCreativeRequest;
 import com.cts.creative.dto.UploadCreativeRequest;
 import com.cts.creative.entity.AssetLineItemLink;
@@ -268,6 +270,34 @@ public class CreativeService {
 
         return approvalRepo.save(approval);
     }
+    public List<ApprovalResponse> getAllApprovals() {
+
+    log.info("Fetching all approvals");
+
+    return approvalRepo.findAll()
+            .stream()
+            .map(approval ->
+                    ApprovalResponse.builder()
+                            .approvalId(
+                                    approval.getApprovalId())
+                            .assetId(
+                                    approval.getAsset()
+                                            .getAssetId())
+                            .reviewerId(
+                                    approval.getReviewerId())
+                            .reviewDate(
+                                    approval.getReviewDate())
+                            .decision(
+                                    approval.getDecision())
+                            .feedback(
+                                    approval.getFeedback())
+                            .status(
+                                    approval.getStatus())
+                            .build())
+            .toList();
+}
+
+
 
     public AssetLineItemLink linkAsset(
             AssetLinkRequest request) {
@@ -316,4 +346,27 @@ public class CreativeService {
 
         return linkRepo.save(link);
     }
+    public List<AssetLinkResponse> getAllAssetLinks() {
+
+    log.info("Fetching all asset links");
+
+    return linkRepo.findAll()
+            .stream()
+            .map(link ->
+                    AssetLinkResponse.builder()
+                            .linkId(
+                                    link.getLinkId())
+                            .assetId(
+                                    link.getAsset().getAssetId())
+                            .assetName(
+                                    link.getAsset().getAssetName())
+                            .lineItemId(
+                                    link.getLineItemId())
+                            .linkedDate(
+                                    link.getLinkedDate())
+                            .status(
+                                    link.getStatus())
+                            .build())
+            .toList();
+}
 }

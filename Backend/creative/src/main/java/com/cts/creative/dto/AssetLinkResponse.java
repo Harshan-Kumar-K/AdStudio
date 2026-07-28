@@ -17,6 +17,8 @@ public class AssetLinkResponse {
 
     private Long assetId;
 
+    private String assetName;
+
     private Long lineItemId;
 
     private LocalDate linkedDate;
