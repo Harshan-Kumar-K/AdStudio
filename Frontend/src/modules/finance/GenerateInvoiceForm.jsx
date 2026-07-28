@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { IcSend } from "../../assets/icons.jsx";
 
 const initialForm = {
-  advertiser: "",
-  campaign: "",
-  period: "",
-  amount: "",
-  commission: "",
+  advertiserId: "",
+  campaignBriefId: "",
+  billingPeriod: "",
+  invoiceAmount: "",
+  commissionRate: "",
 };
 
 export default function GenerateInvoiceForm({ onClose, onSubmit }) {
@@ -21,32 +21,31 @@ export default function GenerateInvoiceForm({ onClose, onSubmit }) {
 
   const validate = () => {
     const next = {};
-    if (!form.advertiser.trim()) next.advertiser = "Advertiser is required";
-    if (!form.campaign.trim()) next.campaign = "Campaign is required";
-    if (!form.period.trim()) next.period = "Period is required";
-    if (!form.amount || Number(form.amount) <= 0) next.amount = "Enter a valid amount";
-    if (form.commission === "" || Number(form.commission) < 0)
-      next.commission = "Enter a valid commission";
+    if (!form.advertiserId.trim()) next.advertiserId = "advertiserId is required";
+    if (!form.campaignBriefId.trim()) next.campaignBriefId = "campaignBriefId is required";
+    if (!form.billingPeriod.trim()) next.billingPeriod = "Billing Period is required";
+    if (!form.invoiceAmount || Number(form.invoiceAmount) <= 0) next.invoiceAmount = "Enter a valid invoiceAmount";
+    if (form.commissionRate === "" || Number(form.commissionRate) < 0)
+      next.commissionRate = "Enter a valid commission Rate";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
 
-  const netBillable =
-    form.amount && form.commission
-      ? Number(form.amount) - Number(form.commission)
-      : null;
+ 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()){
+      console.log("Not validated");
+      return;
+    }
 
     onSubmit({
-      advertiser: form.advertiser.trim(),
-      campaign: form.campaign.trim(),
-      period: form.period.trim(),
-      amount: Number(form.amount),
-      commission: Number(form.commission),
-      netBillable: Number(form.amount) - Number(form.commission),
+      advertiserId: Number(form.advertiserId),
+      campaignBriefId: Number(form.campaignBriefId),
+      billingPeriod: form.billingPeriod.trim(),
+      invoiceAmount: Number(form.invoiceAmount),
+      commissionRate: Number(form.commissionRate/100),// Convert percentage to decimal
     });
   };
 return (
@@ -65,81 +64,83 @@ return (
 
         <form onSubmit={handleSubmit} className="universal-form">
           <div className="universal-field">
-            <label className="universal-label" htmlFor="advertiser">Advertiser</label>
+            <label className="universal-label" htmlFor="advertiserId">Advertiser Id</label>
             <input
               className="universal-input"
-              id="advertiser"
-              type="text"
-              value={form.advertiser}
-              onChange={handleChange("advertiser")}
-              placeholder="e.g. Acme Corp"
+              id="advertiserId"
+              type="number"
+              value={form.advertiserId}
+              onChange={handleChange("advertiserId")}
+              placeholder="e.g. Advert-Pro Ltd."
             />
-            {errors.advertiser && <span className="universal-field-error">{errors.advertiser}</span>}
+            {errors.advertiserId && <span className="universal-field-error">{errors.advertiserId}</span>}
           </div>
 
           <div className="universal-field">
-            <label className="universal-label" htmlFor="campaign">Campaign</label>
+            <label className="universal-label" htmlFor="campaignBriefId">Campaign Brief Id</label>
             <input
               className="universal-input"
-              id="campaign"
-              type="text"
-              value={form.campaign}
-              onChange={handleChange("campaign")}
+              id="campaignBriefId"
+              type="number"
+              value={form.campaignBriefId}
+              onChange={handleChange("campaignBriefId")}
               placeholder="e.g. Summer Sale 2026"
             />
-            {errors.campaign && <span className="universal-field-error">{errors.campaign}</span>}
+            {errors.campaignBriefId && <span className="universal-field-error">{errors.campaignBriefId}</span>}
           </div>
 
           <div className="universal-field">
-            <label className="universal-label" htmlFor="period">Billing Period</label>
+            <label className="universal-label" htmlFor="billingPeriod">Billing Period</label>
             <input
               className="universal-input"
-              id="period"
+              id="billingPeriod"
               type="text"
-              value={form.period}
-              onChange={handleChange("period")}
+              value={form.billingPeriod}
+              onChange={handleChange("billingPeriod")}
               placeholder="e.g. Jul 2026"
             />
-            {errors.period && <span className="universal-field-error">{errors.period}</span>}
+            {errors.billingPeriod && <span className="universal-field-error">{errors.billingPeriod}</span>}
           </div>
 
           <div className="universal-field-row">
             <div className="universal-field">
-              <label className="universal-label" htmlFor="amount">Amount ($)</label>
+              <label className="universal-label" htmlFor="invoiceAmount">invoiceAmount ($)</label>
               <input
                 className="universal-input"
-                id="amount"
+                id="invoiceAmount"
                 type="number"
                 min="0"
                 step="0.01"
-                value={form.amount}
-                onChange={handleChange("amount")}
+                value={form.invoiceAmount}
+                onChange={handleChange("invoiceAmount")}
                 placeholder="0.00"
               />
-              {errors.amount && <span className="universal-field-error">{errors.amount}</span>}
+              {errors.invoiceAmount && <span className="universal-field-error">{errors.invoiceAmount}</span>}
             </div>
 
             <div className="universal-field">
-              <label className="universal-label" htmlFor="commission">Commission ($)</label>
+              <label className="universal-label" htmlFor="commissionRate">commission Rate ($) in %</label>
               <input
                 className="universal-input"
-                id="commission"
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.commission}
-                onChange={handleChange("commission")}
-                placeholder="0.00"
+                id="commissionRate"
+                
+                type="range" 
+                 min="0"
+                 max="100" 
+               
+                value={form.commissionRate}
+                onChange={handleChange("commissionRate")}
+                // placeholder="0.00"
               />
-              {errors.commission && <span className="universal-field-error">{errors.commission}</span>}
+              {errors.commissionRate && <span className="universal-field-error">{errors.commissionRate}</span>}
             </div>
           </div>
 
-          {netBillable !== null && !Number.isNaN(netBillable) && (
+          {/* {netBillable !== null && !Number.isNaN(netBillable) && (
             <div className="universal-preview">
               Net billable: <strong>${netBillable.toFixed(2)}</strong>
             </div>
-          )}
+          )} */}
 
           <div className="universal-actions">
             <button type="button" className="universal-btn universal-btn-ghost" onClick={onClose}>

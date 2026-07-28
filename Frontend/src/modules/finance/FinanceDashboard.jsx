@@ -54,7 +54,7 @@ export default function FinanceDashboard() {
           <>
             {isMock && <MockFlag />}
             <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
-              <IcPlus /> Generate invoice
+              <IcPlus /> Generate Client invoice
             </button>
           </>
         }
