@@ -10,12 +10,12 @@ export default function AssetCard({ asset }) {
     <div className="creative-card">
       <div className="creative-thumb" style={{ background: meta.grad }}>
         <Icon className="fmt-ic" />
-        <span className="ver">v{asset.version}</span>
+        <span className="ver">v{asset.version} {"; Id : "} {asset.assetId}</span>
         {asset.dimensions !== "—" && <span className="dims">{asset.dimensions}</span>}
       </div>
       <div className="creative-body">
-        <div className="cn">{asset.name}</div>
-        <div className="cm">{asset.format} · {asset.brand}</div>
+        <div className="cn">{asset.assetName}</div>
+        <div className="cm">{asset.format} · {" Brand-id: "}{asset.brandId}</div>
         <div className="cf">
           <StatusBadge status={asset.status} />
           <span className="txt-sm mute">{asset.fileSizeKB} KB</span>

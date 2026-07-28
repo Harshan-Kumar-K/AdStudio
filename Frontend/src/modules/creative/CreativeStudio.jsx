@@ -26,29 +26,40 @@ export default function CreativeStudio() {
     { key: "links", label: "Asset Links", count: (links || []).length },
   ];
 
-  const handleUpload = async (payload, file) => {
-    const formData = new FormData();
-    formData.append("data", new Blob([JSON.stringify(payload)], { type: "application/json" }));
-    if (file) formData.append("file", file);
+const handleUpload = async (payload, file) => {
+  const params = new URLSearchParams();
 
-    const token = getToken();
-    const response = await fetch(`${API_BASE}/${ENDPOINTS.creativeAssets}`, {
+  // Append only defined/non-null values as query params
+  Object.entries(payload).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== "") {
+      params.append(key, value);
+    }
+  });
+
+  const formData = new FormData();
+  if (file) formData.append("file", file);
+
+  const token = getToken();
+  const response = await fetch(
+    `${API_BASE}/${ENDPOINTS.creativeAssets}?${params.toString()}`,
+    {
       method: "POST",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
       body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
     }
+  );
 
-    const json = await response.json();
-    const created = json && typeof json === "object" && "data" in json ? json.data : json;
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  const json = await response.json();
+  const created = json && typeof json === "object" && "data" in json ? json.data : json;
 
     reloadAssets();
 
-    return created;
-  };
+  return created;
+};
 
   return (
     <div className="page">
