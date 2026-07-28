@@ -42,4 +42,18 @@ public class AssetLinkController {
                 )
         );
     }
+    @GetMapping
+public ResponseEntity<ApiResponse<?>> getAllLinks() {
+
+    log.info("Fetching all asset links");
+
+    return ResponseEntity.ok(
+            new ApiResponse<>(
+                    true,
+                    "Asset links fetched successfully",
+                    service.getAllAssetLinks(),
+                    LocalDateTime.now()
+            )
+    );
+}
 }
