@@ -26,6 +26,20 @@ const handleReject = async (row) => {
     window.location.reload();
   };
 
+  const handleLinkThis = async (row) => {
+    const url = `${API_BASE}/api/asset-links`;
+    const LinkId =  Number(prompt("Enter the Line Item ID:"));
+    await apiRequest(url, {
+      method: "POST",
+      body: {
+        assetId: row.assetId,
+        lineItemId: LinkId
+      },
+    });
+    window.location.reload();
+  };
+
+
   const handleApproval = async (row) => {
     const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
     const feedbackVal =  prompt("Enter your Feedback to approve:");
@@ -73,6 +87,17 @@ const approvalColumns =[
     key: "status",
     label: "Status",
     render: (r) => <StatusBadge status={r.status} />,
+  },
+   {
+    key: "Link It",
+    label: "Link It",
+    render: (r) =>  r.status === "APPROVED" ? (
+       <div className="t-actions">
+          <button className="btn btn-primary btn-sm" onClick={() => handleLinkThis(r)} >  Link This</button>
+        </div>
+      ) : (
+        <span className="cell-muted txt-sm">—</span>
+      ),
   },
   {
     key: "actions",
