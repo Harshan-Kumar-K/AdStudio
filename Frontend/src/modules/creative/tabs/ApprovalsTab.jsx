@@ -2,7 +2,6 @@ import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
 import { IcCheck, IcClose, IcTarget } from "../../../assets/icons.jsx";
-import { DECISION_TONE } from "../creativeStudio.constants.js";
 
 import apiRequest from "../../../api/apiRequestSender.js";
 import { useAuth } from "../../../context/AuthContext.jsx";
@@ -12,6 +11,20 @@ import { API_BASE } from "../../../api/endpoints.js";
 export default function ApprovalsTab({ approvals, loading }) {
 
   const { user } = useAuth();
+
+const handleReject = async (row) => {
+    const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
+    const feedbackVal =  prompt("Enter your Feedback to reject:");
+    await apiRequest(url, {
+      method: "PUT",
+      body: {
+        reviewerId: user.userId,
+        decision: "REJECTED",
+        feedback: feedbackVal
+      },
+    });
+    window.location.reload();
+  };
 
   const handleApproval = async (row) => {
     const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
@@ -69,7 +82,7 @@ const approvalColumns =[
       r.status === "DRAFT" ? (
         <div className="t-actions">
           <button className="btn btn-success btn-sm" onClick={() => handleApproval(r)} >   Approve</button>
-          <button className="btn btn-danger btn-sm"> Reject</button>
+          <button className="btn btn-danger btn-sm"  onClick={() => handleReject(r)} > Reject</button>
         </div>
       ) : (
         <span className="cell-muted txt-sm">—</span>
