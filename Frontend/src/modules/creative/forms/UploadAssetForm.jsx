@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IcClose, IcUpload } from "../../../assets/icons.jsx";
 
 const ASSET_TYPES = ["BANNER", "VIDEO", "IMAGE", "NATIVE", "AUDIO", "RICH_MEDIA"];
-const STATUSES = ["DRAFT", "PENDING_APPROVAL", "APPROVED", "REJECTED", "ARCHIVED"];
+const STATUSES = ["DRAFT"];
 
 const INITIAL_FORM = {
   brandId: "",
