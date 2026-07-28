@@ -9,7 +9,7 @@ export default function ClientInvoicesTab({ data, loading }) {
   const columns = [
     {
       key: "id",
-      label: "Invoice",
+      label: "Invoice ID",
       render: (r) => (
         <span className="meta">
           <div className="strong">{r.id}</div>
@@ -18,30 +18,28 @@ export default function ClientInvoicesTab({ data, loading }) {
       ),
     },
     {
-      key: "campaign",
-      label: "Campaign",
-      render: (r) => <span className="cell-muted">{r.campaign}</span>,
+      key: "campaignBriefId",
+      label: "Campaign Brief ID",
+      render: (r) => <span className="cell-muted">{r.campaignBriefId}</span>,
     },
     {
-      key: "period",
-      label: "Period",
-      render: (r) => <span className="badge badge-gray">{r.period}</span>,
+      key: "billingPeriod",
+      label: "Billing Period",
+      render: (r) => <span className="badge badge-gray">{r.billingPeriod}</span>,
     },
     {
-      key: "amount",
-      label: "Amount",
+      key: "invoiceAmount",
+      label: "Invoice Amount",
       align: "right",
       mono: true,
-      render: (r) => formatCompact(r.amount, { money: true }),
+      render: (r) => formatCompact(r.invoiceAmount, { money: true }),
     },
     {
-      key: "commission",
-      label: "Commission",
+      key: "agencyCommission",
+      label: "Agency Commission",
       align: "right",
       mono: true,
-      render: (r) => (
-        <span className="cell-muted">{formatCompact(r.commission, { money: true })}</span>
-      ),
+      render: (r) => <span className="strong">{formatCompact(r.agencyCommission, { money: true })}</span>,
     },
     {
       key: "netBillable",
@@ -50,6 +48,16 @@ export default function ClientInvoicesTab({ data, loading }) {
       mono: true,
       render: (r) => <span className="strong">{formatCompact(r.netBillable, { money: true })}</span>,
     },
+    {
+      key: "advertiserId",
+      label: "Advertiser ID",
+      align: "right",
+      mono: true,
+      render: (r) => (
+        <span className="cell-muted">{formatCompact(r.advertiserId)}</span>
+      ),
+    },
+    
     {
       key: "status",
       label: "Status",
