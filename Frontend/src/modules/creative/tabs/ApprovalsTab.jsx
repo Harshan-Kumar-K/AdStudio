@@ -91,7 +91,7 @@ const approvalColumns =[
    {
     key: "Link It",
     label: "Link It",
-    render: (r) =>  r.status === "APPROVED" ? (
+    render: (r) =>  (r.status === "APPROVED" && !r.isLinked)?  (
        <div className="t-actions">
           <button className="btn btn-primary btn-sm" onClick={() => handleLinkThis(r)} >  Link This</button>
         </div>

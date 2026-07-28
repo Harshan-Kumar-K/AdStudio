@@ -35,6 +35,7 @@ export const ENDPOINTS = {
 
   // --- creative ---
   creativeAssets: "api/creative-assets",
+  creativeApprovals: "api/creative-assets/link-status",
   assetLinks: "api/asset-links",
 
   // --- delivery & pacing ---

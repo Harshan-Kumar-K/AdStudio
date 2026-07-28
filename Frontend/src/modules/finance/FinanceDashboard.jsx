@@ -40,7 +40,8 @@ export default function FinanceDashboard() {
   // Wire this up to your Spring Boot endpoint, e.g.:
   // await axios.post("/api/finance/invoices", formData);
   const handleCreateInvoice = (formData) => {
-    console.log("New invoice submitted:", formData);
+    console.log("New invoice submitted:", formData); // 
+    
     setShowForm(false);
   };
 
