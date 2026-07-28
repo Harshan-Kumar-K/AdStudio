@@ -16,7 +16,7 @@ import UploadAssetForm from "./forms/UploadAssetForm.jsx";
 export default function CreativeStudio() {
   const [tab, setTab] = useState("assets");
   const { data: assets, loading: la, isMock, reload: reloadAssets } = useApiData(ENDPOINTS.creativeAssets, MOCK_CREATIVE_ASSETS);
-  const { data: approvals, loading: lap } = useApiData(ENDPOINTS.creativeApprovals, MOCK_APPROVALS);
+  const { data: approvals, loading: lap } = useApiData(ENDPOINTS.creativeAssets, MOCK_APPROVALS);
   const { data: links, loading: ll } = useApiData(ENDPOINTS.assetLinks, MOCK_ASSET_LINKS);
   const [showUploadForm, setShowUploadForm] = useState(false);
 
