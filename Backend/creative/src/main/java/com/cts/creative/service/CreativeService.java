@@ -11,7 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cts.creative.creativeexception.CreativeNotFoundException;
 import com.cts.creative.dto.ApprovalRequest;
+import com.cts.creative.dto.ApprovalResponse;
 import com.cts.creative.dto.AssetLinkRequest;
+import com.cts.creative.dto.AssetLinkResponse;
+import com.cts.creative.dto.AssetLinkStatusResponse;
+import com.cts.creative.dto.UpdateCreativeRequest;
+import com.cts.creative.dto.UploadCreativeRequest;
 import com.cts.creative.entity.AssetLineItemLink;
 import com.cts.creative.entity.CreativeApproval;
 import com.cts.creative.entity.CreativeAsset;
@@ -34,13 +39,7 @@ public class CreativeService {
 
     public CreativeAsset upload(
             MultipartFile file,
-            Long brandId,
-            Long campaignBriefId,
-            String assetName,
-            Long uploadedById,
-            CreativeAsset.AssetType assetType,
-            Integer width,
-            Integer height
+            UploadCreativeRequest request
     ) throws Exception {
 
         if (file == null || file.isEmpty()) {
@@ -50,7 +49,7 @@ public class CreativeService {
 
         log.info(
                 "Uploading asset {}",
-                assetName);
+                request.assetName());
 
         var uploadDir = Paths.get(
                 System.getProperty("user.dir"),
@@ -80,13 +79,13 @@ public class CreativeService {
 
         var asset =
                 CreativeAsset.builder()
-                        .brandId(brandId)
-                        .campaignBriefId(campaignBriefId)
-                        .assetName(assetName)
-                        .uploadedById(uploadedById)
-                        .assetType(assetType)
-                        .width(width)
-                        .height(height)
+                        .brandId(request.brandId())
+                        .campaignBriefId(request.campaignBriefId())
+                        .assetName(request.assetName())
+                        .uploadedById(request.uploadedById())
+                        .assetType(request.assetType())
+                        .width(request.width())
+                        .height(request.height())
                         .filePath(filePath.toString())
                         .fileSizeKB(
                                 (int) (file.getSize() / 1024))
@@ -97,7 +96,7 @@ public class CreativeService {
 
         log.info(
                 "Asset uploaded successfully : {}",
-                assetName);
+                request.assetName());
 
         return assetRepo.save(asset);
     }
@@ -126,10 +125,7 @@ public class CreativeService {
     public CreativeAsset updateAsset(
             Long assetId,
             MultipartFile file,
-            String assetName,
-            CreativeAsset.AssetType assetType,
-            Integer width,
-            Integer height
+            UpdateCreativeRequest request
     ) throws Exception {
 
         log.info(
@@ -142,10 +138,10 @@ public class CreativeService {
                                 new CreativeNotFoundException(
                                         "Asset Not Found"));
 
-        asset.setAssetName(assetName);
-        asset.setAssetType(assetType);
-        asset.setWidth(width);
-        asset.setHeight(height);
+        asset.setAssetName(request.assetName());
+        asset.setAssetType(request.assetType());
+        asset.setWidth(request.width());
+        asset.setHeight(request.height());
 
         if (file != null && !file.isEmpty()) {
 
@@ -223,6 +219,33 @@ public class CreativeService {
                 assetId);
     }
 
+public List<AssetLinkStatusResponse> getAllAssetLinkStatus() {
+
+    log.info("Fetching all assets with link status");
+
+    return assetRepo.findAll()
+            .stream()
+            .map(asset ->
+                    AssetLinkStatusResponse.builder()
+                            .assetId(asset.getAssetId())
+                            .brandId(asset.getBrandId())
+                            .campaignBriefId(asset.getCampaignBriefId())
+                            .assetName(asset.getAssetName())
+                            .filePath(asset.getFilePath())
+                            .fileSizeKB(asset.getFileSizeKB())
+                            .version(asset.getVersion())
+                            .uploadedById(asset.getUploadedById())
+                            .width(asset.getWidth())
+                            .height(asset.getHeight())
+                            .assetType(asset.getAssetType())
+                            .status(asset.getStatus())
+                            .isLinked(
+                                    asset.getLinks() != null
+                                    && !asset.getLinks().isEmpty())
+                            .build())
+            .toList();
+}
+
     public CreativeApproval approveAsset(
             Long assetId,
             ApprovalRequest request) {
@@ -275,6 +298,34 @@ public class CreativeService {
 
         return approvalRepo.save(approval);
     }
+    public List<ApprovalResponse> getAllApprovals() {
+
+    log.info("Fetching all approvals");
+
+    return approvalRepo.findAll()
+            .stream()
+            .map(approval ->
+                    ApprovalResponse.builder()
+                            .approvalId(
+                                    approval.getApprovalId())
+                            .assetId(
+                                    approval.getAsset()
+                                            .getAssetId())
+                            .reviewerId(
+                                    approval.getReviewerId())
+                            .reviewDate(
+                                    approval.getReviewDate())
+                            .decision(
+                                    approval.getDecision())
+                            .feedback(
+                                    approval.getFeedback())
+                            .status(
+                                    approval.getStatus())
+                            .build())
+            .toList();
+}
+
+
 
     public AssetLineItemLink linkAsset(
             AssetLinkRequest request) {
@@ -323,4 +374,27 @@ public class CreativeService {
 
         return linkRepo.save(link);
     }
+    public List<AssetLinkResponse> getAllAssetLinks() {
+
+    log.info("Fetching all asset links");
+
+    return linkRepo.findAll()
+            .stream()
+            .map(link ->
+                    AssetLinkResponse.builder()
+                            .linkId(
+                                    link.getLinkId())
+                            .assetId(
+                                    link.getAsset().getAssetId())
+                            .assetName(
+                                    link.getAsset().getAssetName())
+                            .lineItemId(
+                                    link.getLineItemId())
+                            .linkedDate(
+                                    link.getLinkedDate())
+                            .status(
+                                    link.getStatus())
+                            .build())
+            .toList();
+}
 }

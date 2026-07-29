@@ -35,6 +35,7 @@ export const ENDPOINTS = {
 
   // --- creative ---
   creativeAssets: "api/creative-assets",
+  creativeApprovals: "api/creative-assets/link-status",
   assetLinks: "api/asset-links",
 
   // --- delivery & pacing ---
@@ -47,9 +48,9 @@ export const ENDPOINTS = {
   publisherInvoices: "publisher/invoices",
 
   // --- finance ---
-  clientInvoices: "finance/client-invoices",
-  publisherInvoiceRecon: "finance/publisher-invoices",
-  paymentTracker: "finance/payment-tracker",
+  clientInvoices: "api/client-invoices",
+  publisherInvoiceRecon: "api/publisher-invoices",
+  // paymentTracker: "finance/payment-tracker",
 
   // --- analytics ---
   analyticsKpis: "analytics/kpis",

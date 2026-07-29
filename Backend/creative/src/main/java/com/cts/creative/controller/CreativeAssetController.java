@@ -8,11 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cts.creative.dto.ApiResponse;
-import com.cts.creative.entity.CreativeAsset;
+import com.cts.creative.dto.UpdateCreativeRequest;
+import com.cts.creative.dto.UploadCreativeRequest;
 import com.cts.creative.service.CreativeService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 
 @Slf4j
 @RestController
@@ -22,45 +25,24 @@ public class CreativeAssetController {
 
     private final CreativeService service;
 
-    @PostMapping(
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<?>> upload(
 
             @RequestParam("file")
             MultipartFile file,
 
-            @RequestParam Long brandId,
-
-            @RequestParam Long campaignBriefId,
-
-            @RequestParam String assetName,
-
-            @RequestParam Long uploadedById,
-
-            @RequestParam CreativeAsset.AssetType assetType,
-
-            @RequestParam Integer width,
-
-            @RequestParam Integer height
+            @Valid @ModelAttribute @ParameterObject
+            UploadCreativeRequest request
 
     ) throws Exception {
 
-        log.info("Upload request received for asset {}", assetName);
+        log.info("Upload request received for asset {}", request.assetName());
 
         return ResponseEntity.ok(
                 new ApiResponse<>(
                         true,
                         "Creative Asset Uploaded Successfully",
-                        service.upload(
-                                file,
-                                brandId,
-                                campaignBriefId,
-                                assetName,
-                                uploadedById,
-                                assetType,
-                                width,
-                                height
-                        ),
+                        service.upload(file, request),
                         LocalDateTime.now()
                 )
         );
@@ -108,13 +90,8 @@ public class CreativeAssetController {
             @RequestParam(required = false)
             MultipartFile file,
 
-            @RequestParam String assetName,
-
-            @RequestParam CreativeAsset.AssetType assetType,
-
-            @RequestParam Integer width,
-
-            @RequestParam Integer height
+            @Valid @ModelAttribute @ParameterObject
+            UpdateCreativeRequest request
 
     ) throws Exception {
 
@@ -124,14 +101,7 @@ public class CreativeAssetController {
                 new ApiResponse<>(
                         true,
                         "Asset updated successfully",
-                        service.updateAsset(
-                                assetId,
-                                file,
-                                assetName,
-                                assetType,
-                                width,
-                                height
-                        ),
+                        service.updateAsset(assetId, file, request),
                         LocalDateTime.now()
                 )
         );
@@ -154,4 +124,18 @@ public class CreativeAssetController {
                 )
         );
     }
+    @GetMapping("/link-status")
+public ResponseEntity<ApiResponse<?>> getAllAssetLinkStatus() {
+
+    log.info("Fetching all assets with link status");
+
+    return ResponseEntity.ok(
+            new ApiResponse<>(
+                    true,
+                    "Asset link status fetched successfully",
+                    service.getAllAssetLinkStatus(),
+                    LocalDateTime.now()
+            )
+    );
+}
 }

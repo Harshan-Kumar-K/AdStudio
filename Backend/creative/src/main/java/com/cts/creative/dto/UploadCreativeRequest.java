@@ -4,29 +4,48 @@ import com.cts.creative.entity.CreativeAsset;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
+import org.springframework.web.bind.annotation.BindParam;
 
-@Data
-public class UploadCreativeRequest {
+/**
+ * Multipart form fields for asset upload (the file itself is bound
+ * separately in the controller via @RequestParam("file") MultipartFile).
+ *
+ * Requires Spring Framework 6.1+ / Spring Boot 3.2+ for @ModelAttribute
+ * constructor binding on records.
+ *
+ * @BindParam names are set explicitly so binding works even if the
+ * project is compiled without the -parameters javac flag (without it,
+ * Spring cannot recover record constructor-parameter names via
+ * reflection, and every field silently binds to null).
+ */
+public record UploadCreativeRequest(
 
-    @NotNull(message = "Brand Id is required")
-    private Long brandId;
+        @BindParam("brandId")
+        @NotNull(message = "Brand Id is required")
+        Long brandId,
 
-    @NotNull(message = "Campaign Brief Id is required")
-    private Long campaignBriefId;
+        @BindParam("campaignBriefId")
+        @NotNull(message = "Campaign Brief Id is required")
+        Long campaignBriefId,
 
-    @NotBlank(message = "Asset Name is required")
-    private String assetName;
+        @BindParam("assetName")
+        @NotBlank(message = "Asset Name is required")
+        String assetName,
 
-    @NotNull(message = "Uploaded By Id is required")
-    private Long uploadedById;
+        @BindParam("uploadedById")
+        @NotNull(message = "Uploaded By Id is required")
+        Long uploadedById,
 
-    @NotNull(message = "Asset Type is required")
-    private CreativeAsset.AssetType assetType;
+        @BindParam("assetType")
+        @NotNull(message = "Asset Type is required")
+        CreativeAsset.AssetType assetType,
 
-    @NotNull(message = "Width is required")
-    private Integer width;
+        @BindParam("width")
+        @NotNull(message = "Width is required")
+        Integer width,
 
-    @NotNull(message = "Height is required")
-    private Integer height;
+        @BindParam("height")
+        @NotNull(message = "Height is required")
+        Integer height
+) {
 }

@@ -15,6 +15,8 @@ export default function DataTable({ columns, rows, rowClass, emptyLabel = "No re
       </div>
     );
   }
+  console.log("heeiiii   ",rows, "  col ", columns);
+  
   return (
     <div className="table-wrap">
       <table className="data">
@@ -29,6 +31,8 @@ export default function DataTable({ columns, rows, rowClass, emptyLabel = "No re
         </thead>
         <tbody>
           {rows.map((row, i) => (
+          
+            
             <tr key={row.id || i} className={rowClass ? rowClass(row) : ""}>
               {columns.map((c) => (
                 <td
