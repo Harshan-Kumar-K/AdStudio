@@ -10,6 +10,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { API_BASE, ENDPOINTS } from "../api/endpoints";
 import { getToken, setToken, clearToken } from "../api/apiClient";
+import { MOCK_ELIGIBILITY } from "../data/mockData";
 
 const AuthContext = createContext(null);
 
@@ -40,7 +41,7 @@ export function AuthProvider({ children }) {
       if (!res.ok) throw new Error("no backend");
       const json = await res.json();
       const list = Array.isArray(json) ? json : json.data;
-      setEligibility(list || []);
+      setEligibility(list || MOCK_ELIGIBILITY);
       setEligibilityIsMock(false);
     } catch {
       // No backend on :9090 -> use the mock eligibility list.
