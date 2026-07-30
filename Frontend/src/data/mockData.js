@@ -4,7 +4,19 @@
    running on :9090. When a real backend is connected it is ignored.
    ============================================================ */
 
-
+export const MOCK_ELIGIBILITY = [
+  "dashboard",
+  "advertiser",
+  "campaign",
+  "mediaplan",
+  "creative",
+  "delivery",
+  // "publisher",   // <-- excluded on purpose to show the red gate. Uncomment to enable.
+  "finance",
+  "analytics",
+  "notifications",
+  "admin",
+];
 
 export const MOCK_USER = {
   name: "Ava Sinclair",
