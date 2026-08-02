@@ -38,6 +38,11 @@ export default function Navbar({ onBurger }) {
     return () => { cancelled = true; };
   }, [user?.userId]);
 
+  const handleProfileButton = () => {
+    setMenuOpen(false);
+    navigate("/profile");
+  }
+
   return (
     <header className="navbar">
       <button className="nav-burger" onClick={onBurger} aria-label="Toggle menu">
@@ -74,7 +79,7 @@ export default function Navbar({ onBurger }) {
                 <div className="nm">{user?.name}</div>
                 <div className="em">{user?.email}</div>
               </div>
-              <button className="menu-item"><IcUser /> My profile</button>
+              <button className="menu-item" onClick={handleProfileButton}><IcUser /> My profile</button>
               <button className="menu-item"><IcSettings /> Settings</button>
               <button className="menu-item danger" onClick={() => { setMenuOpen(false); logout(); }}>
                 <IcLogout /> Sign out

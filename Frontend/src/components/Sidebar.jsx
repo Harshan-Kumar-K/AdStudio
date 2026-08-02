@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.jsx";
 import { IcLock } from "../assets/icons.jsx";
 import { PORTALS, SECTION_ORDER } from "../config/portals.jsx";
@@ -11,6 +11,11 @@ function initials(name = "") {
 
 export default function Sidebar({ open, onNavigate }) {
   const { isPortalAllowed, user } = useAuth();
+    const navigate = useNavigate();
+    
+  const handleProfileButton = () => {
+    navigate("/profile");
+  }
 
   return (
     <aside className={`sidebar ${open ? "open" : ""}`}>
@@ -53,7 +58,7 @@ export default function Sidebar({ open, onNavigate }) {
       </nav>
 
       <div className="sb-foot">
-        <div className="sb-user">
+        <div className="sb-user" onClick={handleProfileButton}>
           <div className="av">{initials(user?.name || "AS")}</div>
           <div className="info">
             <div className="nm">{user?.name || "AdStudio User"}</div>
