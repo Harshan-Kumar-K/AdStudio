@@ -170,6 +170,17 @@ public class SecurityConfig {
             )
             .hasAnyRole("DELIVERY_PUBLISHER", "MEDIA_PLANNER", "ADMIN")
 
+                // =============================================
+                // Swagger API Docs - Publicly accessible
+                // =============================================
+                                .pathMatchers(
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**",
+                                        "/*/v3/api-docs",
+                                        "/webjars/**"
+                                ).permitAll()
+
         // =============================================
         // PACING ALERT MODULE
         // - MEDIA_PLANNER, FINANCE_EXECUTIVE, ADMIN
@@ -192,7 +203,8 @@ public class SecurityConfig {
                         // =============================================
                         // ALL OTHER ENDPOINTS - must be authenticated
                         // =============================================
-                        .anyExchange().authenticated()
+//                        .anyExchange().authenticated()
+                        .anyExchange().permitAll()
                 )
                 // Add JWT filter before the authentication filter
                 .addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
