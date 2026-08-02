@@ -11,11 +11,12 @@ export const MOCK_ELIGIBILITY = [
   "mediaplan",
   "creative",
   "delivery",
-  // "publisher",   // <-- excluded on purpose to show the red gate. Uncomment to enable.
+  "publisher",   // <-- excluded on purpose to show the red gate. Uncomment to enable.
   "finance",
   "analytics",
   "notifications",
   "admin",
+  "profile",
 ];
 
 export const MOCK_USER = {

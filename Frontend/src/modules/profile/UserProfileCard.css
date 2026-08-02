@@ -1,0 +1,387 @@
+/* ===========================================================================
+   UserProfileCard.css
+   Static (no keyframes / no motion), stylish sky-blue & white theme.
+   Optional fonts — add these to your index.html <head> or index.css:
+   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+   =========================================================================== */
+
+.profile-card {
+  /* ---- Design tokens (scoped to this component) ---- */
+  --sky-primary: #0ea5e9;
+  --sky-deep: #0369a1;
+  --sky-light: #7dd3fc;
+  --sky-pale: #e0f2fe;
+  --white: #ffffff;
+  --navy: #0c4a6e;
+  --slate: #47607a;
+  --amber: #f59e0b;
+  --green: #16a34a;
+  --red: #dc2626;
+  --gray: #94a3b8;
+
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px 32px 32px;
+  border-radius: 28px;
+  overflow: hidden;
+
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(224, 242, 254, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 20px 45px -10px rgba(3, 105, 161, 0.28),
+    0 2px 8px rgba(3, 105, 161, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ===== EMPTY STATE ===== */
+.profile-card--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  color: var(--slate);
+  font-weight: 600;
+}
+
+/* ===== DECORATIVE CORNER BRACKETS (static HUD-style accent) ===== */
+.corner-bracket {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--sky-primary);
+  opacity: 0.5;
+  z-index: 0;
+}
+.corner-bracket--tl {
+  top: 14px;
+  left: 14px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 8px 0 0 0;
+}
+.corner-bracket--br {
+  bottom: 14px;
+  right: 14px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 8px 0;
+}
+
+/* ===== DECORATIVE WATERMARK BOLT (static, low-opacity) ===== */
+.watermark-bolt {
+  position: absolute;
+  bottom: -14px;
+  right: -8px;
+  font-size: 140px;
+  line-height: 1;
+  color: var(--sky-primary);
+  opacity: 0.06;
+  transform: rotate(8deg);
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+}
+
+/* ===== HEADER / AVATAR ===== */
+.profile-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatar-frame {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+/* Static faceted halo behind the circle — the card's signature accent */
+.avatar-hex {
+  position: absolute;
+  width: 148px;
+  height: 148px;
+  background: linear-gradient(135deg, var(--sky-light), transparent 65%);
+  clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+  opacity: 0.4;
+  transform: rotate(12deg);
+}
+
+.avatar-circle {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9 55%, #0369a1 100%);
+  box-shadow:
+    0 10px 28px rgba(14, 165, 233, 0.45),
+    0 0 0 6px rgba(255, 255, 255, 0.7),
+    0 0 0 9px rgba(14, 165, 233, 0.22);
+}
+
+.avatar-circle span {
+  font-family: "Poppins", sans-serif;
+  font-size: 52px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -1px;
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.55);
+}
+
+.profile-name {
+  font-family: "Poppins", sans-serif;
+  font-size: 23px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 10px;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--sky-primary), var(--sky-deep));
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 14px rgba(3, 105, 161, 0.35);
+}
+
+.bolt-icon {
+  color: var(--amber);
+  font-size: 13px;
+}
+
+/* ===== DIVIDER ===== */
+.profile-divider {
+  height: 1px;
+  margin: 22px 0;
+  background: linear-gradient(90deg, transparent, var(--sky-light), transparent);
+}
+
+/* ===== DETAILS ===== */
+.profile-details {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--sky-pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--sky-deep);
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate);
+}
+
+.detail-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== STATUS / ELIGIBILITY BADGES ===== */
+.badge-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.badge-item-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate);
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.badge-green {
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+}
+.badge-green .status-dot {
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+}
+
+.badge-red {
+  background: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+}
+.badge-red .status-dot {
+  background: var(--red);
+  box-shadow: 0 0 6px rgba(220, 38, 38, 0.5);
+}
+
+.badge-amber {
+  background: rgba(245, 158, 11, 0.14);
+  color: #b45309;
+}
+.badge-amber .status-dot {
+  background: var(--amber);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+}
+
+.badge-gray {
+  background: rgba(148, 163, 184, 0.16);
+  color: #475569;
+}
+.badge-gray .status-dot {
+  background: var(--gray);
+}
+
+/* ===== META STRIP (User ID / Account ID) ===== */
+.meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.meta-chip {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(3, 105, 161, 0.06);
+  border: 1px solid rgba(3, 105, 161, 0.15);
+  color: var(--sky-deep);
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-button {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  margin-top: 4px;
+  padding: 13px 0;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(120deg, var(--sky-deep), var(--sky-primary));
+  color: var(--white);
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(3, 105, 161, 0.35);
+  /* Only a color/shadow transition on hover — no movement or animation */
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.logout-button:hover {
+  background: linear-gradient(120deg, #024a76, #0c8ee0);
+  box-shadow: 0 12px 26px rgba(3, 105, 161, 0.45);
+}
+
+.logout-button:focus-visible {
+  outline: 3px solid var(--sky-light);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logout-button {
+    transition: none;
+  }
+}
+
+/* ===== RESPONSIVE (mobile) ===== */
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 32px 20px 24px;
+    border-radius: 22px;
+  }
+  .avatar-frame,
+  .avatar-hex {
+    width: 104px;
+    height: 104px;
+  }
+  .avatar-circle {
+    width: 92px;
+    height: 92px;
+  }
+  .avatar-circle span {
+    font-size: 38px;
+  }
+  .profile-name {
+    font-size: 19px;
+  }
+  .watermark-bolt {
+    font-size: 100px;
+  }
+  .badge-grid {
+    grid-template-columns: 1fr;
+  }
+}
