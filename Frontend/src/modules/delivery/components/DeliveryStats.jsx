@@ -9,6 +9,7 @@ import { formatCompact, formatNumber } from "../../../api/utils/format.js";
  * current records + alerts arrays, it derives the totals itself.
  */
 export default function DeliveryStats({ records, alerts }) {
+  // Sum up ALL deliveredImpressions across all records and compress entire list to an integer value
   const totalImp = (records || []).reduce((s, r) => s + r.deliveredImpressions, 0);
   const totalClicks = (records || []).reduce((s, r) => s + r.clicks, 0);
   const totalSpend = (records || []).reduce((s, r) => s + r.spend, 0);

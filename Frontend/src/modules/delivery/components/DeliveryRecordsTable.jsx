@@ -7,13 +7,25 @@ import PacingCell from "./PacingCell.jsx";
 
 const columns = [
   {
-    key: "id",
-    label: "Record",
+    key: "deliveryId",
+    label: "Delivery ID",
     render: (r) => (
       <span className="meta">
-        <div className="strong">{r.id}</div>
+        <div className="strong">{r.deliveryId}</div>
         <div className="sb cell-muted">
           {r.lineItem} · {r.io}
+        </div>
+      </span>
+    ),
+  },
+   {
+    key: "lineItemId",
+    label: "Line Item ID",
+    render: (r) => (
+      <span className="meta">
+        <div className="strong">{r.lineItemId}</div>
+        <div className="sb cell-muted">
+          {r.lineItemId} · {r.io}
         </div>
       </span>
     ),

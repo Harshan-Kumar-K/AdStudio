@@ -12,10 +12,10 @@ import { ENDPOINTS } from "../../../api/endpoints.js";
 // (DeliverySource / DeliveryStatus, or similar) actually send/expect.
 const SOURCE_OPTIONS = [
   { value: "PublisherReport", label: "Publisher Report" },
-  { value: "Internal", label: "Internal" },
+  { value: "InternalEntry", label: "Internal" },
 ];
 
-const STATUS_OPTIONS = ["Pending", "Verified", "Flagged", "Reconciled"];
+const STATUS_OPTIONS = [ "Accepted",  "Disputed",  "PendingVerification" ];
 
 const EMPTY_FORM = {
   lineItem: "",
@@ -79,10 +79,10 @@ export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
     if (Object.keys(validationErrors).length > 0) return;
 
     const payload = {
-      lineItem: form.lineItem.trim(),
-      io: form.io.trim(),
+      lineItemId: form.lineItem.trim(),
+        ioId : form.io.trim(),
       reportingDate: form.reportingDate,
-      deliveredImpressions: Number(form.deliveredImpressions),
+      deliveredImpressions : Number(form.deliveredImpressions),
       clicks: Number(form.clicks),
       spend: Number(form.spend),
       source: form.source,
@@ -127,7 +127,7 @@ export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
             type="text"
             value={form.lineItem}
             onChange={update("lineItem")}
-            placeholder="e.g. LI-2201"
+            placeholder="e.g. 2"
           />
           {errors.lineItem && <span className="adr-error">{errors.lineItem}</span>}
         </div>
@@ -138,7 +138,7 @@ export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
             type="text"
             value={form.io}
             onChange={update("io")}
-            placeholder="e.g. IO-1042"
+            placeholder="e.g. 3"
           />
           {errors.io && <span className="adr-error">{errors.io}</span>}
         </div>

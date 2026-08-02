@@ -39,8 +39,8 @@ export const ENDPOINTS = {
   assetLinks: "api/asset-links",
 
   // --- delivery & pacing ---
-  deliveryRecords: "delivery/records",
-  pacingAlerts: "delivery/pacing-alerts",
+  deliveryRecords: "api/delivery-records",
+  pacingAlerts: "api/pacing-alerts",
 
   // --- publisher ---
   publisherInbox: "publisher/io-inbox",
