@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import DataTable from "../../components/DataTable.jsx";
-import StatusBadge from "../../components/StatusBadge.jsx";
-import { Loader } from "../../components/Loader.jsx";
-import { IcCheck, IcClose } from "../../assets/icons.jsx";
-import { formatCompact, formatNumber } from "../../api/utils/format.js";
-import { ENDPOINTS } from "../../api/endpoints.js";
-import apiClient from "../../api/apiClient.js";
+import DataTable from "../../../components/DataTable.jsx";
+import StatusBadge from "../../../components/StatusBadge.jsx";
+import { Loader } from "../../../components/Loader.jsx";
+import { IcCheck, IcClose } from "../../../assets/icons.jsx";
+import { formatCompact, formatNumber } from "../../../api/utils/format.js";
+import { ENDPOINTS } from "../../../api/endpoints.js";
+import apiClient from "../../../api/apiClient.js";
 
 /**
  * PublisherInboxTab

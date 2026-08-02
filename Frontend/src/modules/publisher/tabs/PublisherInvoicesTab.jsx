@@ -1,8 +1,8 @@
 import React from "react";
-import DataTable from "../../components/DataTable.jsx";
-import StatusBadge from "../../components/StatusBadge.jsx";
-import { Loader } from "../../components/Loader.jsx";
-import { formatCompact } from "../../api/utils/format.js";
+import DataTable from "../../../components/DataTable.jsx";
+import StatusBadge from "../../../components/StatusBadge.jsx";
+import { Loader } from "../../../components/Loader.jsx";
+import { formatCompact } from "../../../api/utils/format.js";
 
 /**
  * PublisherInvoicesTab
