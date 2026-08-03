@@ -29,7 +29,7 @@ spring:
             - id: mediaplan
               uri: lb://mediaplan
               predicates:
-                - Path=/api/media-plans/**,/api/line-items/**,/api/insertion-orders/**,/api/delivery-records/**,/api/pacing-alerts/**
+                - Path=/api/media-plans/**,/api/line-items/**,/api/insertion-orders/**
             - id: notification
               uri: lb://notification
               predicates:
