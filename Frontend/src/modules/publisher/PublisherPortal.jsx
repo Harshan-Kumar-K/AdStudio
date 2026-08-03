@@ -14,7 +14,7 @@ import {
 import PublisherInboxTab from "./tabs/PublisherInboxTab.jsx";
 import DeliveryReportsTab from "./tabs/DeliveryReportsTab.jsx";
 import PublisherInvoicesTab from "./tabs/PublisherInvoicesTab.jsx";
-import DeliveryReportForm from "./DeliveryReportForm.jsx";
+// import DeliveryReportForm from "./DeliveryReportForm.jsx";
 
 /**
  * PublisherPortal
@@ -68,13 +68,13 @@ export default function PublisherPortal() {
         actions={
           <>
             {isMock && <MockFlag />}
-            <button
+            {/* <button
               type="button"
               className="btn btn-primary btn-sm"
               onClick={() => setShowReportForm(true)}
             >
               <IcSend /> Submit delivery report
-            </button>
+            </button> */}
           </>
         }
       />
@@ -99,13 +99,13 @@ export default function PublisherPortal() {
         <PublisherInvoicesTab data={invoices} loading={invoicesLoading} />
       )}
 
-      {showReportForm && (
+      {/* {showReportForm && (
         <DeliveryReportForm
           insertionOrders={inbox || []}
           onClose={() => setShowReportForm(false)}
           onSubmitted={handleReportSubmitted}
         />
-      )}
+      )} */}
     </div>
   );
 }
