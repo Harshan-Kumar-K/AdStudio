@@ -1,3 +1,10 @@
+
+
+//    Only for GET operations.
+
+
+
+
 /* ============================================================
    AdStudio · useApiData hook
    Fetches `${API_BASE}/<endpoint>` (port 9090) and unwraps the

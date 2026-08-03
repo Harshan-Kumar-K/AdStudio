@@ -20,14 +20,13 @@ import { getToken } from "../../api/apiClient.js";
 
 export default function FinanceDashboard() {
   const [tab, setTab] = useState("client");
-  const [showForm, setShowForm] = useState(false);
   const {user}= useAuth();
 
-  const { data: client, loading: lc, isMock } = useApiData(
+  const { data: client, loading: lc, isMock, reload: clientInvoicesReload } = useApiData(
     ENDPOINTS.clientInvoices,
     MOCK_CLIENT_INVOICES
   );
-  const { data: recon, loading: lr } = useApiData(
+  const { data: recon, loading: lr, reload: reconreload } = useApiData(
     ENDPOINTS.publisherInvoiceRecon,
     MOCK_PUBLISHER_RECON
   );
@@ -39,52 +38,7 @@ export default function FinanceDashboard() {
     { key: "payments", label: "Payment Tracker" },
   ];
 
-  // Called when the GenerateInvoiceForm is submitted.
-  // Wire this up to your Spring Boot endpoint, e.g.:
-  // await axios.post("/api/finance/invoices", formData);
-  const handleCreateInvoice = async(formData) => {
-    console.log("New invoice submitted:", formData); // 
-    
-    const url = `${API_BASE}/api/client-invoices`;
-   const cur_user_id = user.userId; 
-    
-     const token = getToken();
-    
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Acting-User-Id-Finance": cur_user_id,
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(formData),
-      });
-    
-      // Try to parse JSON even on error responses, since the backend
-      // usually sends { message: "..." } alongside non-2xx statuses.
-      let json = null;
-      try {
-        json = await res.json();
-      } catch {
-        json = null;
-      }
-    
-      if (!res.ok) {
-        const message =
-          (json && (json.message || json.error)) || `HTTP ${res.status}`;
-        throw new Error(message);
-      }
-    
-      const payload =
-        json && typeof json === "object" && "data" in json ? json.data : json;
-    console.log("seee ----  ",payload);
-        
- setShowForm(false);
  
-    window.location.reload();
-  
-   
-  };
 
   return (
     <div className="page">
@@ -95,9 +49,8 @@ export default function FinanceDashboard() {
         actions={
           <>
             {isMock && <MockFlag />}
-            <button className="btn btn-primary btn-sm" onClick={() => setShowForm(true)}>
-              <IcPlus /> Generate Client invoice
-            </button>
+            
+         
           </>
         }
       />
@@ -106,16 +59,11 @@ export default function FinanceDashboard() {
         <Tabs tabs={tabs} active={tab} onChange={setTab} />
       </div>
 
-      {tab === "client" && <ClientInvoicesTab data={client} loading={lc} />}
+      {tab === "client" && <ClientInvoicesTab data={client} loading={lc}  reload_doer={clientInvoicesReload}/>}
       {tab === "recon" && <PublisherReconciliationTab data={recon} loading={lr} />}
       {tab === "payments" && <PaymentTrackerTab data={pay} />}
 
-      {showForm && (
-        <GenerateInvoiceForm
-          onClose={() => setShowForm(false)}
-          onSubmit={handleCreateInvoice}
-        />
-      )}
+      
     </div>
   );
 }
