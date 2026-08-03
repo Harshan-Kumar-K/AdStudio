@@ -15,7 +15,7 @@ export default function DataTable({ columns, rows, rowClass, emptyLabel = "No re
       </div>
     );
   }
-  console.log("heeiiii   ",rows, "  col ", columns);
+  // console.log("heeiiii   ",rows, "  col ", columns);
   
   return (
     <div className="table-wrap">

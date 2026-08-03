@@ -4,6 +4,8 @@ import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
 import { IcCheck } from "../../../assets/icons.jsx";
 import PacingCell from "./PacingCell.jsx";
+import { API_BASE } from "../../../api/endpoints.js";
+import apiRequest from "../../../api/apiRequestSender.js";
 
 const ALERT_TONE = {
   UnderDelivery: "badge-red",
@@ -12,7 +14,28 @@ const ALERT_TONE = {
   FlightEndApproaching: "badge-amber",
 };
 
-const columns = [
+/**
+ * Renders the "Pacing Alerts" tab content.
+ */
+export default function PacingAlertsTable({ alerts, loading, reload_doer }) {
+
+ const handleAction = async (particular_alert_id) => {
+     const url = `${API_BASE}/api/pacing-alerts/${particular_alert_id}/action`;
+     await apiRequest(url, {
+       method: "PUT"
+     });
+  reload_doer(); // Call the reload function to refresh the data
+};
+
+ const handleClose = async (particular_alert_id) => {
+     const url = `${API_BASE}/api/pacing-alerts/${particular_alert_id}/close`;
+     await apiRequest(url, {
+       method: "PUT"
+     });
+  reload_doer(); // Call the reload function to refresh the data
+};
+
+  const columns = [
   {
     key: "alertId",
     label: "Alert ID",
@@ -56,8 +79,8 @@ const columns = [
     render: (r) =>
       r.status === "OPEN" ? (
         <div className="t-actions">
-          <button className="btn btn-outline btn-sm">Action</button>
-          <button className="btn btn-success btn-sm">
+          <button className="btn btn-outline btn-sm" onClick={() => handleAction(r.alertId)}>Action</button>
+          <button className="btn btn-success btn-sm" onClick={() => handleClose(r.alertId)}>
             <IcCheck size={14} /> Close
           </button>
         </div>
@@ -67,10 +90,6 @@ const columns = [
   },
 ];
 
-/**
- * Renders the "Pacing Alerts" tab content.
- */
-export default function PacingAlertsTable({ alerts, loading }) {
   if (loading) return <Loader />;
   return <DataTable columns={columns} rows={alerts} />;
 }

@@ -33,7 +33,7 @@ export default function DeliveryTracking() {
     reload: reloadRecords,
   } = useApiData(ENDPOINTS.deliveryRecords, MOCK_DELIVERY_RECORDS);
 
-  const { data: alerts, loading: laa } = useApiData(
+  const { data: alerts, loading: laa , reload: reloadAlerts} = useApiData(
     ENDPOINTS.pacingAlerts,
     MOCK_PACING_ALERTS
   );
@@ -69,14 +69,14 @@ export default function DeliveryTracking() {
         {tab === "records" ? (
           <DeliveryRecordsTable records={records} loading={lr} />
         ) : (
-          <PacingAlertsTable alerts={alerts} loading={laa} />
+          <PacingAlertsTable alerts={alerts} loading={laa} reload_doer={reloadAlerts} />
         )}
       </div>
 
       <AddDeliveryRecordForm
         open={formOpen}
         onClose={() => setFormOpen(false)}
-        onCreated={() => reloadRecords()}
+        onCreated={() => {reloadRecords(); reloadAlerts(); } }
       />
     </div>
   );

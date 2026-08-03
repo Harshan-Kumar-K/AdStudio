@@ -155,7 +155,7 @@ export default function MediaPlanning() {
     { key: "channel", label: "Channel", render: (r) => <span className={`badge ${CHANNEL_TONE[r.channel] || "badge-gray"}`}>{r.channel}</span> },
     { key: "publisher", label: "Publisher", render: (r) => <span className="cell-muted">{r.publisher}</span> },
     { key: "plannedImpressions", label: "Impressions", align: "right", mono: true, render: (r) => formatCompact(r.plannedImpressions) },
-    { key: "cpm", label: "CPM", align: "right", mono: true, render: (r) => r.cpm != null ? `$${Number(r.cpm).toFixed(2)}` : "—" },
+    { key: "cpm", label: "C Per Thousand", align: "right", mono: true, render: (r) => r.cpm != null ? `$${Number(r.cpm).toFixed(2)}` : "—" },
     { key: "plannedBudget", label: "Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCompact(r.plannedBudget, { money: true })}</span> },
     { key: "progress", label: "Flight", render: (r) => {
       const progress = computeProgress(r.flightStart, r.flightEnd);
