@@ -12,11 +12,22 @@ import { formatCompact, formatNumber } from "../../../api/utils/format.js";
  */
 export default function DeliveryReportsTab({ data, loading }) {
   const columns = [
-    { key: "id", label: "Record", render: (r) => <span className="strong">{r.id}</span> },
+    { key: "deliveryId", 
+      label: "Delivery Id",
+       render: (r) => (
+        <span className="meta">
+          <div className="strong">{r.deliveryId}</div>
+          <div className="sb cell-muted">
+            #Line Item Id {r.lineItemId}
+          </div>
+        </span>
+      ),
+   },
+
     {
-      key: "io",
-      label: "IO",
-      render: (r) => <span className="badge badge-navy">{r.io}</span>,
+      key: "ioId",
+      label: "IO Id",
+      render: (r) => <span className="badge badge-navy">{r.ioId}</span>,
     },
     {
       key: "reportingDate",
@@ -24,11 +35,11 @@ export default function DeliveryReportsTab({ data, loading }) {
       render: (r) => <span className="cell-muted cell-num">{r.reportingDate}</span>,
     },
     {
-      key: "impressions",
+      key: "deliveredImpressions",
       label: "Impressions",
       align: "right",
       mono: true,
-      render: (r) => formatNumber(r.impressions),
+      render: (r) => formatNumber(r.deliveredImpressions),
     },
     {
       key: "clicks",
@@ -45,6 +56,11 @@ export default function DeliveryReportsTab({ data, loading }) {
       render: (r) => (
         <span className="strong">{formatCompact(r.spend, { money: true })}</span>
       ),
+    },
+     {
+      key: "source",
+      label: "Source",
+      render: (r) => <span className="cell-muted">{r.source}</span>,
     },
     {
       key: "status",

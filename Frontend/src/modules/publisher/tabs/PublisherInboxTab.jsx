@@ -36,25 +36,32 @@ export default function PublisherInboxTab({ data, loading, onChanged }) {
 
   const columns = [
     {
-      key: "id",
-      label: "Insertion order",
+      key: "ioId",
+      label: "Insert ord ID",
       render: (r) => (
         <span className="meta">
-          <div className="strong">{r.id}</div>
+          <div className="strong">{r.ioId}</div>
           <div className="sb cell-muted">
-            {r.campaign} · {r.advertiser}
+            #Publisher {r.publisherId}
           </div>
         </span>
       ),
     },
     {
-      key: "format",
-      label: "Format",
-      render: (r) => <span className="badge badge-blue">{r.format}</span>,
+      key: "lineItemId",
+      label: "Line Item ID",
+      align: "",
+      mono: true,
+      render: (r) => formatNumber(r.lineItemId),
+    },
+    {
+      key: "orderDate",
+      label: "Order Date",
+      render: (r) => <span className="cell-muted">{r.orderDate}</span>,
     },
     {
       key: "committedImpressions",
-      label: "Committed",
+      label: "Committed Imprsns",
       align: "right",
       mono: true,
       render: (r) => formatNumber(r.committedImpressions),

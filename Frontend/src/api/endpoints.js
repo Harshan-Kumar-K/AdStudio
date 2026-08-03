@@ -43,9 +43,9 @@ export const ENDPOINTS = {
   pacingAlerts: "api/pacing-alerts",
 
   // --- publisher ---
-  publisherInbox: "publisher/io-inbox",
-  publisherDeliveryReports: "publisher/delivery-reports",
-  publisherInvoices: "publisher/invoices",
+  // publisherInbox: "publisher/io-inbox",
+  // publisherDeliveryReports: "publisher/delivery-reports",
+  publisherInvoices: "api/publisher-invoices",
 
   // --- finance ---
   clientInvoices: "api/client-invoices",

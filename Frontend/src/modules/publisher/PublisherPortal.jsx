@@ -31,14 +31,14 @@ export default function PublisherPortal() {
     loading: inboxLoading,
     isMock: inboxIsMock,
     reload: reloadInbox,
-  } = useApiData(ENDPOINTS.publisherInbox, MOCK_PUBLISHER_INBOX);
+  } = useApiData(ENDPOINTS.insertionOrders, MOCK_PUBLISHER_INBOX);
 
   const {
     data: reports,
     loading: reportsLoading,
     isMock: reportsIsMock,
     reload: reloadReports,
-  } = useApiData(ENDPOINTS.publisherDeliveryReports, MOCK_PUBLISHER_DELIVERY);
+  } = useApiData(ENDPOINTS.deliveryRecords, MOCK_PUBLISHER_DELIVERY);
 
   const {
     data: invoices,
