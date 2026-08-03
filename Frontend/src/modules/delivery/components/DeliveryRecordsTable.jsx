@@ -12,9 +12,6 @@ const columns = [
     render: (r) => (
       <span className="meta">
         <div className="strong">{r.deliveryId}</div>
-        <div className="sb cell-muted">
-          {r.lineItem} 
-        </div>
       </span>
     ),
   },
@@ -24,9 +21,6 @@ const columns = [
     render: (r) => (
       <span className="meta">
         <div className="strong">{r.lineItemId}</div>
-        <div className="sb cell-muted">
-          {r.lineItemId}  
-        </div>
       </span>
     ),
   },
@@ -36,7 +30,6 @@ const columns = [
     render: (r) => (
       <span className="meta">
         <div className="strong">{r.ioId}</div>
-       
       </span>
     ),
   },

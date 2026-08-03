@@ -5,6 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDate;
+
 @FeignClient(name = "mediaplan")
 public interface MediaPlanFeignClient {
 
@@ -20,6 +22,6 @@ public interface MediaPlanFeignClient {
 
     // only the fields we actually need from each response, everything
     // else in mediaplan's real response just gets ignored
-    record LineItemView(Integer lineItemId, Integer planId, Float plannedBudget) {}
+    record LineItemView(Integer lineItemId, Integer planId, Float plannedBudget,Integer plannedImpressions, LocalDate flightEnd) {}
     record MediaPlanView(Integer planId, Integer plannerId) {}
 }

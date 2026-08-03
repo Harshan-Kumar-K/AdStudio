@@ -1,10 +1,9 @@
 package com.cts.delivery.dto;
 
-import com.cts.delivery.entity.PacingAlert.AlertType;
 
 import jakarta.validation.constraints.NotNull;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public record PacingAlertRequest(
 
@@ -13,7 +12,13 @@ public record PacingAlertRequest(
 
 
         @NotNull
-        BigDecimal spend
+        Integer spend,
+
+        @NotNull
+        Integer deliveredImpressions,
+
+        @NotNull
+        LocalDate reportingDate
 
 ) {
 }

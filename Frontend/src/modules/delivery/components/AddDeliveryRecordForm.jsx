@@ -89,10 +89,18 @@ export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
       status: form.status,
     };
 
+    const PacingPayload = {
+       lineItemId: form.lineItem.trim(),
+       spend: Number(form.spend),
+       deliveredImpressions : Number(form.deliveredImpressions),
+       reportingDate: form.reportingDate,
+    };
+
     setSubmitting(true);
     setSubmitError("");
     try {
       const created = await apiClient.post(ENDPOINTS.deliveryRecords, payload);
+      const PacingCreated = await apiClient.post(ENDPOINTS.pacingAlerts, PacingPayload);
       onCreated?.(created);
       resetAndClose();
     } catch (err) {

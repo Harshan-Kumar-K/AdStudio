@@ -14,34 +14,35 @@ const ALERT_TONE = {
 
 const columns = [
   {
+    key: "alertId",
+    label: "Alert ID",
+    render: (r) => <span className="strong">{r.alertId}</span>,
+  },
+   {
+    key: "lineItemId",
+    label: "Line Item ID",
+    render: (r) => <span className="strong">{r.lineItemId}</span>,
+  },
+  {
     key: "alertType",
-    label: "Alert",
+    label: "Alert Type",
     render: (r) => (
       <span className={`badge ${ALERT_TONE[r.alertType] || "badge-gray"}`}>
         {r.alertType.replace(/([a-z])([A-Z])/g, "$1 $2")}
       </span>
     ),
   },
-  {
-    key: "lineItem",
-    label: "Line item",
-    render: (r) => <span className="strong">{r.lineItem}</span>,
-  },
-  {
-    key: "channel",
-    label: "Channel",
-    render: (r) => <span className="cell-muted">{r.channel}</span>,
-  },
+  
   {
     key: "alertDate",
-    label: "Raised",
+    label: "Alert Raised",
     render: (r) => <span className="cell-muted cell-num">{r.alertDate}</span>,
   },
   {
     key: "pacingPercent",
     label: "Pacing",
     align: "right",
-    render: (r) => <PacingCell pct={r.pacingPercent} />,
+    render: (r) => <PacingCell pct={r.pacingPercent.toFixed(2)} />,
   },
   {
     key: "status",
@@ -53,10 +54,10 @@ const columns = [
     label: "",
     align: "right",
     render: (r) =>
-      r.status === "Open" ? (
+      r.status === "OPEN" ? (
         <div className="t-actions">
           <button className="btn btn-outline btn-sm">Action</button>
-          <button className="btn btn-ghost btn-sm">
+          <button className="btn btn-success btn-sm">
             <IcCheck size={14} /> Close
           </button>
         </div>

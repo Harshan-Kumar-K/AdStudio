@@ -28,17 +28,16 @@ public class PacingAlertService {
     private final PlannerResolver plannerResolver;
     private final MediaPlanFeignClient mediaPlanClient;
 
-    public PacingAlert createAlert(
-            PacingAlertRequest request) {
+    public PacingAlert createAlert( PacingAlertRequest request) {
 
         var lineItem = mediaPlanClient.getLineItem(request.lineItemId().intValue()).data(); // fetch line item from media-plan service to get planned budget.
         Double pacingPercentCalc = request.spend().doubleValue() == 0
                 ? 0.0
                 : (lineItem.plannedBudget().doubleValue() / request.spend().doubleValue()) * 100;
 
-        AlertType alertTypeCalc = AlertType.UNDER_DELIVERY;
+        AlertType alertTypeCalc = calculateTheAlertType(request, lineItem);
 
-        var alert = PacingAlert.builder()
+            var alert = PacingAlert.builder()
                 .lineItemId(request.lineItemId())
                 .alertType(alertTypeCalc)
                 .alertDate(LocalDate.now())
@@ -109,5 +108,22 @@ public class PacingAlertService {
 
         var alert = getAlert(alertId);
         repository.delete(alert);
+    }
+
+    public AlertType calculateTheAlertType(PacingAlertRequest request, MediaPlanFeignClient.LineItemView lineItem) {
+        //Is today's reporting date within the final 3 days of the campaign (or past the end)?
+        // the end date is approaching take the flightend date from the mp
+        if(request.reportingDate().isAfter(lineItem.flightEnd().minusDays(3)))
+            return AlertType.FLIGHT_END_APPROACHING;
+
+        if( request.deliveredImpressions() < lineItem.plannedImpressions() )
+            return AlertType.UNDER_DELIVERY;
+        if( request.deliveredImpressions() > lineItem.plannedImpressions())
+            return AlertType.OVER_DELIVERY;
+
+        if(request.spend() >= lineItem.plannedBudget())
+            return AlertType.BUDGET_EXHAUSTED;
+
+        return AlertType.UNDER_DELIVERY; // default case, should NEVER happen
     }
 }
