@@ -3,7 +3,7 @@ import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
 import { formatCompact, formatNumber } from "../../../api/utils/format.js";
-import PacingCell from "./PacingCell.jsx";
+// import PacingCell from "./PacingCell.jsx";
 
 const columns = [
   {
@@ -13,7 +13,7 @@ const columns = [
       <span className="meta">
         <div className="strong">{r.deliveryId}</div>
         <div className="sb cell-muted">
-          {r.lineItem} · {r.io}
+          {r.lineItem} 
         </div>
       </span>
     ),
@@ -25,8 +25,18 @@ const columns = [
       <span className="meta">
         <div className="strong">{r.lineItemId}</div>
         <div className="sb cell-muted">
-          {r.lineItemId} · {r.io}
+          {r.lineItemId}  
         </div>
+      </span>
+    ),
+  },
+  {
+    key: "ioId",
+    label: "IO ID",
+    render: (r) => (
+      <span className="meta">
+        <div className="strong">{r.ioId}</div>
+       
       </span>
     ),
   },
@@ -55,12 +65,6 @@ const columns = [
     align: "right",
     mono: true,
     render: (r) => <span className="strong">{formatCompact(r.spend, { money: true })}</span>,
-  },
-  {
-    key: "pacing",
-    label: "Pacing",
-    align: "right",
-    render: (r) => <PacingCell pct={r.pacing} />,
   },
   {
     key: "source",

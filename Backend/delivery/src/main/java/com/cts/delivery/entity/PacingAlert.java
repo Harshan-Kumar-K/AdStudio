@@ -30,12 +30,7 @@ public class PacingAlert {
     @Enumerated(EnumType.STRING)
     private AlertStatus status;
 
-    public enum AlertType {
-        UNDER_DELIVERY,
-        OVER_DELIVERY,
-        BUDGET_EXHAUSTED,
-        FLIGHT_END_APPROACHING
-    }
+
 
     public enum AlertStatus {
         OPEN,

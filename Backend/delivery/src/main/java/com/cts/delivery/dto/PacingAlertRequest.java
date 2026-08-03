@@ -4,16 +4,16 @@ import com.cts.delivery.entity.PacingAlert.AlertType;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
+
 public record PacingAlertRequest(
 
         @NotNull
         Long lineItemId,
 
-        @NotNull
-        AlertType alertType,
 
         @NotNull
-        Double pacingPercent
+        BigDecimal spend
 
 ) {
 }

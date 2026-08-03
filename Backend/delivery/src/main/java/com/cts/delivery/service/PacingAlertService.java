@@ -3,6 +3,8 @@ package com.cts.delivery.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.cts.delivery.client.MediaPlanFeignClient;
+import com.cts.delivery.entity.AlertType;
 import com.cts.delivery.shared.NotificationClient;
 import com.cts.delivery.shared.PlannerResolver;
 import org.springframework.stereotype.Service;
@@ -24,15 +26,23 @@ public class PacingAlertService {
     private final PacingAlertRepository repository;
     private final NotificationClient notificationClient;
     private final PlannerResolver plannerResolver;
+    private final MediaPlanFeignClient mediaPlanClient;
 
     public PacingAlert createAlert(
             PacingAlertRequest request) {
 
+        var lineItem = mediaPlanClient.getLineItem(request.lineItemId().intValue()).data(); // fetch line item from media-plan service to get planned budget.
+        Double pacingPercentCalc = request.spend().doubleValue() == 0
+                ? 0.0
+                : (lineItem.plannedBudget().doubleValue() / request.spend().doubleValue()) * 100;
+
+        AlertType alertTypeCalc = AlertType.UNDER_DELIVERY;
+
         var alert = PacingAlert.builder()
                 .lineItemId(request.lineItemId())
-                .alertType(request.alertType())
+                .alertType(alertTypeCalc)
                 .alertDate(LocalDate.now())
-                .pacingPercent(request.pacingPercent())
+                .pacingPercent(pacingPercentCalc)
                 .status(AlertStatus.OPEN)
                 .build();
 
