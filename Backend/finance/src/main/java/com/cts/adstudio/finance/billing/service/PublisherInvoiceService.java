@@ -103,6 +103,10 @@ public class PublisherInvoiceService {
     /**
      * Reconcile against delivered value; sets variance and
      * RECONCILED / DISCREPANCY.
+     *
+     * it pulls actual delivery numbers from another service, compares them against what
+     * the publisher invoiced, decides if they match within tolerance, updates the
+     * invoice's status/variance accordingly
      */
     @Transactional
     public ReconciliationResultResponse reconcile(
@@ -117,6 +121,7 @@ public class PublisherInvoiceService {
 //        BigDecimal deliveredValue =
 //                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
 
+        // variance = (what the publisher billed you) − (what your delivery data says was actually delivered)
         BigDecimal variance =
                 invoice.getInvoiceAmount().subtract(deliverySpend);
 

@@ -60,10 +60,10 @@ export default function PublisherReconciliationTab({ data, loading, reload_doer 
       align: "right",
       mono: true,
       render: (r) =>
-        r.variance === 0 ? (
+        r.varianceAmount === 0 ? (
           <span className="cell-muted">$0</span>
         ) : (
-          <span className="variance-neg">{formatCompact(r.variance, { money: true })}</span>
+          <span className="variance-neg">{formatCompact(r.varianceAmount, { money: true })}</span>
         ),
     },
     {
