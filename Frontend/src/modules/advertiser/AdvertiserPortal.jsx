@@ -8,8 +8,8 @@ import { IcAdvertiser, IcPlus } from "../../assets/icons.jsx";
 import { MOCK_ADVERTISERS, MOCK_BRANDS } from "../../data/mockData.js";
 
 import Modal from "./Modal.jsx";
-import AdvertiserForm from "./AdvertiserForm.jsx";
-import BrandForm from "./BrandForm.jsx";
+import AdvertiserForm from "./form/AdvertiserForm.jsx";
+import BrandForm from "./form/BrandForm.jsx";
 import AdvertisersTable from "./AdvertisersTable.jsx";
 import BrandGrid from "./BrandGrid.jsx";
 
@@ -65,7 +65,7 @@ const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINT
       )}
 
       {tab === "brands" && (
-        <BrandGrid brands={brands} loading={lb} onSelect={setBrandModal} />
+        <BrandGrid brands={brands} loading={lb} onSelect={setBrandModal} advertisers={advertisers} />
       )}
 
       {advertiserModal && (

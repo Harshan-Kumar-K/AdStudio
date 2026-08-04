@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import {API_BASE, ENDPOINTS } from "../../api/endpoints.js";
-import { useAuth } from "../../context/AuthContext.jsx";
-import { getToken} from "../../api/apiClient.js";
+import {API_BASE, ENDPOINTS } from "../../../api/endpoints.js";
+import { useAuth } from "../../../context/AuthContext.jsx";
+import { getToken} from "../../../api/apiClient.js";
 /* ---------------------------------------------------------------------- */
 /*  Advertiser create/edit form                                           */
 /* ---------------------------------------------------------------------- */

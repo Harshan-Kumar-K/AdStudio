@@ -113,12 +113,12 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="auth-row-between">
+            {/* <div className="auth-row-between">
               <label className="check">
                 <input type="checkbox" defaultChecked /> Remember me
               </label>
               <a href="#forgot" className="link-muted" onClick={(e) => e.preventDefault()}>Forgot password?</a>
-            </div>
+            </div> */}
 
             <button type="submit" className="btn btn-primary auth-submit" disabled={busy}>
               {busy ? "Signing in…" : "Sign in"}
