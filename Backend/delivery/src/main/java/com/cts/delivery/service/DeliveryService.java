@@ -2,6 +2,7 @@ package com.cts.delivery.service;
 
 import java.util.List;
 
+import com.cts.delivery.entity.IoSummaryDto;
 import com.cts.delivery.shared.NotificationClient;
 import com.cts.delivery.shared.PlannerResolver;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,32 @@ public class DeliveryService {
                 "Delivery");
 
         return saved;
+    }
+
+    public List<DeliveryRecord> getIoDeliveries(Long ioId) {
+
+        return repository.findByIoId(ioId);
+    }
+
+    public IoSummaryDto getIoSummary(Long ioId) {
+        List<DeliveryRecord> records =     repository.findByIoId(ioId);
+
+        int total = records.size();
+        int delivered = (int) records.stream()
+                .filter(r -> "Delivered".equals(r.getStatus()))
+                .count();
+
+        int pending = (int) records.stream()
+                .filter(r -> "Pending".equals(r.getStatus()))
+                .count();
+
+        return new IoSummaryDto(
+                ioId,
+                total,
+                delivered,
+                pending
+        );
+
     }
 
     public List<DeliveryRecord> getAll() {

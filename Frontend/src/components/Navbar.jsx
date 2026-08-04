@@ -55,8 +55,6 @@ export default function Navbar({ onBurger }) {
       </div>
 
       <div className="nav-search">
-        <IcSearch />
-        <input placeholder="Search campaigns, briefs, publishers…" aria-label="Search" />
       </div>
 
       <div className="nav-actions">

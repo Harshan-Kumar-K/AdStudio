@@ -1,5 +1,7 @@
 package com.cts.adstudio.finance.billing.service;
 
+import com.cts.adstudio.finance.billing.client.DeliveryFeignClient;
+import com.cts.adstudio.finance.billing.dto.DeliveryRecordResponse;
 import com.cts.adstudio.finance.billing.dto.PublisherInvoiceResponse;
 import com.cts.adstudio.finance.billing.dto.ReconciliationResultResponse;
 import com.cts.adstudio.finance.billing.dto.SubmitPublisherInvoiceRequest;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class PublisherInvoiceService {
     private final AuditLogService auditLog;
     private final BudgetCalculationService budgetCalc;
     private final NotificationClient notificationClient;
+    private final DeliveryFeignClient deliveryFeignClient;
 
     public PublisherInvoice getEntity(Long id) {
         return repository.findById(id)
@@ -106,16 +110,15 @@ public class PublisherInvoiceService {
             Long actingUserId) {
 
         PublisherInvoice invoice = getEntity(id);
+        List<DeliveryRecordResponse> record = deliveryFeignClient.getDeliveryRecordsByIoId(invoice.getIoId());
+        // Sum the spend values of all delivery records, or return zero if the list is null
+        BigDecimal deliverySpend = record != null ? record.stream().map(DeliveryRecordResponse::spend).reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
 
-        BigDecimal deliveredValue =
-                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
-
-        if (deliveredValue == null) {
-            deliveredValue = BigDecimal.ZERO;
-        }
+//        BigDecimal deliveredValue =
+//                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
 
         BigDecimal variance =
-                invoice.getInvoiceAmount().subtract(deliveredValue);
+                invoice.getInvoiceAmount().subtract(deliverySpend);
 
         PublisherInvoiceStatus target =
                 variance.abs().compareTo(RECONCILE_TOLERANCE) <= 0
@@ -124,7 +127,7 @@ public class PublisherInvoiceService {
 
         statusValidator.validate(invoice.getStatus(), target);
 
-        invoice.setDeliveredValue(deliveredValue);
+        invoice.setDeliveredValue(deliverySpend);
         invoice.setVarianceAmount(variance);
         invoice.setStatus(target);
 

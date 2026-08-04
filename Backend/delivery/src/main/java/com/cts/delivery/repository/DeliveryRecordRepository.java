@@ -19,4 +19,5 @@ public interface DeliveryRecordRepository
     List<DeliveryRecord> findByLineItemId(
             Long lineItemId
     );
+    List<DeliveryRecord> findByIoId(Long ioId);
 }

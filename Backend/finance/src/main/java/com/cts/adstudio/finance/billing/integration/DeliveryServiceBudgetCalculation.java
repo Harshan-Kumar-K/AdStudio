@@ -40,12 +40,4 @@ public class DeliveryServiceBudgetCalculation implements BudgetCalculationServic
         return (body == null || body.data() == null) ? BigDecimal.ZERO : body.data();
     }
 
-    @Override
-    public BigDecimal deliveredValueForInsertionOrder(Long ioId) {
-        Envelope body = restClient.get()
-                .uri("/api/delivery/insertion-orders/{id}/delivered-value", ioId)
-                .retrieve()
-                .body(Envelope.class);
-        return (body == null || body.data() == null) ? BigDecimal.ZERO : body.data();
-    }
 }
