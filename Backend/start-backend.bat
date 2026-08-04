@@ -2,27 +2,23 @@
 REM Start all backend services in sequence
 
 REM 1. Start Eureka Server
-start "EurekaServer" cmd /k "cd  eurekaServer && mvnw spring-boot:run"
+start "eurekaServer" cmd /k "cd eurekaServer && mvnw spring-boot:run"
 
-@REM REM 2. Start Config Server
-@REM start "ConfigServer" cmd /k "cd Backend\ConfigServer && mvnw spring-boot:run"
+REM Wait ~20 seconds so that Eureka Server is up and running before starting other services
+REM if this time gap not exist then other services like advertiser, iam will get error while registering with Eureka Server
+ping 127.0.0.1 -n 21 >nul
 
-REM 3. Start Transaction Service
+REM 2-8. Start all other services
 start "advertiser" cmd /k "cd advertiser && mvnw spring-boot:run"
-
-REM 4. Start Enrichment Service
-start "mediaplan" cmd /k "cd mediaplan && mvnw spring-boot:run"
-
-REM 5. Start Decision Engine Service
 start "iam" cmd /k "cd iam && mvnw spring-boot:run"
-
-REM 6. Start Alert Case Service
 start "creative" cmd /k "cd creative && mvnw spring-boot:run"
-
-REM 7. Start SAR Report Service
+start "delivery" cmd /k "cd delivery && mvnw spring-boot:run"
 start "finance" cmd /k "cd finance && mvnw spring-boot:run"
+start "mediaplan" cmd /k "cd mediaplan && mvnw spring-boot:run"
+start "notification" cmd /k "cd notification && mvnw spring-boot:run"
 
-REM 8. Start API Gateway
-start "ApiGateway" cmd /k "cd Backend\apiGateway && mvnw spring-boot:run"
+REM Wait ~20 seconds before starting Gateway
+ping 127.0.0.1 -n 21 >nul
 
-REM All services started in separate windows
+REM 9. Start API Gateway
+start "apiGateway" cmd /k "cd apiGateway && mvnw spring-boot:run"

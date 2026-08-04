@@ -118,7 +118,7 @@ export default function LineItemForm({ plans, initialPlanId, onCancel, onSaved }
               />
             </div>
             <div className="universal-field">
-              <label className="universal-label">CPM</label>
+              <label className="universal-label">Cost Per Thousand Imprsns</label>
               <input
                 className="universal-input"
                 required

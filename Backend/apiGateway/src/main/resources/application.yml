@@ -29,11 +29,53 @@ spring:
             - id: mediaplan
               uri: lb://mediaplan
               predicates:
-                - Path=/api/media-plans/**,/api/line-items/**,/api/insertion-orders/**,/api/delivery-records/**,/api/pacing-alerts/**
+                - Path=/api/media-plans/**,/api/line-items/**,/api/insertion-orders/**
             - id: notification
               uri: lb://notification
               predicates:
                 - Path=/api/notifications/**
+            - id: iam-docs
+              uri: lb://iam
+              predicates:
+                - Path=/iam/v3/api-docs
+              filters:
+                - RewritePath=/iam/v3/api-docs, /v3/api-docs
+            - id: advertiser-docs
+              uri: lb://advertiser
+              predicates:
+                - Path=/advertiser/v3/api-docs
+              filters:
+                - RewritePath=/advertiser/v3/api-docs, /v3/api-docs
+            - id: creative-docs
+              uri: lb://creative
+              predicates:
+                - Path=/creative/v3/api-docs
+              filters:
+                - RewritePath=/creative/v3/api-docs, /v3/api-docs
+            - id: delivery-docs
+              uri: lb://delivery
+              predicates:
+                - Path=/delivery/v3/api-docs
+              filters:
+                - RewritePath=/delivery/v3/api-docs, /v3/api-docs
+            - id: finance-docs
+              uri: lb://finance
+              predicates:
+                - Path=/finance/v3/api-docs
+              filters:
+                - RewritePath=/finance/v3/api-docs, /v3/api-docs
+            - id: mediaplan-docs
+              uri: lb://mediaplan
+              predicates:
+                - Path=/mediaplan/v3/api-docs
+              filters:
+                - RewritePath=/mediaplan/v3/api-docs, /v3/api-docs
+            - id: notification-docs
+              uri: lb://notification
+              predicates:
+                - Path=/notification/v3/api-docs
+              filters:
+                - RewritePath=/notification/v3/api-docs, /v3/api-docs
 
 server:
   port: 9090
@@ -47,16 +89,16 @@ springdoc:
   swagger-ui:
     urls:
       - name: IAM
-        url: /v3/api-docs
+        url: /iam/v3/api-docs
       - name: Advertiser
-        url: /v3/api-docs
+        url: /advertiser/v3/api-docs
       - name: Creative
-        url: /v3/api-docs
+        url: /creative/v3/api-docs
       - name: Delivery
-        url: /v3/api-docs
+        url: /delivery/v3/api-docs
       - name: Finance
-        url: /v3/api-docs
+        url: /finance/v3/api-docs
       - name: MediaPlan
-        url: /v3/api-docs
+        url: /mediaplan/v3/api-docs
       - name: Notification
-        url: /v3/api-docs
+        url: /notification/v3/api-docs

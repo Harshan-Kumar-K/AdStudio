@@ -1,11 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
-import { IcSend, IcCheck } from "../../../assets/icons.jsx";
+import { IcSend, IcCheck, IcPlus } from "../../../assets/icons.jsx";
 import { formatCompact } from "../../../api/utils/format.js";
+import GenerateInvoiceForm from "../GenerateInvoiceForm.jsx";
+import ENDPOINTS from "../../../api/endpoints.js";
+import apiClient from "../../../api/apiClient.js";
+import { useAuth } from "../../../context/AuthContext.jsx";
 
-export default function ClientInvoicesTab({ data, loading }) {
+export default function ClientInvoicesTab({ data, loading, reload_doer }) {
+
+    const { user } = useAuth();
+
+    const [showForm, setShowForm] = useState(false);
   const columns = [
     {
       key: "id",
@@ -91,9 +99,47 @@ export default function ClientInvoicesTab({ data, loading }) {
     },
   ];
 
+  const handleCreateInvoice = async (formData) => {
+  const payload = await apiClient.post(
+    ENDPOINTS.clientInvoices,
+    formData,
+    { "Acting-User-Id-Finance": user.userId }
+  );
+
+  console.log("New invoice created:", payload);
+  setShowForm(false);
+  // window.location.reload();
+  reload_doer(); // Call the reload function to refresh the data
+};
+
   return (
-    <div className="card">
-      {loading ? <Loader /> : <DataTable columns={columns} rows={data} />}
+    <div>
+      <button className="btn btn-primary"
+               style={{ 
+                marginBottom: '15px', 
+                marginLeft: 'auto', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                gap: '6px' 
+              }}
+              onClick={() => setShowForm(true)}>
+                    <IcPlus /> Genrte Client invoice
+        </button>
+
+
+        <div className="card">
+          
+        {loading ? <Loader /> : <DataTable columns={columns} rows={data} />}
+
+        {showForm && (
+          <GenerateInvoiceForm
+            onClose={() => setShowForm(false)}
+            onSubmit={handleCreateInvoice}
+          />
+        )}
+      </div>
     </div>
+    
   );
 }

@@ -2,8 +2,8 @@ package com.cts.delivery.dto;
 
 import java.time.LocalDate;
 
+import com.cts.delivery.entity.AlertType;
 import com.cts.delivery.entity.PacingAlert.AlertStatus;
-import com.cts.delivery.entity.PacingAlert.AlertType;
 
 public record PacingAlertResponse(
 

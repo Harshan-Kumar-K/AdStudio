@@ -71,6 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Everyone gets the dashboard + notifications by default
         modules.add("dashboard");
+        modules.add("profile");
         modules.add("notifications");
 
         if (role == Role.ADMIN) {

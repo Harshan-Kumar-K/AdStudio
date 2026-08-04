@@ -41,7 +41,13 @@ public class JwtAuthenticationFilter implements WebFilter {
 
         // Skip JWT parsing only for the truly public auth endpoints.
         // /auth/users/** is admin-only and must go through the JWT check below.
-        if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
+        if (path.equals("/api/auth/login")
+                || path.equals("/api/auth/register")
+                || path.equals("/swagger-ui.html")
+                || path.startsWith("/swagger-ui/")
+                || path.startsWith("/v3/api-docs")
+                || path.matches("^/[^/]+/v3/api-docs$")
+                || path.startsWith("/webjars/")) {
             return chain.filter(exchange);
 
         }

@@ -18,6 +18,7 @@ import FinanceDashboard from "./modules/finance/FinanceDashboard.jsx";
 import Analytics from "./modules/analytics/Analytics.jsx";
 import Notifications from "./modules/notifications/Notifications.jsx";
 import AdminConsole from "./modules/admin/AdminConsole.jsx";
+import UserProfileCard from "./modules/profile/UserProfileCard.jsx";
 
 /* Wrap a page in its eligibility gate. Portals not present in the
    /eligibilityList response render the red "Not authorized" box. */
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="/analytics" element={guard("analytics", Analytics)} />
         <Route path="/notifications" element={guard("notifications", Notifications)} />
         <Route path="/admin" element={guard("admin", AdminConsole)} />
+        <Route path="/profile" element={guard("profile", UserProfileCard)} />
       </Route>
 
       {/* fallback */}
