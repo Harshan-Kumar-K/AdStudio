@@ -27,13 +27,20 @@ const OBJECTIVE_TONE = {
 export default function BriefsTable({ rows, loading, onSubmit, onApprove, onReject }) {
   const columns = [
     {
+      key: "briefId",
+      label: "Brief ID",
+      align: "",
+      mono: true,
+      render: (r) => <span className="strong">{r.briefId}</span>,
+    },
+    {
       key: "campaignName",
       label: "Campaign",
       render: (r) => (
         <span className="meta">
           <div className="strong">{r.campaignName}</div>
           <div className="sb cell-muted">
-            {r.briefId} · {r.brand}
+            Brand ID {r.brandId}
           </div>
         </span>
       ),
