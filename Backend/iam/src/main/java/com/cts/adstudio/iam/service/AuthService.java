@@ -6,6 +6,7 @@ import com.cts.adstudio.iam.dto.response.LoginResponse;
 import com.cts.adstudio.iam.dto.response.UserResponse;
 import com.cts.adstudio.iam.entity.User;
 import com.cts.adstudio.iam.enums.Role;
+import com.cts.adstudio.iam.enums.UserStatus;
 
 import java.util.List;
 
@@ -18,4 +19,7 @@ public interface AuthService {
     List<String> getEligibleModules(Role role);
 
     List<User> getAllUsers();
+
+    void updateStatus(Long userId, UserStatus status);
+
 }

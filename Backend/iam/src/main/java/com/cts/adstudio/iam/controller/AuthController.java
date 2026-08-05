@@ -6,6 +6,7 @@ import com.cts.adstudio.iam.dto.response.LoginResponse;
 import com.cts.adstudio.iam.dto.response.UserResponse;
 import com.cts.adstudio.iam.entity.User;
 import com.cts.adstudio.iam.enums.Role;
+import com.cts.adstudio.iam.enums.UserStatus;
 import com.cts.adstudio.iam.security.CustomUserDetails;
 import com.cts.adstudio.iam.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -79,5 +80,15 @@ public class AuthController {
         }
 
         return ResponseEntity.status(401).build(); // UnAuthorized if not admin
+    }
+
+    @PutMapping("/users/{userId}/status")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long userId,
+            @RequestParam UserStatus status) {
+
+        authService.updateStatus(userId, status);
+
+        return ResponseEntity.noContent().build();
     }
 }

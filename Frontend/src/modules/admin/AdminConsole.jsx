@@ -5,12 +5,13 @@ import StatusBadge from "../../components/StatusBadge.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
 import { useApiData } from "../../api/useApiData.js";
-import { ENDPOINTS } from "../../api/endpoints.js";
+import { API_BASE, ENDPOINTS } from "../../api/endpoints.js";
 import {
   IcAdmin, IcPlus, IcUser, IcCheck, IcClose, IcEdit,
   IcFmtBanner, IcFmtVideo, IcFmtNative, IcFmtAudio, IcFmtRich, IcFmtText,
 } from "../../assets/icons.jsx";
 import { MOCK_USERS, MOCK_AUDIT_LOGS, MOCK_CHANNELS } from "../../data/mockData.js";
+import apiRequest from "../../api/apiRequestSender.js";
 
 const ROLE_LABEL = {
   Admin: "Ad Ops Admin", AdvertiserBrand: "Advertiser", MediaPlanner: "Media Planner",
@@ -21,6 +22,16 @@ const CHANNEL_ICON = {
   audio: IcFmtAudio, rich: IcFmtRich, text: IcFmtText,
 };
 
+const handleStatusChange = async(newStatus, userId) => {
+
+  console.log("came", newStatus, " --- ", userId);
+  
+   const url = `${API_BASE}/api/auth/users/${userId}/status?status=${newStatus}`;
+      await apiRequest(url, { method: "PUT" });
+  window.location.reload();
+
+}
+
 export default function AdminConsole() {
   const [tab, setTab] = useState("users");
   const { data: users, loading: lu, isMock } = useApiData(ENDPOINTS.adminUsers, MOCK_USERS);
@@ -29,7 +40,7 @@ export default function AdminConsole() {
 
   const userColumns = [
     { key: "name", label: "User", render: (r) => (
-      <div className="id-chip"><span className="av"><IcUser size={16} /></span><span className="meta"><span className="nm">{r.name}</span><span className="sb">{r.email}</span></span></div>
+      <div className="id-chip"><span className="av"><IcUser size={16} /></span><span className="meta"><span className="nm"> {r.name} </span><span className="sb"> {r.email}</span></span></div>
     )},
     { key: "role", label: "Role", render: (r) => <span className="badge badge-navy">{ROLE_LABEL[r.role] || r.role}</span> },
     { key: "phone", label: "Phone", render: (r) => <span className="cell-muted cell-num">{r.phone}</span> },
@@ -38,9 +49,21 @@ export default function AdminConsole() {
     { key: "actions", label: "", align: "right", render: (r) => (
       <div className="t-actions">
         {r.status === "ACTIVE" // SUSPENDED
-          ? <button className="btn btn-danger btn-sm"><IcClose size={14} /> Suspend</button>
-          : <button className="btn btn-success btn-sm"><IcCheck size={14} /> Activate</button>}
-        <button className="btn btn-ghost btn-sm"><IcEdit size={14} /></button>
+          ? <button className="btn btn-danger btn-sm"
+          
+          onClick={() => handleStatusChange("SUSPENDED", r.accountId)}>
+            
+            <IcClose size={14} />  Suspend
+          </button>
+
+          : <button className="btn btn-success btn-sm" 
+              onClick={() => handleStatusChange("ACTIVE", r.accountId)}>
+                
+                <IcCheck size={14} /> Activate
+                
+            </button>
+        }
+
       </div>
     )},
   ];
