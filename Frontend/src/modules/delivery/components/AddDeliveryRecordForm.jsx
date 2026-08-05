@@ -56,13 +56,29 @@ function validate(form) {
  * If your backend uses a different path for creation, just change that
  * one endpoint below.
  */
-export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
+export default function AddDeliveryRecordForm({ open, onClose, onCreated, lineItems = [], insertionOrders = [] }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+  const update = (field) => (e) => {
+    const value = e.target.value;
+    setForm((f) => {
+      // Choosing a line item invalidates any IO picked for a different one,
+      // since an insertion order belongs to exactly one line item.
+      if (field === "lineItem") return { ...f, lineItem: value, io: "" };
+      return { ...f, [field]: value };
+    });
+  };
+
+  // Only show insertion orders that belong to the selected line item, so the
+  // dropdown can't produce a mismatched line-item/IO pair.
+  const iosForLineItem = form.lineItem
+    ? insertionOrders.filter(
+        (io) => String(io.lineItemId ?? io.lineItem) === String(form.lineItem)
+      )
+    : insertionOrders;
 
   const resetAndClose = () => {
     setForm(EMPTY_FORM);
@@ -131,23 +147,28 @@ export default function AddDeliveryRecordForm({ open, onClose, onCreated }) {
       <form onSubmit={handleSubmit} className="adr-form">
         <div className="adr-row">
           <label>Line item</label>
-          <input
-            type="text"
-            value={form.lineItem}
-            onChange={update("lineItem")}
-            placeholder="e.g. 2"
-          />
+          <select value={form.lineItem} onChange={update("lineItem")}>
+            <option value="">Select line item…</option>
+            {lineItems.map((li) => (
+              <option key={li.lineItemId ?? li.id} value={li.lineItemId ?? li.id}>
+                {(li.lineItemId ?? li.id)} — {li.channel} · {li.publisher ?? li.format}
+              </option>
+            ))}
+          </select>
           {errors.lineItem && <span className="adr-error">{errors.lineItem}</span>}
         </div>
 
         <div className="adr-row">
           <label>Insertion order</label>
-          <input
-            type="text"
-            value={form.io}
-            onChange={update("io")}
-            placeholder="e.g. 3"
-          />
+          <select value={form.io} onChange={update("io")} disabled={!form.lineItem}>
+            <option value="">Select insertion order…</option>
+            {iosForLineItem.map((io) => (
+              <option key={io.ioId ?? io.id} value={io.ioId ?? io.id}>
+                {(io.ioId ?? io.id)} — {io.status}
+              </option>
+            ))}
+          </select>
+          {!form.lineItem && <span className="adr-error" style={{ color: "var(--text-muted, #64748b)" }}>Pick a line item first</span>}
           {errors.io && <span className="adr-error">{errors.io}</span>}
         </div>
 

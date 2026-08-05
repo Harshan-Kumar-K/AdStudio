@@ -5,6 +5,7 @@ import {
 export const FORMAT_META = {
   Banner: { Icon: IcFmtBanner, grad: "linear-gradient(135deg,#1f4396,#2f5bc4)" },
   Video: { Icon: IcFmtVideo, grad: "linear-gradient(135deg,#122a5c,#18367a)" },
+  Image: { Icon: IcFmtNative, grad: "linear-gradient(135deg,#0f9a67,#3fc98a)" },
   Native: { Icon: IcFmtNative, grad: "linear-gradient(135deg,#2f5bc4,#3d8bff)" },
   Audio: { Icon: IcFmtAudio, grad: "linear-gradient(135deg,#0e1f44,#1f4396)" },
   RichMedia: { Icon: IcFmtRich, grad: "linear-gradient(135deg,#18367a,#5fa3ff)" },
