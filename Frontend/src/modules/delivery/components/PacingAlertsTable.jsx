@@ -14,6 +14,24 @@ const ALERT_TONE = {
   FlightEndApproaching: "badge-amber",
 };
 
+// The real backend sends alertType/status as SCREAMING_SNAKE_CASE
+// ("UNDER_DELIVERY", "OPEN") while the mock fallback uses PascalCase
+// ("UnderDelivery", "Open"). Normalize both to the same PascalCase-no-space
+// form so the tone lookup, the label, and the "is this alert open?" check
+// all work no matter which shape the data is in.
+function toPascalNoSep(str) {
+  if (!str) return "";
+  return String(str)
+    .toLowerCase()
+    .split(/[_\s]+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join("");
+}
+
+function humanize(str) {
+  return toPascalNoSep(str).replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
 /**
  * Renders the "Pacing Alerts" tab content.
  */
@@ -50,8 +68,8 @@ export default function PacingAlertsTable({ alerts, loading, reload_doer }) {
     key: "alertType",
     label: "Alert Type",
     render: (r) => (
-      <span className={`badge ${ALERT_TONE[r.alertType] || "badge-gray"}`}>
-        {r.alertType.replace(/([a-z])([A-Z])/g, "$1 $2")}
+      <span className={`badge ${ALERT_TONE[toPascalNoSep(r.alertType)] || "badge-gray"}`}>
+        {humanize(r.alertType)}
       </span>
     ),
   },
@@ -70,14 +88,14 @@ export default function PacingAlertsTable({ alerts, loading, reload_doer }) {
   {
     key: "status",
     label: "Status",
-    render: (r) => <StatusBadge status={r.status} />,
+    render: (r) => <StatusBadge status={toPascalNoSep(r.status)} />,
   },
   {
     key: "actions",
     label: "",
     align: "right",
     render: (r) =>
-      r.status === "OPEN" ? (
+      toPascalNoSep(r.status) === "Open" ? (
         <div className="t-actions">
           <button className="btn btn-outline btn-sm" onClick={() => handleAction(r.alertId)}>Action</button>
           <button className="btn btn-success btn-sm" onClick={() => handleClose(r.alertId)}>
