@@ -2,24 +2,12 @@ import React, { useMemo } from "react";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import ProgressBar from "../../components/ProgressBar.jsx";
 import { Loader } from "../../components/Loader.jsx";
-import { formatCompact, formatCurrency } from "../../api/utils/format.js";
+import { formatCompact } from "../../api/utils/format.js";
 
 /* ---------------------------------------------------------------------- */
 /*  Brands tab: card grid                                                 */
 /* ---------------------------------------------------------------------- */
 export default function BrandGrid({ brands, loading, onSelect, advertisers }) {
-  const the_currency=2;
-  
-  // Map advertiserId -> currency, built once per advertisers change
-  const currencyByAdvertiser = useMemo(() => {
-    const map = new Map();
-
-    (advertisers || []).forEach((a) => {
-      map.set(a.advertiserId, a.currency || "USD");
-    });
-    return map;
-  }, [advertisers]);
-  
   
   if (loading) return <Loader />;
   return (
@@ -27,7 +15,7 @@ export default function BrandGrid({ brands, loading, onSelect, advertisers }) {
       {(brands || []).map((b) => {
         const pct = b.allocatedBudget ? (b.spentToDate / b.allocatedBudget) * 100 : 0;
         const remaining = b.allocatedBudget - b.spentToDate;
-         const currency = currencyByAdvertiser.get(b.advertiserId) || "USD";
+        
         return (
           <div className="brand-card" key={b.brandId} onClick={() => onSelect(b)}>
             <div className="bc-top">
@@ -41,7 +29,7 @@ export default function BrandGrid({ brands, loading, onSelect, advertisers }) {
             <div className="bc-budget">
               <span className="lab">Spent till date</span>
               <span className="val"> 
-                {formatCurrency(b.spentToDate, currency)}  / {formatCurrency(b.allocatedBudget, currency)}
+                { formatCompact(b.spentToDate, { money : false } ) }  / {formatCompact(b.allocatedBudget, { money : false } )}
                 </span>
             </div>
             <ProgressBar value={b.spentToDate} max={b.allocatedBudget} />

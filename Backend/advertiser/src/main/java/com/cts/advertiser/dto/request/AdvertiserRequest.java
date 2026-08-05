@@ -12,6 +12,5 @@ public class AdvertiserRequest {
     private String industry;
     private Integer accountManagerId;
     private BigDecimal annualBudget;
-    private String currency;
 
 }

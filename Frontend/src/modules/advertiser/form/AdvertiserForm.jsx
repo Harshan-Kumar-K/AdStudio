@@ -13,7 +13,6 @@ export default function AdvertiserForm({ initial, onCancel, onSaved }) {
     industry: initial?.industry || "",
    accountManagerId: user.userId,
     annualBudget: initial?.annualBudget ?? "",
-    currency: initial?.currency || "USD",
   });
    
   const [saving, setSaving] = useState(false);
@@ -107,15 +106,7 @@ export default function AdvertiserForm({ initial, onCancel, onSaved }) {
                 onChange={set("annualBudget")}
               />
             </div>
-            <div className="universal-field">
-              <label className="universal-label">Currency</label>
-              <select className="universal-select" value={form.currency} onChange={set("currency")}>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-                <option value="INR">INR</option>
-              </select>
-            </div>
+            
           </div>
 
           <div className="universal-field">

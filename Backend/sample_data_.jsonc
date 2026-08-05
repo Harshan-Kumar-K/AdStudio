@@ -68,8 +68,7 @@
     "advertiserId": 2,
     "brandName": "puma",
     "category": "shoes",
-    "allocatedBudget": 2000,
-    "currency": "dollar"
+    "allocatedBudget": 2000
   },
 
   // ------===============-----------------================------------===========--------

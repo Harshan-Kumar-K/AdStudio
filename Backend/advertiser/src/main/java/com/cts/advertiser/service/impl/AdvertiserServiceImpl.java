@@ -34,7 +34,6 @@ public class AdvertiserServiceImpl implements AdvertiserService {
             .industry(request.getIndustry())
             .accountManagerId(request.getAccountManagerId())
             .annualBudget(request.getAnnualBudget())
-            .currency(request.getCurrency())
             .build();
 
         Advertiser saved = advertiserRepository.save(advertiser);
@@ -74,7 +73,7 @@ public class AdvertiserServiceImpl implements AdvertiserService {
         advertiser.setIndustry(request.getIndustry());
         advertiser.setAccountManagerId(request.getAccountManagerId());
         advertiser.setAnnualBudget(request.getAnnualBudget());
-        advertiser.setCurrency(request.getCurrency());
+
 
         Advertiser updated = advertiserRepository.save(advertiser);
 
@@ -109,7 +108,6 @@ public class AdvertiserServiceImpl implements AdvertiserService {
         response.setIndustry(advertiser.getIndustry());
         response.setAccountManagerId(advertiser.getAccountManagerId());
         response.setAnnualBudget(advertiser.getAnnualBudget());
-        response.setCurrency(advertiser.getCurrency());
         response.setStatus(advertiser.getStatus() != null ? advertiser.getStatus().name() : null);
         response.setCreatedAt(advertiser.getCreatedAt());
         response.setUpdatedAt(advertiser.getUpdatedAt());

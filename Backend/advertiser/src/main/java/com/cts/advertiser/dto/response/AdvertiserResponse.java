@@ -13,7 +13,6 @@ public class AdvertiserResponse {
     private String industry;
     private Integer accountManagerId;
     private BigDecimal annualBudget;
-    private String currency;
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

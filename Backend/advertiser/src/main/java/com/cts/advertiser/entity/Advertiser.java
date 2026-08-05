@@ -31,8 +31,6 @@ public class Advertiser {
     @Column(name = "AnnualBudget", precision = 15, scale = 2)
     private BigDecimal annualBudget;
 
-    @Column(name = "Currency", length = 3)
-    private String currency;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Status")
@@ -54,7 +52,6 @@ public class Advertiser {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
         if (this.status == null) this.status = AdvertiserStatus.Active;
-        if (this.currency == null) this.currency = "USD";
     }
 
     @PreUpdate

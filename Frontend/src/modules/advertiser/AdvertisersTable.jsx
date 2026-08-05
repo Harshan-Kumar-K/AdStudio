@@ -3,7 +3,7 @@ import DataTable from "../../components/DataTable.jsx";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import { Loader } from "../../components/Loader.jsx";
 import { IcBuilding, IcEdit } from "../../assets/icons.jsx";
-import { formatCurrency } from "../../api/utils/format.js";
+import { formatCompact } from "../../api/utils/format.js";
 
 /* ---------------------------------------------------------------------- */
 /*  Advertisers tab: data table                                           */
@@ -17,7 +17,7 @@ export default function AdvertisersTable({ advertisers, loading, onEdit }) {
       </div>
     )},
     { key: "accountManager", label: "Account Manager ID", render: (r) => <span className="cell-muted">{r.accountManagerId}</span> },
-    { key: "annualBudget", label: "Annual Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCurrency(r.annualBudget, r.currency)}</span> },
+    { key: "annualBudget", label: "Annual Budget", align: "right", mono: true, render: (r) => <span className="strong">{ formatCompact(r.annualBudget, { money : true } ) }</span> },
     { key: "advertiserId", label: "Advertiser ID", render: (r) => <span className="badge badge-gray">{r.advertiserId}</span> },
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
     { key: "actions", label: "", align: "right", render: (r) => (

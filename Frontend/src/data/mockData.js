@@ -69,12 +69,12 @@ export const MOCK_RECENT_CAMPAIGNS = [
 
 /* ---------------- Advertisers & Brands ---------------- */
 export const MOCK_ADVERTISERS = [
-  { id: "ADV-1001", companyName: "Voltio Motors", industry: "Automotive", accountManager: "Marcus Reed", annualBudget: 4200000, currency: "USD", status: "Active" },
-  { id: "ADV-1002", companyName: "Nimbus Tech", industry: "Consumer Electronics", accountManager: "Priya Nair", annualBudget: 2800000, currency: "USD", status: "Active" },
-  { id: "ADV-1003", companyName: "Lumière Beauty", industry: "Cosmetics", accountManager: "Sofia Marchetti", annualBudget: 1950000, currency: "USD", status: "Active" },
-  { id: "ADV-1004", companyName: "Heritage Bank", industry: "Financial Services", accountManager: "Daniel Cho", annualBudget: 3600000, currency: "USD", status: "Active" },
-  { id: "ADV-1005", companyName: "AquaPure", industry: "Beverages", accountManager: "Marcus Reed", annualBudget: 1200000, currency: "USD", status: "Inactive" },
-  { id: "ADV-1006", companyName: "Trailhead Outdoors", industry: "Retail", accountManager: "Priya Nair", annualBudget: 880000, currency: "USD", status: "Suspended" },
+  { id: "ADV-1001", companyName: "Voltio Motors", industry: "Automotive", accountManager: "Marcus Reed", annualBudget: 4200000, status: "Active" },
+  { id: "ADV-1002", companyName: "Nimbus Tech", industry: "Consumer Electronics", accountManager: "Priya Nair", annualBudget: 2800000,   status: "Active" },
+  { id: "ADV-1003", companyName: "Lumière Beauty", industry: "Cosmetics", accountManager: "Sofia Marchetti", annualBudget: 1950000,   status: "Active" },
+  { id: "ADV-1004", companyName: "Heritage Bank", industry: "Financial Services", accountManager: "Daniel Cho", annualBudget: 3600000,   status: "Active" },
+  { id: "ADV-1005", companyName: "AquaPure", industry: "Beverages", accountManager: "Marcus Reed", annualBudget: 1200000,   status: "Inactive" },
+  { id: "ADV-1006", companyName: "Trailhead Outdoors", industry: "Retail", accountManager: "Priya Nair", annualBudget: 880000,   status: "Suspended" },
 ];
 
 export const MOCK_BRANDS = [
