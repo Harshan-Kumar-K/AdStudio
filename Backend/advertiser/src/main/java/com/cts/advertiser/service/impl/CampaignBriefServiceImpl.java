@@ -1,8 +1,12 @@
 package com.cts.advertiser.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.cts.advertiser.entity.Advertiser;
+import com.cts.advertiser.entity.Brand;
+import com.cts.advertiser.repository.BrandRepository;
 import com.cts.advertiser.shared.NotificationClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +30,14 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     private final CampaignBriefRepository campaignBriefRepository;
     private final StatusTransitionValidator statusTransitionValidator;
     private final NotificationClient notificationClient;
+    private final BrandRepository brandRepository;
 
     // Converts request DTO to entity and saves to database
     @Override
     @Transactional
     public CampaignBriefResponse createCampaignBrief(CampaignBriefRequest request) {
-        
+        validateBudgetHeadroom(request.getBrandId(), request.getTotalBudget());
+
         CampaignBrief brief = CampaignBrief.builder()
             .brandId(request.getBrandId())
             .campaignName(request.getCampaignName())
@@ -149,6 +155,32 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
         notificationClient.notify(brief.getSubmittedById(),
                 "Campaign Brief #" + id + " was deleted.",
                 "Brief");
+    }
+
+    // Validates that the requested budget does not exceed advertiser's remaining budget headroom
+    private void validateBudgetHeadroom(Integer brandId, BigDecimal campaignTotalBudget) {
+
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(() -> new ResourceNotFoundException("Brand not found with ID: " + brandId));
+
+        if(brand.getAllocatedBudget() == null) return;
+        if(campaignTotalBudget == null) return;
+
+        BigDecimal alreadyAllocated;
+
+//        if(excludeBrandId != null) alreadyAllocated = brandRepository.sumAllocatedBudgetByAdvertiserExcludingBrand(advertiserId, excludeBrandId);
+         alreadyAllocated = brand.getSpentToDate() != null ? brand.getSpentToDate() : BigDecimal.ZERO;
+
+        BigDecimal remainingBudget = brand.getAllocatedBudget().subtract(alreadyAllocated);
+
+        if(campaignTotalBudget.compareTo(remainingBudget) > 0) {
+            throw new IllegalArgumentException(String.format("Insufficient budget headroom. Requested: %s, Available: %s (Annual: %s, Already allocated: %s", campaignTotalBudget, remainingBudget, brand.getAllocatedBudget(), alreadyAllocated));
+        }
+
+        // update brand with new spendtoDate.
+        brand.setSpentToDate(alreadyAllocated.add(campaignTotalBudget));
+        brandRepository.save(brand);
+
     }
 
     private CampaignBriefResponse mapToResponse(CampaignBrief brief) {

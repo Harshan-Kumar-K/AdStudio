@@ -39,7 +39,7 @@ export default function Register() {
     
     const res = await register(form.name, form.email, form.phone, form.role, form.password);
     setBusy(false);
-    if (res.ok) navigate("/dashboard");
+    if (res.ok) navigate("/login");
     else{ 
       
         console.log("Registration failed.----------------");
