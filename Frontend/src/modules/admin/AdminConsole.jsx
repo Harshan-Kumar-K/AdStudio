@@ -10,7 +10,7 @@ import {
   IcAdmin, IcPlus, IcUser, IcCheck, IcClose, IcEdit,
   IcFmtBanner, IcFmtVideo, IcFmtNative, IcFmtAudio, IcFmtRich, IcFmtText,
 } from "../../assets/icons.jsx";
-import { MOCK_USERS, MOCK_AUDIT_LOGS, MOCK_CHANNELS, MOCK_RATE_CARDS } from "../../data/mockData.js";
+import { MOCK_USERS, MOCK_AUDIT_LOGS, MOCK_CHANNELS } from "../../data/mockData.js";
 
 const ROLE_LABEL = {
   Admin: "Ad Ops Admin", AdvertiserBrand: "Advertiser", MediaPlanner: "Media Planner",
@@ -25,8 +25,7 @@ export default function AdminConsole() {
   const [tab, setTab] = useState("users");
   const { data: users, loading: lu, isMock } = useApiData(ENDPOINTS.adminUsers, MOCK_USERS);
   const { data: logs, loading: ll } = useApiData(ENDPOINTS.adminAuditLogs, MOCK_AUDIT_LOGS);
-  const { data: channels, loading: lc } = useApiData(ENDPOINTS.adminChannels, MOCK_CHANNELS);
-  const { data: rates, loading: lrc } = useApiData(ENDPOINTS.adminRateCards, MOCK_RATE_CARDS);
+  const channels = MOCK_CHANNELS;
 
   const userColumns = [
     { key: "name", label: "User", render: (r) => (
@@ -38,7 +37,7 @@ export default function AdminConsole() {
     { key: "status", label: "Status", render: (r) => <StatusBadge status={r.status} /> },
     { key: "actions", label: "", align: "right", render: (r) => (
       <div className="t-actions">
-        {r.status === "Active"
+        {r.status === "ACTIVE" // SUSPENDED
           ? <button className="btn btn-danger btn-sm"><IcClose size={14} /> Suspend</button>
           : <button className="btn btn-success btn-sm"><IcCheck size={14} /> Activate</button>}
         <button className="btn btn-ghost btn-sm"><IcEdit size={14} /></button>
@@ -47,26 +46,19 @@ export default function AdminConsole() {
   ];
 
   const logColumns = [
-    { key: "id", label: "Audit ID", render: (r) => <span className="cell-num cell-muted">{r.id}</span> },
-    { key: "user", label: "User", render: (r) => <span className="strong">{r.user}</span> },
+    { key: "auditId", label: "Audit ID", render: (r) => <span className="cell-num cell-muted">{r.auditId}</span> },
+    { key: "userId", label: "User", render: (r) => <span className="strong">{r.userId}</span> },
     { key: "action", label: "Action", render: (r) => <span className="badge badge-blue">{r.action}</span> },
     { key: "entityType", label: "Entity", render: (r) => <span className="cell-muted">{r.entityType}</span> },
     { key: "timestamp", label: "Timestamp", align: "right", render: (r) => <span className="cell-muted cell-num">{r.timestamp}</span> },
   ];
 
-  const rateColumns = [
-    { key: "publisher", label: "Publisher", render: (r) => <span className="strong">{r.publisher}</span> },
-    { key: "channel", label: "Channel", render: (r) => <span className="badge badge-navy">{r.channel}</span> },
-    { key: "format", label: "Format", render: (r) => <span className="cell-muted">{r.format}</span> },
-    { key: "baseCpm", label: "Base CPM", align: "right", mono: true, render: (r) => <span className="strong">${r.baseCpm.toFixed(2)}</span> },
-    { key: "floorCpm", label: "Floor CPM", align: "right", mono: true, render: (r) => `$${r.floorCpm.toFixed(2)}` },
-  ];
+ 
 
   const tabs = [
     { key: "users", label: "Users", count: (users || []).length },
     { key: "audit", label: "Audit Logs", count: (logs || []).length },
     { key: "channels", label: "Channel Catalog", count: (channels || []).length },
-    { key: "rates", label: "Rate Cards", count: (rates || []).length },
   ];
 
   const actionFor = { users: "Add user", rates: "Add rate card" };
@@ -84,7 +76,6 @@ export default function AdminConsole() {
 
       {tab === "users" && <div className="card">{lu ? <Loader /> : <DataTable columns={userColumns} rows={users} />}</div>}
       {tab === "audit" && <div className="card">{ll ? <Loader /> : <DataTable columns={logColumns} rows={logs} />}</div>}
-      {tab === "rates" && <div className="card">{lrc ? <Loader /> : <DataTable columns={rateColumns} rows={rates} />}</div>}
 
       {tab === "channels" && (
         lc ? <Loader /> : (

@@ -66,6 +66,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
     public List<String> getEligibleModules(Role role) {
         List<String> modules = new ArrayList<>();
 

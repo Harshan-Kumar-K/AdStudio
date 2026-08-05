@@ -65,10 +65,9 @@ export const ENDPOINTS = {
   notificationsUnreadCount: "api/notifications/unread-count",
 
   // --- admin ---
-  adminUsers: "admin/users",
-  adminAuditLogs: "admin/audit-logs",
+  adminUsers: "api/auth/users",
+  adminAuditLogs: "api/audit-logs",
   adminChannels: "admin/channels",
-  adminRateCards: "admin/rate-cards",
 };
 
 export default ENDPOINTS;
