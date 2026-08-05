@@ -50,7 +50,7 @@ export default function BriefsTable({ rows, loading, onSubmit, onApprove, onReje
       label: "Objective",
       render: (r) => <span className={`badge ${OBJECTIVE_TONE[r.objective] || "badge-gray"}`}>{r.objective}</span>,
     },
-    { key: "geography", label: "Geography", render: (r) => <span className="cell-muted">{r.geography}</span> },
+   
     {
       key: "flight",
       label: "Flight",

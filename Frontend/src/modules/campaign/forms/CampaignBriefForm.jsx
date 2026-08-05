@@ -10,8 +10,6 @@ const EMPTY_FORM = {
   brandId: 0,
   campaignName: "",
   objective: OBJECTIVES[0],
-  targetDemographic: "",
-  geography: "",
   startDate: "",
   endDate: "",
   totalBudget: "",
@@ -24,7 +22,7 @@ const EMPTY_FORM = {
  *
  * Payload shape sent to onSubmit matches the backend contract exactly:
  * {
- *   brandId, campaignName, objective, targetDemographic, geography,
+ *   brandId, campaignName, objective,
  *   startDate, endDate, totalBudget, channelPreferences, submittedById
  * }
  *
@@ -75,8 +73,6 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
       brandId: Number(form.brandId),
       campaignName: form.campaignName.trim(),
       objective: form.objective,
-      targetDemographic: "default",
-      geography: "india",
       startDate: form.startDate,
       endDate: form.endDate,
       totalBudget: Number(form.totalBudget),

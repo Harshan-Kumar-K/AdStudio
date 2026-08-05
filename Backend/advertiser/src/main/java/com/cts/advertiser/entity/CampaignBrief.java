@@ -35,12 +35,6 @@ public class CampaignBrief {
     @Column(name = "Objective")
     private CampaignObjective objective;
 
-    @Column(name = "TargetDemographic", columnDefinition = "TEXT")
-    private String targetDemographic;
-
-    @Column(name = "Geography", length = 200)
-    private String geography;
-
     @Column(name = "StartDate")
     private LocalDate startDate;
 

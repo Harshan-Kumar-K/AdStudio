@@ -42,8 +42,6 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
             .brandId(request.getBrandId())
             .campaignName(request.getCampaignName())
             .objective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null)
-            .targetDemographic(request.getTargetDemographic())
-            .geography(request.getGeography())
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .totalBudget(request.getTotalBudget())
@@ -101,8 +99,6 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
 
         brief.setCampaignName(request.getCampaignName());
         brief.setObjective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null);
-        brief.setTargetDemographic(request.getTargetDemographic());
-        brief.setGeography(request.getGeography());
         brief.setStartDate(request.getStartDate());
         brief.setEndDate(request.getEndDate());
         brief.setTotalBudget(request.getTotalBudget());
@@ -191,8 +187,6 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
         response.setBrandId(brief.getBrandId());
         response.setCampaignName(brief.getCampaignName());
         response.setObjective(brief.getObjective() != null ? brief.getObjective().name() : null);
-        response.setTargetDemographic(brief.getTargetDemographic());
-        response.setGeography(brief.getGeography());
         response.setStartDate(brief.getStartDate());
         response.setEndDate(brief.getEndDate());
         response.setTotalBudget(brief.getTotalBudget());
