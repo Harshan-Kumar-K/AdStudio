@@ -53,7 +53,7 @@ export default function PublisherPortal() {
 
   const tabs = [
     { key: "inbox", label: "IO Inbox", count: (inbox || []).length },
-    { key: "reports", label: "Delivery Reports", count: (reports || []).length },
+    { key: "reports", label: "Delivery Reports", count: null },
     { key: "invoices", label: "Invoices", count: (invoices || []).length },
   ];
 
@@ -95,7 +95,7 @@ export default function PublisherPortal() {
       )}
 
       {tab === "reports" && (
-        <DeliveryReportsTab data={reports} loading={reportsLoading} />
+        <DeliveryReportsTab data={reports} loading={reportsLoading}  invoices={invoices}/>
       )}
 
       {tab === "invoices" && (

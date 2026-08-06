@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
@@ -10,7 +10,15 @@ import { formatCompact, formatNumber } from "../../../api/utils/format.js";
  * New reports are created through <DeliveryReportForm /> from the
  * "Submit delivery report" button in PublisherPortal.
  */
-export default function DeliveryReportsTab({ data, loading }) {
+export default function DeliveryReportsTab({ data, loading , invoices}) {
+    const filteredData = useMemo(() => {
+    
+      const invoicedIoIds = new Set((invoices || []).map((inv) => inv.ioId));
+
+    return (data || []).filter((row) => invoicedIoIds.has(row.ioId));
+ 
+  }, [data, invoices]);
+
   const columns = [
     { key: "deliveryId", 
       label: "Delivery Id",
@@ -71,7 +79,7 @@ export default function DeliveryReportsTab({ data, loading }) {
 
   return (
     <div className="card">
-      {loading ? <Loader /> : <DataTable columns={columns} rows={data} />}
+      {loading ? <Loader /> : <DataTable columns={columns} rows={filteredData} />}
     </div>
   );
 }
