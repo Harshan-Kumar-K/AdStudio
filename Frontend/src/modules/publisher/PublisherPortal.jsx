@@ -14,6 +14,7 @@ import {
 import PublisherInboxTab from "./tabs/PublisherInboxTab.jsx";
 import DeliveryReportsTab from "./tabs/DeliveryReportsTab.jsx";
 import PublisherInvoicesTab from "./tabs/PublisherInvoicesTab.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 // import DeliveryReportForm from "./DeliveryReportForm.jsx";
 
 /**
@@ -26,12 +27,14 @@ export default function PublisherPortal() {
   const [tab, setTab] = useState("inbox");
   const [showReportForm, setShowReportForm] = useState(false);
 
+  const {user} = useAuth();
+
   const {
     data: inbox,
     loading: inboxLoading,
     isMock: inboxIsMock,
     reload: reloadInbox,
-  } = useApiData(ENDPOINTS.insertionOrders, MOCK_PUBLISHER_INBOX);
+  } = useApiData(`${ENDPOINTS.insertionOrders}/${user.userId}`, MOCK_PUBLISHER_INBOX);
 
   const {
     data: reports,

@@ -60,10 +60,10 @@ export default function Register() {
           <h2>Join the team and ship <span className="hl">campaigns faster</span>.</h2>
           <p>
             Create your AdStudio account to plan media, manage creative approvals, monitor
-            delivery pacing and keep billing reconciled — end to end.
+            delivery pacing and keep billing reconciled end to end.
           </p>
           <div className="ab-stats">
-            <div className="s"><div className="v">18</div><div className="l">Connected tables</div></div>
+            <div className="s"><div className="v">19+</div><div className="l">Tables</div></div>
             <div className="s"><div className="v">7</div><div className="l">Channels</div></div>
             <div className="s"><div className="v">6</div><div className="l">Team roles</div></div>
           </div>
@@ -132,7 +132,7 @@ export default function Register() {
 
           <div className="demo-note">
             <IcInfo />
-            <span>Demo mode: registration signs you straight in. Connect a backend on <b>localhost:9090</b> to persist accounts.</span>
+            <span>Make sure to run the backend on <b>localhost:9090</b> to get the portal access.</span>
           </div>
 
           <div className="auth-alt">

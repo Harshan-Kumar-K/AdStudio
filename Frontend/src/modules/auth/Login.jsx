@@ -52,13 +52,13 @@ export default function Login() {
           <LoginArt className="ab-art" />
           <h2>Run every campaign from one <span className="hl">command center</span>.</h2>
           <p>
-            Plan media, manage creative, track delivery and reconcile billing — all in a single
+            Plan media, manage creative, track delivery and reconcile billing. all in a single
             workspace built for advertising teams, planners and publishers.
           </p>
           <div className="ab-stats">
-            <div className="s"><div className="v">8K+</div><div className="l">Concurrent users</div></div>
-            <div className="s"><div className="v">184M</div><div className="l">Impressions tracked</div></div>
-            <div className="s"><div className="v">99.9%</div><div className="l">Uptime</div></div>
+            <div className="s"><div className="v">19+</div><div className="l">Tables</div></div>
+            <div className="s"><div className="v">7</div><div className="l">Channels</div></div>
+            <div className="s"><div className="v">6</div><div className="l">Team roles</div></div>
           </div>
         </div>
 
@@ -138,10 +138,8 @@ export default function Login() {
 
           <div className="demo-note">
             <IcInfo />
-            <span>
-              Demo mode: any email/password works. The app calls <b>localhost:9090</b> and falls
-              back to sample data if no backend is running.
-            </span>
+            <span>Make sure to run the backend on <b> localhost:9090 </b>
+             to get the portal access.</span>
           </div>
 
           <div className="auth-alt">

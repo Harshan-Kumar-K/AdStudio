@@ -160,7 +160,7 @@ public class SecurityConfig {
                     "/api/line-items/**",
                     "/api/insertion-orders/**"
             )
-            .hasAnyRole("MEDIA_PLANNER", "ADMIN")
+            .hasAnyRole("MEDIA_PLANNER","DELIVERY_PUBLISHER","ADMIN")
 
         // =============================================
         // DELIVERY RECORD MODULE

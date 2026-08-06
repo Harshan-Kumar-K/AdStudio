@@ -118,6 +118,7 @@ public class AuthServiceImpl implements AuthService {
 
         } else if (role == Role.DELIVERY_PUBLISHER) {
             modules.add("delivery");
+            modules.add("publisher");
             // NOTE: publisher intentionally excluded, matching your mock's "red gate" demo
             modules.add("analytics");
 
