@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface PublisherInvoiceRepository extends JpaRepository<PublisherInvoice, Long> {
 
-    Page<PublisherInvoice> findByPublisherId(Long publisherId, Pageable pageable);
+    List<PublisherInvoice> findByPublisherId(Long publisherId);
 
-    Page<PublisherInvoice> findByStatus(PublisherInvoiceStatus status, Pageable pageable);
+    List<PublisherInvoice> findByStatus(PublisherInvoiceStatus status);
 
     List<PublisherInvoice> findByIoId(Long ioId);
 }

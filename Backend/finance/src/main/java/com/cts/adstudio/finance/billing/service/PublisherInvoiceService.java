@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,22 +48,23 @@ public class PublisherInvoiceService {
         return PublisherInvoiceResponse.from(getEntity(id));
     }
 
-    public Page<PublisherInvoiceResponse> list(
+    public List<PublisherInvoiceResponse> list(
             Long publisherId,
-            PublisherInvoiceStatus status,
-            Pageable pageable) {
+            PublisherInvoiceStatus status) {
 
-        Page<PublisherInvoice> page;
+        List<PublisherInvoice> page;
 
         if (publisherId != null) {
-            page = repository.findByPublisherId(publisherId, pageable);
+            page = repository.findByPublisherId(publisherId);
         } else if (status != null) {
-            page = repository.findByStatus(status, pageable);
+            page = repository.findByStatus(status);
         } else {
-            page = repository.findAll(pageable);
+            page = repository.findAll();
         }
 
-        return page.map(PublisherInvoiceResponse::from);
+        return page.stream()
+                .map(PublisherInvoiceResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional

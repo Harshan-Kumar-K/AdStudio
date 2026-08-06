@@ -49,9 +49,8 @@ public class PublisherInvoiceController {
 
     public ApiResponse<List<PublisherInvoiceResponse>> list(
             @RequestParam(required = false) Long publisherId,
-            @RequestParam(required = false) PublisherInvoiceStatus status,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ApiResponse.page(service.list(publisherId, status, pageable), "Publisher invoices");
+            @RequestParam(required = false) PublisherInvoiceStatus status) {
+        return ApiResponse.ok(service.list(publisherId, status), "Publisher invoices");
     }
 
     @PutMapping("/{id}/reconcile")

@@ -34,7 +34,7 @@ export default function PublisherPortal() {
     loading: inboxLoading,
     isMock: inboxIsMock,
     reload: reloadInbox,
-  } = useApiData(`${ENDPOINTS.insertionOrders}/${user.userId}`, MOCK_PUBLISHER_INBOX);
+  } = useApiData(`${ENDPOINTS.insertionOrders}?publisherId=${user.userId}`, MOCK_PUBLISHER_INBOX);
 
   const {
     data: reports,
@@ -47,7 +47,7 @@ export default function PublisherPortal() {
     data: invoices,
     loading: invoicesLoading,
     isMock: invoicesIsMock,
-  } = useApiData(ENDPOINTS.publisherInvoices, MOCK_PUBLISHER_INVOICES);
+  } = useApiData(`${ENDPOINTS.publisherInvoices}?publisherId=${user.userId}`, MOCK_PUBLISHER_INVOICES);
 
   const isMock = inboxIsMock || reportsIsMock || invoicesIsMock;
 
