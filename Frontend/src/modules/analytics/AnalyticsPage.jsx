@@ -25,16 +25,20 @@ export default function Analytics() {
 
   const { data: lineItems, loading: laba , reload: reloadLLineItems} =  useApiData(  "api/line-items/all",[]  );
 
- function getSpendByChannel(lineItems) {
-  const totals = {};
+const CHANNELS = ["Display", "Video", "Social", "Search", "OOH"];
+
+function getSpendByChannel(lineItems) {
+  // seed every channel with 0 first
+  const totals = CHANNELS.reduce((acc, ch) => ({ ...acc, [ch]: 0 }), {});
 
   for (const { channel, plannedBudget } of lineItems || []) {
-    totals[channel] = (totals[channel] || 0) + (plannedBudget || 0);
+    if (totals[channel] === undefined) continue; // ignore unknown/unexpected channel values
+    totals[channel] += plannedBudget || 0;
   }
 
-  return Object.entries(totals).map(([label, value]) => ({
+  return CHANNELS.map((label) => ({
     label,
-    value: Math.round(value * 100) / 100, // avoid floating point noise
+    value: Math.round(totals[label] * 100) / 100,
   }));
 }
 
@@ -98,7 +102,7 @@ const spendByChannel = getSpendByChannel(lineItems);
             <div><h3>Spend by channel</h3><div className="sub">Total media spend ($K)</div></div>
             <IcChart size={20} style={{ color: "var(--navy-400)" }} />
           </div>
-          <div className="card-pad"><BarChart data={spendByChannel} unit="  cpm" prefix="₹" height={250} alternate /></div>
+          <div className="card-pad"><BarChart data={spendByChannel} unit="" prefix="₹" height={250} alternate /></div>
         </div>
       </div>
 
