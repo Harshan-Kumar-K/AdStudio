@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
         userId : payload.userId,
         token : payload.token
       };
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      localStorage.setItem(USER_KEY, JSON.stringify(u)); // this is how we are storing into the browser local storage
       setUser(u);
       return { ok: true };
     } catch {

@@ -24,6 +24,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // email and password entered at frontend will come to here
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -32,7 +33,7 @@ export default function Login() {
       return;
     }
     setBusy(true);
-    const res = await login(email, password);
+    const res = await login(email, password); // this login is from auth-context
     setBusy(false);
     if (res.ok) navigate("/dashboard");
     else setError("Sign in failed. Please check your details and try again.");
@@ -112,13 +113,6 @@ export default function Login() {
                 />
               </div>
             </div>
-
-            {/* <div className="auth-row-between">
-              <label className="check">
-                <input type="checkbox" defaultChecked /> Remember me
-              </label>
-              <a href="#forgot" className="link-muted" onClick={(e) => e.preventDefault()}>Forgot password?</a>
-            </div> */}
 
             <button type="submit" className="btn btn-primary auth-submit" disabled={busy}>
               {busy ? "Signing in…" : "Sign in"}
