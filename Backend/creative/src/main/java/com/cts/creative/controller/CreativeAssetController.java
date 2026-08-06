@@ -138,4 +138,12 @@ public ResponseEntity<ApiResponse<?>> getAllAssetLinkStatus() {
             )
     );
 }
+    @GetMapping("/{assetId}/file")
+    public ResponseEntity<byte[]> getFile(@PathVariable Long assetId) throws Exception {
+        byte[] bytes = service.getAssetFileBytes(assetId);
+        String contentType = service.getAssetFileContentType(assetId);
+        return ResponseEntity.ok()
+                .header("Content-Type", contentType)
+                .body(bytes);
+    }
 }
