@@ -29,15 +29,15 @@ export default function CreativeStudio() {
   const { user } = useAuth();
   const [tab, setTab] = useState("assets");
   const { data: assets, loading: la, isMock, reload: reloadAssets } = useApiData(ENDPOINTS.creativeAssets, MOCK_CREATIVE_ASSETS);
-  const { data: approvals, loading: lap } = useApiData(ENDPOINTS.creativeApprovals, MOCK_APPROVALS);
+  // "Approvals" is a *different* endpoint (link-status) from "assets", fetched
+  // once on mount - reloading assets after an upload does NOT refresh this
+  // list too, which is exactly why a newly-uploaded asset only showed up
+  // under Approvals after a full page reload. Grab its reload fn as well.
+  const { data: approvals, loading: lap, reload: reloadApprovals } = useApiData(ENDPOINTS.creativeApprovals, MOCK_APPROVALS);
   const { data: links, loading: ll, reload: reloadLinks } = useApiData(ENDPOINTS.assetLinks, MOCK_ASSET_LINKS);
 
   const { data: brands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
   const { data: briefs } = useApiData(ENDPOINTS.campaignBriefs, MOCK_BRIEFS);
-  // Line items come straight from the Media Planner (aggregated across all
-  // media plans - see useAllLineItems for why this can't be a single GET),
-  // so "link this asset to a line item" always offers a real, currently
-  // existing line item ID rather than a disconnected mock list.
   const { data: lineItems } = useAllLineItems(MOCK_LINE_ITEMS);
   const { data: users } = useApiData(ENDPOINTS.adminUsers, MOCK_USERS);
 
@@ -64,7 +64,6 @@ const handleUpload = async (payload, file) => {
   const fullPayload = { ...payload, uploadedById: user.userId };
 
   const params = new URLSearchParams();
-
   Object.entries(fullPayload).forEach(([key, value]) => {
     if (value !== null && value !== undefined && value !== "") {
       params.append(key, value);
@@ -98,7 +97,11 @@ const handleUpload = async (payload, file) => {
   const json = await response.json();
   const created = json && typeof json === "object" && "data" in json ? json.data : json;
 
+  // A new asset is DRAFT/PENDING_APPROVAL by default, i.e. it belongs in the
+  // Approvals tab right away - reload that list too, not just Assets, so it
+  // shows up without needing a manual page refresh.
   reloadAssets();
+  reloadApprovals();
 
   return created;
 };

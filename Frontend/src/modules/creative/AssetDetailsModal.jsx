@@ -2,6 +2,8 @@ import React from "react";
 import StatusBadge from "../../components/StatusBadge.jsx";
 import { IcTarget, IcLink } from "../../assets/icons.jsx";
 import { FORMAT_META } from "./creativeStudio.constants.js";
+import { API_BASE, ENDPOINTS } from "../../api/endpoints.js";
+import { useAuthedFileUrl } from "../../api/useAuthedFileUrl.js";
 
 function toFormatKey(str) {
   if (!str) return "Banner";
@@ -10,6 +12,13 @@ function toFormatKey(str) {
     .split("_")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join("");
+}
+
+function previewKindFor(formatKey) {
+  if (["Banner", "Image", "Native", "RichMedia"].includes(formatKey)) return "image";
+  if (formatKey === "Video") return "video";
+  if (formatKey === "Audio") return "audio";
+  return "none";
 }
 
 function toPascalNoSep(str) {
@@ -22,12 +31,24 @@ function toPascalNoSep(str) {
 }
 
 export default function AssetDetailsModal({ asset, onClose, brands = [], briefs = [], users = [], links = [], onRequestLink }) {
+  const formatKey = toFormatKey(asset?.format ?? asset?.assetType);
+  const previewKind = previewKindFor(formatKey);
+  const assetId = asset?.assetId ?? asset?.id;
+  // Same JWT-protected /file endpoint as AssetCard - fetched with the auth
+  // header attached and turned into a blob URL, since a plain <img src>
+  // can't send Authorization and would otherwise always 401.
+  const rawUrl =
+    asset && assetId != null && previewKind !== "none"
+      ? `${API_BASE}/${ENDPOINTS.creativeAssets}/${assetId}/file`
+      : null;
+  const { blobUrl, failed, error } = useAuthedFileUrl(rawUrl);
+
   if (!asset) return null;
 
-  const assetId = asset.assetId ?? asset.id;
   const formatLabel = asset.format ?? asset.assetType;
-  const meta = FORMAT_META[toFormatKey(formatLabel)] || FORMAT_META.Banner;
+  const meta = FORMAT_META[formatKey] || FORMAT_META.Banner;
   const Icon = meta.Icon;
+  const showMedia = blobUrl && !failed;
 
   const brand = brands.find((b) => String(b.brandId ?? b.id) === String(asset.brandId));
   const brief = briefs.find((b) => String(b.briefId ?? b.id) === String(asset.campaignBriefId));
@@ -64,8 +85,38 @@ export default function AssetDetailsModal({ asset, onClose, brands = [], briefs 
           <p className="universal-subtitle">Asset details</p>
         </div>
 
-        <div className="creative-thumb" style={{ background: meta.grad, marginBottom: 16 }}>
-          <Icon className="fmt-ic" />
+        <div className="creative-thumb" style={{ background: meta.grad, marginBottom: 16, position: "relative", overflow: "hidden", minHeight: 160 }}>
+          {showMedia && previewKind === "image" && (
+            <img
+              src={blobUrl}
+              alt={asset.assetName}
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          )}
+          {showMedia && previewKind === "video" && (
+            <video
+              src={blobUrl}
+              controls
+              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          )}
+          {showMedia && previewKind === "audio" && (
+            <>
+              <Icon className="fmt-ic" style={{ position: "relative", zIndex: 1 }} />
+              <audio
+                src={blobUrl}
+                controls
+                style={{ position: "absolute", bottom: 10, left: 10, right: 10, width: "calc(100% - 20px)" }}
+              />
+            </>
+          )}
+          {!showMedia && (
+            <Icon
+              className="fmt-ic"
+              style={{ position: "relative", zIndex: 1 }}
+              title={failed && error ? `Preview failed: ${error}` : undefined}
+            />
+          )}
         </div>
 
         <div className="universal-form">

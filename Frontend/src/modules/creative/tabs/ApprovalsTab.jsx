@@ -2,7 +2,8 @@ import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
 import { IcCheck, IcClose, IcTarget } from "../../../assets/icons.jsx";
-
+import { useState } from "react";
+import DecisionFeedbackModal from "../forms/DecisionFeedbackModal.jsx";
 import apiRequest from "../../../api/apiRequestSender.js";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { API_BASE } from "../../../api/endpoints.js";
@@ -25,38 +26,41 @@ export default function ApprovalsTab({ approvals, loading, onRequestLink, links 
 
   const { user } = useAuth();
 
-const handleReject = async (row) => {
-    const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
-    const feedbackVal =  prompt("Enter your Feedback to reject:");
-    await apiRequest(url, {
-      method: "PUT",
-      body: {
-        reviewerId: user.userId,
-        decision: "REJECTED",
-        feedback: feedbackVal
-      },
-    });
-    window.location.reload();
+  // Which row + decision ("APPROVED"/"REJECTED") is currently being
+  // confirmed, so the modal knows what to show and what to submit.
+  // null = modal closed.
+  const [pending, setPending] = useState(null); // { row, decision } | null
+  const [submitting, setSubmitting] = useState(false);
+
+  const submitDecision = async (feedbackVal) => {
+    if (!pending) return;
+    const { row, decision } = pending;
+
+    setSubmitting(true);
+    try {
+      const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
+      await apiRequest(url, {
+        method: "PUT",
+        body: {
+          reviewerId: user.userId,
+          decision,
+          feedback: feedbackVal,
+        },
+      });
+      window.location.reload();
+    } finally {
+      setSubmitting(false);
+      setPending(null);
+    }
   };
+
+  const handleReject = (row) => setPending({ row, decision: "REJECTED" });
 
   const handleLinkThis = (row) => {
     onRequestLink?.(row.assetId ?? row.id);
   };
 
-
-  const handleApproval = async (row) => {
-    const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
-    const feedbackVal =  prompt("Enter your Feedback to approve:");
-    await apiRequest(url, {
-      method: "PUT",
-      body: {
-        reviewerId: user.userId,
-        decision: "APPROVED",
-        feedback: feedbackVal
-      },
-    });
-    window.location.reload();
-  };
+  const handleApproval = (row) => setPending({ row, decision: "APPROVED" });
 
 const approvalColumns =[
   {
@@ -140,5 +144,16 @@ const approvalColumns =[
 ];
 
   if (loading) return <Loader />;
-  return <DataTable columns={approvalColumns} rows={approvals} />;
+  return (
+    <>
+      <DataTable columns={approvalColumns} rows={approvals} />
+      <DecisionFeedbackModal
+        decision={pending?.decision ?? null}
+        assetName={pending?.row?.assetName}
+        submitting={submitting}
+        onCancel={() => setPending(null)}
+        onSubmit={submitDecision}
+      />
+    </>
+  );
 }

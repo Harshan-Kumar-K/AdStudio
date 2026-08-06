@@ -121,6 +121,21 @@ public class CreativeService {
                         new CreativeNotFoundException(
                                 "Asset Not Found"));
     }
+    public byte[] getAssetFileBytes(Long assetId) throws java.io.IOException {
+        var asset = getAsset(assetId);
+        var path = java.nio.file.Paths.get(asset.getFilePath());
+        if (!Files.exists(path)) {
+            throw new CreativeNotFoundException("Stored file for asset " + assetId + " could not be found on disk");
+        }
+        return Files.readAllBytes(path);
+    }
+
+    public String getAssetFileContentType(Long assetId) throws java.io.IOException {
+        var asset = getAsset(assetId);
+        var path = java.nio.file.Paths.get(asset.getFilePath());
+        String probed = Files.probeContentType(path);
+        return probed != null ? probed : "application/octet-stream";
+    }
 
     public CreativeAsset updateAsset(
             Long assetId,
