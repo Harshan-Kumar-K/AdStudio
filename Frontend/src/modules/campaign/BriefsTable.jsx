@@ -7,7 +7,7 @@ import { formatCompact } from "../../api/utils/format.js";
 import "./forms-and-modal.css";
 
 const OBJECTIVE_TONE = {
-  Awareness: "badge-blue",
+  Awareness: "badge-blue", 
   Consideration: "badge-navy",
   Conversion: "badge-green",
   Retention: "badge-amber",
