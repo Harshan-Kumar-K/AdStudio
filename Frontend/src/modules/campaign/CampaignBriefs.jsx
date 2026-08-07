@@ -3,6 +3,7 @@ import PageHeader from "../../components/PageHeader.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { MockFlag } from "../../components/Loader.jsx";
 import { useApiData } from "../../api/useApiData.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 import { API_BASE, ENDPOINTS } from "../../api/endpoints.js";
 import { IcCampaign, IcPlus } from "../../assets/icons.jsx";
@@ -16,6 +17,7 @@ import TargetAudienceForm from "./forms/TargetAudienceForm.jsx";
 import apiRequest from "../../api/apiRequestSender.js";
 
 export default function CampaignBriefs() {
+  const { user } = useAuth();
   const [tab, setTab] = useState("briefs");
 
   const { data: briefsData, loading: lb, isMock } = useApiData(ENDPOINTS.campaignBriefs, MOCK_BRIEFS);
@@ -31,6 +33,10 @@ export default function CampaignBriefs() {
     { key: "briefs", label: "Campaign Briefs", count: briefs.length },
     { key: "audiences", label: "Target Audiences", count: audiences.length },
   ];
+
+  // Only Admins are allowed to review a brief (see SecurityConfig on the
+  // Gateway: POST /campaign-briefs/*/decision is restricted to ADMIN).
+  const isAdmin = user?.role === "ADMIN";
 
   // ---- Create handlers ----
   // Every write reloads the whole page, so there's no need to merge
@@ -56,18 +62,23 @@ export default function CampaignBriefs() {
     window.location.reload();
   };
 
+  // Approve/Reject now go through the real decision endpoint, which
+  // records who reviewed it (reviewerId) and blocks self-approval on
+  // the backend. This replaces the old direct-status-update shortcut.
   const handleApproveBrief = async (row) => {
-    const url = `${API_BASE}/api/campaign-briefs/${row.briefId}/status?status=${"Approved"}`;
+    const url = `${API_BASE}/api/campaign-briefs/${row.briefId}/decision`;
     await apiRequest(url, {
-      method: "PUT"
+      method: "POST",
+      body: { reviewerId: user?.userId, decision: "Approved" },
     });
     window.location.reload();
   };
 
   const handleRejectBrief = async (row) => {
-    const url = `${API_BASE}/api/campaign-briefs/${row.briefId}/status?status=${"Rejected"}`;
+    const url = `${API_BASE}/api/campaign-briefs/${row.briefId}/decision`;
     await apiRequest(url, {
-      method: "PUT"
+      method: "POST",
+      body: { reviewerId: user?.userId, decision: "Rejected" },
     });
     window.location.reload();
   };
@@ -101,8 +112,8 @@ export default function CampaignBriefs() {
             rows={briefs}
             loading={lb}
             onSubmit={handleSubmitBrief}
-            onApprove={handleApproveBrief}
-            onReject={handleRejectBrief}
+            onApprove={isAdmin ? handleApproveBrief : undefined}
+            onReject={isAdmin ? handleRejectBrief : undefined}
           />
         ) : (
           <AudiencesTable rows={audiences} loading={la} />

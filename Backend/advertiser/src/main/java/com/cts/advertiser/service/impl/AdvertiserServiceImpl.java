@@ -67,13 +67,15 @@ public class AdvertiserServiceImpl implements AdvertiserService {
     @Transactional
     public AdvertiserResponse updateAdvertiser(Integer id, AdvertiserRequest request) {
         Advertiser advertiser = advertiserRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Advertiser not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Advertiser not found with ID: " + id));
 
         advertiser.setCompanyName(request.getCompanyName());
         advertiser.setIndustry(request.getIndustry());
         advertiser.setAccountManagerId(request.getAccountManagerId());
         advertiser.setAnnualBudget(request.getAnnualBudget());
-
+        if (request.getStatus() != null) {
+            advertiser.setStatus(Advertiser.AdvertiserStatus.valueOf(request.getStatus()));
+        }
 
         Advertiser updated = advertiserRepository.save(advertiser);
 
