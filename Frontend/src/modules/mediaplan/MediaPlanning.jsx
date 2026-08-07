@@ -36,44 +36,19 @@ export default function MediaPlanning() {
   const [tab, setTab] = useState("plans");
   const [actionError, setActionError] = useState(""); //stores fail msg
 
-  // Plans: GET /api/media-plans returns a PagedResponse { content, page, size, ... }
+  // Plans: GET /api/media-plans 
   const { data: planPage, loading: lp, isMock: pIsMock, reload: reloadPlans } = useApiData(ENDPOINTS.mediaPlans, MOCK_MEDIA_PLANS);
   const plans = Array.isArray(planPage) ? planPage : (planPage?.content || []); //optional chaining - return as array
 
-  // Insertion Orders: GET /api/insertion-orders returns a plain array, no paging
+  // Insertion Orders: GET /api/insertion-orders returns a plain array
   const { data: ioData, loading: li, isMock: ioIsMock, reload: reloadIos } = useApiData(ENDPOINTS.insertionOrders, MOCK_INSERTION_ORDERS);
   const ios = Array.isArray(ioData) ? ioData : (ioData?.content || []);
 
-  // Line Items: no "get all" endpoint exists on the backend — only
-  const [lineItems, setLineItems] = useState(null);
-  const [ll, setLl] = useState(true);
-  const [liIsMock, setLiIsMock] = useState(false);
+  // Line items: GET /api/line-items/all returns a plain array
+  const { data: liData, loading: ll, isMock: liIsMock, reload: reloadLineItems } = useApiData(ENDPOINTS.lineItems, MOCK_LINE_ITEMS);
+  const lineItems = Array.isArray(liData) ? liData : (liData?.content || []);
 
-  function loadLineItems() {
-    if (plans.length === 0) { setLineItems([]); 
-                              setLl(false); //stops loading lineitem
-                              return; }
-    setLl(true);
-    return Promise.all( //waits for all reply
-      plans.map((p) => apiClient.get(`api/media-plans/${p.planId}/line-items`).catch(() => null)) //does'nt crash if any one req fails/ sends the other responses
-    ).then((results) => {
-      if (results.some((r) => r !== null)) {
-        setLineItems(results.filter(Boolean).flat()); //removes null plans & merge into single list
-        setLiIsMock(false);
-      } else {
-        setLineItems(MOCK_LINE_ITEMS);
-        setLiIsMock(true);
-      }
-    }).finally(() => setLl(false));
-  }
-
-  useEffect(() => {
-    if (lp) return;
-    loadLineItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lp, plans.length]);
-
-  const isMock = pIsMock || ioIsMock || liIsMock;
+  const isMock = pIsMock || ioIsMock || liIsMock; //if any of the 3 is mock, then show mock flag
 
   // ---- modals ----
   const [planModal, setPlanModal] = useState(null);       // null closed | {} new | plan row = edit
@@ -101,7 +76,7 @@ export default function MediaPlanning() {
     setActionError("");
     try {
       await apiClient.put(`api/line-items/${lineItemId}/status`, { status });
-      loadLineItems();
+      reloadLineItems();
     } catch (e) { setActionError(e.message || "Failed to update line item status."); }
   }
   async function deleteLineItem(lineItemId) {
@@ -109,7 +84,7 @@ export default function MediaPlanning() {
     setActionError("");
     try {
       await apiClient.del(`api/line-items/${lineItemId}`);
-      loadLineItems();
+      reloadLineItems();
     } catch (e) { setActionError(e.message || "Failed to delete line item."); }
   }
 
@@ -155,7 +130,7 @@ export default function MediaPlanning() {
     { key: "channel", label: "Channel", render: (r) => <span className={`badge ${CHANNEL_TONE[r.channel] || "badge-gray"}`}>{r.channel}</span> },
     { key: "publisher", label: "Publisher", render: (r) => <span className="cell-muted">{r.publisher}</span> },
     { key: "plannedImpressions", label: "Impressions", align: "right", mono: true, render: (r) => formatCompact(r.plannedImpressions) },
-    { key: "cpm", label: "Cost per K", align: "right", mono: true, render: (r) => r.cpm != null ? `$${Number(r.cpm).toFixed(2)}` : "—" },
+    { key: "cpm", label: "Cost per K", align: "right", mono: true, render: (r) => r.cpm != null ? `₹${Number(r.cpm).toFixed(2)}` : "—" },
     { key: "plannedBudget", label: "Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCompact(r.plannedBudget, { money: true })}</span> },
     { key: "progress", label: "Flight", render: (r) => {
       const progress = computeProgress(r.flightStart, r.flightEnd);
@@ -231,7 +206,7 @@ export default function MediaPlanning() {
   ];
 
   const handlePlanSaved = () => { setPlanModal(null); reloadPlans(); };
-  const handleLineItemSaved = () => { setLineItemModal(null); loadLineItems(); };
+  const handleLineItemSaved = () => { setLineItemModal(null); reloadLineItems(); };
   const handleIoSaved = () => { setIoModal(null); reloadIos(); };
 
   return (
@@ -262,7 +237,7 @@ export default function MediaPlanning() {
 
       <div className="card"> 
         {tab === "plans" && (lp ? <Loader /> : <DataTable columns={planColumns} rows={plans} />)}
-        {tab === "lines" && (ll ? <Loader /> : <DataTable columns={lineColumns} rows={lineItems || []} />)}
+        {tab === "lines" && (ll ? <Loader /> : <DataTable columns={lineColumns} rows={lineItems} />)}
         {tab === "ios" && (li ? <Loader /> : <DataTable columns={ioColumns} rows={ios} />)}
       </div>
 

@@ -178,8 +178,8 @@ export default function InsertionOrderForm({ initial, onCancel, onSaved }) {
 
           {liInfo && (
             <p className="universal-subtitle" style={{ marginTop: "-8px" }}>
-              Line item #{liInfo.lineItemId}: {liInfo.channel} · {liInfo.publisher} · CPM ${liInfo.cpm}.
-              Order value = (committed ÷ 1000) × CPM = <b>{computedValue.toFixed(2)}</b>
+              Line Item #{liInfo.lineItemId}: {liInfo.channel} · {liInfo.publisher} · CPM ₹{liInfo.cpm}.
+              Order value = (Committed ÷ 1000) × CPM = <b>{computedValue.toFixed(2)}</b>
             </p>
           )}
 
