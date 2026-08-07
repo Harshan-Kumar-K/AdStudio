@@ -6,16 +6,14 @@ import BarChart from "../../components/charts/BarChart.jsx";
 import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
 import { IcAnalytics,  IcEye, IcPointer, IcPercent, IcWallet, IcMoney, IcChart, IcCheckCircle, IcTrendUp } from "../../assets/icons.jsx";
-import { MOCK_ANALYTICS_KPIS, MOCK_IMPRESSIONS_TREND, MOCK_SPEND_BY_CHANNEL, MOCK_CHANNEL_PERF, MOCK_DELIVERY_RECORDS, MOCK_PACING_ALERTS } from "../../data/mockData.js";
-import { formatCompact, formatNumber } from "../../api/utils/format.js";
+import { MOCK_ANALYTICS_KPIS,  MOCK_DELIVERY_RECORDS, MOCK_PACING_ALERTS } from "../../data/mockData.js";
+import { formatCompact, formatNumber, getChannelPerformance, getSpendByChannel } from "../../api/utils/format.js";
 
 const CHANNEL_TONE = { Display: "badge-blue", Video: "badge-navy", Social: "badge-green", Search: "badge-amber", OOH: "badge-gray" };
 
 export default function Analytics() {
   const { data: k, loading, isMock } = useApiData(ENDPOINTS.analyticsKpis, MOCK_ANALYTICS_KPIS);
   
-  const perf = MOCK_CHANNEL_PERF;
-
    const {  data: delivery_records,   loading: lr,  isMock : isMockRecords,   reload: reloadRecords,
     } = useApiData(ENDPOINTS.deliveryRecords, MOCK_DELIVERY_RECORDS);
   
@@ -25,27 +23,10 @@ export default function Analytics() {
 
   const { data: lineItems, loading: laba , reload: reloadLLineItems} =  useApiData(  "api/line-items/all",[]  );
 
-const CHANNELS = ["Display", "Video", "Social", "Search", "OOH"];
-
-function getSpendByChannel(lineItems) {
-  // seed every channel with 0 first
-  const totals = CHANNELS.reduce((acc, ch) => ({ ...acc, [ch]: 0 }), {});
-
-  for (const { channel, plannedBudget } of lineItems || []) {
-    if (totals[channel] === undefined) continue; // ignore unknown/unexpected channel values
-    totals[channel] += plannedBudget || 0;
-  }
-
-  return CHANNELS.map((label) => ({
-    label,
-    value: Math.round(totals[label] * 100) / 100,
-  }));
-}
-
-const spendByChannel = getSpendByChannel(lineItems);
+  const spendByChannel = getSpendByChannel(lineItems);
   console.log(lineItems);
        
-
+  const perf = getChannelPerformance(lineItems || []);
   // delivery part stats
   const totalImp = (delivery_records || []).reduce((s, r) => s + r.deliveredImpressions, 0);
   const totalClicks = (delivery_records || []).reduce((s, r) => s + r.clicks, 0);
@@ -65,8 +46,8 @@ const spendByChannel = getSpendByChannel(lineItems);
   const perfColumns = [
     { key: "channel", label: "Channel", render: (r) => <span className={`badge ${CHANNEL_TONE[r.channel] || "badge-gray"}`}>{r.channel}</span> },
     { key: "impressions", label: "Impressions", align: "right", mono: true, render: (r) => <span className="strong">{r.impressions}</span> },
-    { key: "ctr", label: "CTR", align: "right", mono: true, render: (r) => `${r.ctr}%` },
-    { key: "cpm", label: "CPM", align: "right", mono: true, render: (r) => `$${r.cpm.toFixed(2)}` },
+    { key: "ctr", label: "Budget", align: "right", mono: true, render: (r) => `₹${r.ctr}` },
+    { key: "cpm", label: "CPM", align: "right", mono: true, render: (r) => `₹${r.cpm.toFixed(2)}` },
     { key: "deliveryRate", label: "Delivery", align: "right", render: (r) => (
       <div className="mini-bar-wrap">
         <div className="mini-bar"><span style={{ width: `${r.deliveryRate}%` }} /></div>
