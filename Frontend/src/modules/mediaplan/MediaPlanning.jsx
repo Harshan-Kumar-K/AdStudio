@@ -24,56 +24,31 @@ const CHANNEL_TONE = {
 // Flight progress isn't sent by the backend — derive it from the dates.
 function computeProgress(start, end) {
   if (!start || !end) return 0;
-  const s = new Date(start).getTime();
+  const s = new Date(start).getTime(); //returns in millisec
   const e = new Date(end).getTime();
   const now = Date.now();
-  if (now <= s) return 0;
+  if (now <= s) return 0; //start date must be after the cur data, else ret 0
   if (now >= e) return 100;
-  return Math.round(((now - s) / (e - s)) * 100);
+  return Math.round(((now - s) / (e - s)) * 100); //timeelapsed / total duration
 }
 
 export default function MediaPlanning() {
   const [tab, setTab] = useState("plans");
-  const [actionError, setActionError] = useState("");
+  const [actionError, setActionError] = useState(""); //stores fail msg
 
-  // Plans: GET /api/media-plans returns a PagedResponse { content, page, size, ... }
+  // Plans: GET /api/media-plans 
   const { data: planPage, loading: lp, isMock: pIsMock, reload: reloadPlans } = useApiData(ENDPOINTS.mediaPlans, MOCK_MEDIA_PLANS);
-  const plans = Array.isArray(planPage) ? planPage : (planPage?.content || []);
+  const plans = Array.isArray(planPage) ? planPage : (planPage?.content || []); //optional chaining - return as array
 
-  // Insertion Orders: GET /api/insertion-orders returns a plain array, no paging
+  // Insertion Orders: GET /api/insertion-orders returns a plain array
   const { data: ioData, loading: li, isMock: ioIsMock, reload: reloadIos } = useApiData(ENDPOINTS.insertionOrders, MOCK_INSERTION_ORDERS);
   const ios = Array.isArray(ioData) ? ioData : (ioData?.content || []);
 
-  // Line Items: no "get all" endpoint exists on the backend — only
-  // GET /api/media-plans/{planId}/line-items. Fetch one call per plan
-  // (once plans have loaded) and flatten the results into one list.
-  const [lineItems, setLineItems] = useState(null);
-  const [ll, setLl] = useState(true);
-  const [liIsMock, setLiIsMock] = useState(false);
+  // Line items: GET /api/line-items/all returns a plain array
+  const { data: liData, loading: ll, isMock: liIsMock, reload: reloadLineItems } = useApiData(ENDPOINTS.lineItems, MOCK_LINE_ITEMS);
+  const lineItems = Array.isArray(liData) ? liData : (liData?.content || []);
 
-  function loadLineItems() {
-    if (plans.length === 0) { setLineItems([]); setLl(false); return; }
-    setLl(true);
-    return Promise.all(
-      plans.map((p) => apiClient.get(`api/media-plans/${p.planId}/line-items`).catch(() => null))
-    ).then((results) => {
-      if (results.some((r) => r !== null)) {
-        setLineItems(results.filter(Boolean).flat());
-        setLiIsMock(false);
-      } else {
-        setLineItems(MOCK_LINE_ITEMS);
-        setLiIsMock(true);
-      }
-    }).finally(() => setLl(false));
-  }
-
-  useEffect(() => {
-    if (lp) return;
-    loadLineItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lp, plans.length]);
-
-  const isMock = pIsMock || ioIsMock || liIsMock;
+  const isMock = pIsMock || ioIsMock || liIsMock; //if any of the 3 is mock, then show mock flag
 
   // ---- modals ----
   const [planModal, setPlanModal] = useState(null);       // null closed | {} new | plan row = edit
@@ -101,7 +76,7 @@ export default function MediaPlanning() {
     setActionError("");
     try {
       await apiClient.put(`api/line-items/${lineItemId}/status`, { status });
-      loadLineItems();
+      reloadLineItems();
     } catch (e) { setActionError(e.message || "Failed to update line item status."); }
   }
   async function deleteLineItem(lineItemId) {
@@ -109,7 +84,7 @@ export default function MediaPlanning() {
     setActionError("");
     try {
       await apiClient.del(`api/line-items/${lineItemId}`);
-      loadLineItems();
+      reloadLineItems();
     } catch (e) { setActionError(e.message || "Failed to delete line item."); }
   }
 
@@ -155,7 +130,7 @@ export default function MediaPlanning() {
     { key: "channel", label: "Channel", render: (r) => <span className={`badge ${CHANNEL_TONE[r.channel] || "badge-gray"}`}>{r.channel}</span> },
     { key: "publisher", label: "Publisher", render: (r) => <span className="cell-muted">{r.publisher}</span> },
     { key: "plannedImpressions", label: "Impressions", align: "right", mono: true, render: (r) => formatCompact(r.plannedImpressions) },
-    { key: "cpm", label: "C Per Thousand", align: "right", mono: true, render: (r) => r.cpm != null ? `$${Number(r.cpm).toFixed(2)}` : "—" },
+    { key: "cpm", label: "Cost per K", align: "right", mono: true, render: (r) => r.cpm != null ? `₹${Number(r.cpm).toFixed(2)}` : "—" },
     { key: "plannedBudget", label: "Budget", align: "right", mono: true, render: (r) => <span className="strong">{formatCompact(r.plannedBudget, { money: true })}</span> },
     { key: "progress", label: "Flight", render: (r) => {
       const progress = computeProgress(r.flightStart, r.flightEnd);
@@ -196,7 +171,7 @@ export default function MediaPlanning() {
   ];
 
   const ioColumns = [
-    { key: "id", label: "IO", render: (r) => <span className="meta"><div className="strong">#{r.ioId}</div><div className="sb cell-muted">line item #{r.lineItemId}</div></span> },
+    { key: "id", label: "IO", render: (r) => <span className="meta"><div className="strong">#{r.ioId}</div><div className="sb cell-muted">Line Item #{r.lineItemId}</div></span> },
     { key: "publisher", label: "Publisher", render: (r) => <span className="cell-muted">Publisher #{r.publisherId}</span> },
     { key: "orderDate", label: "Ordered", render: (r) => <span className="cell-muted cell-num">{r.orderDate}</span> },
     { key: "committedImpressions", label: "Committed", align: "right", mono: true, render: (r) => formatNumber(r.committedImpressions) },
@@ -231,7 +206,7 @@ export default function MediaPlanning() {
   ];
 
   const handlePlanSaved = () => { setPlanModal(null); reloadPlans(); };
-  const handleLineItemSaved = () => { setLineItemModal(null); loadLineItems(); };
+  const handleLineItemSaved = () => { setLineItemModal(null); reloadLineItems(); };
   const handleIoSaved = () => { setIoModal(null); reloadIos(); };
 
   return (
@@ -240,7 +215,7 @@ export default function MediaPlanning() {
         Icon={IcMediaPlan}
         title="Media Plan & Insertion Orders"
         subtitle="Build multi-channel plans, schedule line items and track publisher confirmations"
-        actions={
+          actions={
           <>
             {isMock && <MockFlag />}
             {tab === "plans" && (
@@ -260,13 +235,13 @@ export default function MediaPlanning() {
 
       {actionError && <div className="form-error" style={{ marginBottom: 12 }}>{actionError}</div>}
 
-      <div className="card">
+      <div className="card"> 
         {tab === "plans" && (lp ? <Loader /> : <DataTable columns={planColumns} rows={plans} />)}
-        {tab === "lines" && (ll ? <Loader /> : <DataTable columns={lineColumns} rows={lineItems || []} />)}
+        {tab === "lines" && (ll ? <Loader /> : <DataTable columns={lineColumns} rows={lineItems} />)}
         {tab === "ios" && (li ? <Loader /> : <DataTable columns={ioColumns} rows={ios} />)}
       </div>
 
-      {planModal && (
+      {planModal && ( //runs only when plan model is not null
         <Modal title={planModal.planId ? `Edit plan #${planModal.planId}` : "New media plan"} onClose={() => setPlanModal(null)}>
           <MediaPlanForm initial={planModal} onCancel={() => setPlanModal(null)} onSaved={handlePlanSaved} />
         </Modal>

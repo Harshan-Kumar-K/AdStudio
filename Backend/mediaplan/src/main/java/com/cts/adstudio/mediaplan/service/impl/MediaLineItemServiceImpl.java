@@ -13,6 +13,8 @@ import com.cts.adstudio.mediaplan.shared.NotificationClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
@@ -145,6 +147,7 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
         return mapToResponse(saved);
     }
 
+    @Transactional
     @Override
     public void deleteLineItem(Integer lineItemId) {
         // Fetch (not just existsById) so we still have the plan's plannerId to notify after deletion.

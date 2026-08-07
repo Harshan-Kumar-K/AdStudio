@@ -30,7 +30,7 @@ export const ENDPOINTS = {
 
   // --- media plan & insertion orders ---
   mediaPlans: "api/media-plans",
-  lineItems: "api/line-items",
+  lineItems: "api/line-items/all",
   insertionOrders: "api/insertion-orders",
 
   // --- creative ---

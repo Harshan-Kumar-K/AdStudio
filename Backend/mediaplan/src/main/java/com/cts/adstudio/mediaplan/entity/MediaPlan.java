@@ -48,7 +48,7 @@ public class MediaPlan {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "mediaPlan", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "mediaPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MediaLineItem> lineItems;
 
     @PrePersist //this method is called before the entity is persisted in the database

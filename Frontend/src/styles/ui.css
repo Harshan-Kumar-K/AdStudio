@@ -15,6 +15,7 @@
   font-size: 13.5px;
   font-weight: 600;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.18s ease,
     border-color 0.18s ease, color 0.18s ease;
   user-select: none;
@@ -91,6 +92,25 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* ---------------- Icon-only row action button (Edit/Delete in tables) ---------------- */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  flex-shrink: 0;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--slate-500);
+  border: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.btn-icon:hover { background: var(--cloud); color: var(--navy-600); }
+.btn-icon[title="Delete"]:hover { background: var(--red-50); color: var(--red-600); }
+.btn-icon svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 /* ---------------- Cards ---------------- */
 .card {
