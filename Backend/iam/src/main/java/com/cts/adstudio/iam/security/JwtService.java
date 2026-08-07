@@ -15,7 +15,7 @@ import java.util.function.Function;
  * Creates and validates JSON Web Tokens (HMAC-SHA256).
  */
 @Component
-public class JwtService {
+public class  JwtService {
 
     @Value("${app.jwt.secret}")
     private String secret;

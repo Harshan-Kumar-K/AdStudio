@@ -7,8 +7,8 @@ import apiClient from "../../api/apiClient.js";
 export default function MediaPlanForm({ initial, onCancel, onSaved }) {
   const isEdit = Boolean(initial?.planId);
   const [form, setForm] = useState({
-    briefId: initial?.briefId ?? "",
-    plannerId: initial?.plannerId ?? "",
+    briefId: initial?.briefId ?? "", //nullish coalescing operator ??
+    plannerId: initial?.plannerId ?? "", 
     totalBudgetAllocated: initial?.totalBudgetAllocated ?? "",
     channelMix: initial?.channelMix ?? "",
     startDate: initial?.startDate ?? "",
