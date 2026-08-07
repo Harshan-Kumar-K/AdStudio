@@ -1,13 +1,15 @@
 import React, { useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import useApiData from "../../../api/useApiData";
+import ENDPOINTS from "../../../api/endpoints";
+import { MOCK_BRANDS } from "../../../data/mockData";
 
 const OBJECTIVES = ["Awareness", "Consideration", "Conversion", "Retention"];
 
 const EMPTY_FORM = {
-  brandId: "",
+  brandId: 0,
   campaignName: "",
   objective: OBJECTIVES[0],
-  targetDemographic: "",
-  geography: "",
   startDate: "",
   endDate: "",
   totalBudget: "",
@@ -20,7 +22,7 @@ const EMPTY_FORM = {
  *
  * Payload shape sent to onSubmit matches the backend contract exactly:
  * {
- *   brandId, campaignName, objective, targetDemographic, geography,
+ *   brandId, campaignName, objective,
  *   startDate, endDate, totalBudget, channelPreferences, submittedById
  * }
  *
@@ -37,6 +39,9 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
+  const { data: brands, loading: lb, reload: refetchBrands } = useApiData(ENDPOINTS.brands, MOCK_BRANDS);
+
+   const { user } = useAuth();
 
   const update = (field) => (e) => {
     const value = e.target.value;
@@ -49,15 +54,12 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
     if (!form.brandId || Number(form.brandId) <= 0) next.brandId = "Enter a valid brand id";
     if (!form.campaignName.trim()) next.campaignName = "Campaign name is required";
     if (!form.objective) next.objective = "Select an objective";
-    if (!form.targetDemographic.trim()) next.targetDemographic = "Target demographic is required";
-    if (!form.geography.trim()) next.geography = "Geography is required";
     if (!form.startDate) next.startDate = "Start date is required";
     if (!form.endDate) next.endDate = "End date is required";
     if (form.startDate && form.endDate && form.endDate < form.startDate) {
       next.endDate = "End date must be on or after the start date";
     }
     if (!form.totalBudget || Number(form.totalBudget) <= 0) next.totalBudget = "Enter a budget greater than 0";
-    if (!form.submittedById || Number(form.submittedById) <= 0) next.submittedById = "Enter a valid user id";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -71,13 +73,11 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
       brandId: Number(form.brandId),
       campaignName: form.campaignName.trim(),
       objective: form.objective,
-      targetDemographic: form.targetDemographic.trim(),
-      geography: form.geography.trim(),
       startDate: form.startDate,
       endDate: form.endDate,
       totalBudget: Number(form.totalBudget),
       channelPreferences: form.channelPreferences.trim(),
-      submittedById: Number(form.submittedById),
+      submittedById: user.userId,
     };
 
     try {
@@ -95,19 +95,28 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
       {serverError && <div className="form-error-banner">{serverError}</div>}
 
       <div className="form-grid form-grid-2">
-        <div className="form-group">
-          <label className="form-label" htmlFor="brandId">Brand ID</label>
-          <input
-            id="brandId"
-            type="number"
-            min="1"
-            className={`form-input ${errors.brandId ? "has-error" : ""}`}
-            value={form.brandId}
-            onChange={update("brandId")}
-            placeholder="e.g. 101"
-          />
-          {errors.brandId && <span className="form-error">{errors.brandId}</span>}
-        </div>
+
+         <div className="form-group">
+            <label className="form-label" htmlFor="brandId">Brand ID</label>
+            <select
+              id="brandId"
+              value={form.brandId}
+              onChange={update("brandId")}
+            >
+              <option value="">Select brand…</option>
+              {(brands ?? []).map((brand) => (
+                <option key={brand.brandId} value={brand.brandId}>
+                  {(brand.brandId)} — {brand.brandName}
+                </option>
+              ))}
+            </select>
+            {!form.brandId && (
+              <span className="adr-error" style={{ color: "var(--text-muted, #64748b)" }}>
+                Pick a brand first
+              </span>
+            )}
+            {errors.brandId && <span className="form-error">{errors.brandId}</span>}
+          </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="campaignName">Campaign name</label>
@@ -137,31 +146,6 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
           {errors.objective && <span className="form-error">{errors.objective}</span>}
         </div>
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="targetDemographic">Target demographic</label>
-          <input
-            id="targetDemographic"
-            type="text"
-            className={`form-input ${errors.targetDemographic ? "has-error" : ""}`}
-            value={form.targetDemographic}
-            onChange={update("targetDemographic")}
-            placeholder="e.g. 18-34, urban professionals"
-          />
-          {errors.targetDemographic && <span className="form-error">{errors.targetDemographic}</span>}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="geography">Geography</label>
-          <input
-            id="geography"
-            type="text"
-            className={`form-input ${errors.geography ? "has-error" : ""}`}
-            value={form.geography}
-            onChange={update("geography")}
-            placeholder="e.g. India - Tier 1 cities"
-          />
-          {errors.geography && <span className="form-error">{errors.geography}</span>}
-        </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="totalBudget">Total budget (₹)</label>
@@ -202,19 +186,6 @@ export default function CampaignBriefForm({ onSubmit, onCancel, submittedById })
           {errors.endDate && <span className="form-error">{errors.endDate}</span>}
         </div>
 
-        <div className="form-group">
-          <label className="form-label" htmlFor="submittedById">Submitted by (User ID)</label>
-          <input
-            id="submittedById"
-            type="number"
-            min="1"
-            className={`form-input ${errors.submittedById ? "has-error" : ""}`}
-            value={form.submittedById}
-            onChange={update("submittedById")}
-            placeholder="e.g. 7"
-          />
-          {errors.submittedById && <span className="form-error">{errors.submittedById}</span>}
-        </div>
 
         <div className="form-group form-span-2">
           <label className="form-label" htmlFor="channelPreferences">Channel preferences</label>

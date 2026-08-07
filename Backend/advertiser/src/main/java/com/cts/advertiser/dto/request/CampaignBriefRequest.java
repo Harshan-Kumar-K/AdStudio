@@ -16,8 +16,6 @@ public class CampaignBriefRequest {
     private String campaignName;
     
     private String objective;
-    private String targetDemographic;
-    private String geography;
     private LocalDate startDate;
     private LocalDate endDate;
     private BigDecimal totalBudget;

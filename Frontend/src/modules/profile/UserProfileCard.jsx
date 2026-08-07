@@ -7,7 +7,7 @@ import { useAuth } from "../../context/AuthContext";
  * ---------------------------------------------------------------------------
  * Static (no animation/motion), stylish sky-blue & white profile card.
  *
- * Consumes { user, eligibility, logout } from AuthContext.
+ * Consumes { user, logout } from AuthContext.
  *
  * `user` fields match the JPA entity exactly:
  *   userId, name, role, email, password, phone, accountId, status
@@ -60,26 +60,10 @@ const getStatusMeta = (status) => {
   }
 };
 
-// Maps `eligibility` (boolean or string, depending on what the API sends)
-// to a badge style + label
-const getEligibilityMeta = (eligibility) => {
-  if (typeof eligibility === "boolean") {
-    return eligibility
-      ? { label: "Eligible for Dashboard", className: "badge-green" }
-      : { label: "Not Eligible", className: "badge-red" };
-  }
-  if (typeof eligibility === "string" && eligibility.trim() !== "") {
-    const positive = ["ELIGIBLE", "ACTIVE", "APPROVED", "YES", "TRUE"].includes(
-      eligibility.toUpperCase()
-    );
-    return { label: formatLabel(eligibility), className: positive ? "badge-green" : "badge-amber" };
-  }
-  return { label: "Not Available", className: "badge-gray" };
-};
 
 const UserProfileCard = () => {
-   const {user, eligibility, logout}= useAuth();
-  // const { user, eligibility, logout } = useContext(AuthContext);
+   const {user,  logout}= useAuth();
+  // const { user, logout } = useContext(AuthContext);
 
   const handleLogout = () => {
     // Sample function as requested — replace with real logout logic.
@@ -98,8 +82,7 @@ const UserProfileCard = () => {
   }
 
   const initials = getInitials(user.name);
-  const statusMeta = getStatusMeta(user.status);
-  const eligibilityMeta = getEligibilityMeta(eligibility);
+  const statusMeta = getStatusMeta("Active");
 
   return (
     <div className="profile-card">
@@ -155,13 +138,7 @@ const UserProfileCard = () => {
             </span>
           </div>
 
-          <div className="badge-item">
-            <span className="badge-item-label">Eligibility</span>
-            <span className={`status-pill ${eligibilityMeta.className}`}>
-              <span className="status-dot" aria-hidden="true" />
-              {eligibilityMeta.label}
-            </span>
-          </div>
+         
         </div>
 
         <div className="meta-strip">

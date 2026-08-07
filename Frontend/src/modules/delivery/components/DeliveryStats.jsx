@@ -13,7 +13,7 @@ export default function DeliveryStats({ records, alerts }) {
   const totalImp = (records || []).reduce((s, r) => s + r.deliveredImpressions, 0);
   const totalClicks = (records || []).reduce((s, r) => s + r.clicks, 0);
   const totalSpend = (records || []).reduce((s, r) => s + r.spend, 0);
-  const openAlerts = (alerts || []).filter((a) => a.status === "Open").length;
+  const openAlerts = (alerts || []).filter((a) => String(a.status).toUpperCase() === "OPEN").length;
 
   return (
     <div className="stat-grid">

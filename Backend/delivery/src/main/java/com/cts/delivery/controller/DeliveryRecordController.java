@@ -23,6 +23,19 @@ public class DeliveryRecordController {
                 service.create(request));
     }
 
+    @GetMapping("/io/{ioId}")
+    public ResponseEntity<?> getIoDeliveries(@PathVariable Long ioId) {
+
+        return ResponseEntity.ok(service.getIoDeliveries(ioId));
+    }
+
+
+    @GetMapping("/io/{ioId}/summary")
+    public ResponseEntity<?> getIoSummary(@PathVariable Long ioId) {
+
+        return ResponseEntity.ok(service.getIoSummary(ioId));
+    }
+
     @GetMapping
     public ResponseEntity<?> getAll() {
 

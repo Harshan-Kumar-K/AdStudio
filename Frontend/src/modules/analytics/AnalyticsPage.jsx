@@ -2,33 +2,64 @@ import React from "react";
 import PageHeader from "../../components/PageHeader.jsx";
 import DataTable from "../../components/DataTable.jsx";
 import { Loader, MockFlag } from "../../components/Loader.jsx";
-import LineChart from "../../components/charts/LineChart.jsx";
 import BarChart from "../../components/charts/BarChart.jsx";
 import { useApiData } from "../../api/useApiData.js";
 import { ENDPOINTS } from "../../api/endpoints.js";
-import { IcAnalytics, IcDownload, IcEye, IcPointer, IcPercent, IcWallet, IcMoney, IcChart, IcCheckCircle, IcTrendUp } from "../../assets/icons.jsx";
-import { MOCK_ANALYTICS_KPIS, MOCK_IMPRESSIONS_TREND, MOCK_SPEND_BY_CHANNEL, MOCK_CHANNEL_PERF } from "../../data/mockData.js";
+import { IcAnalytics,  IcEye, IcPointer, IcPercent, IcWallet, IcMoney, IcChart, IcCheckCircle, IcTrendUp } from "../../assets/icons.jsx";
+import { MOCK_ANALYTICS_KPIS, MOCK_IMPRESSIONS_TREND, MOCK_SPEND_BY_CHANNEL, MOCK_CHANNEL_PERF, MOCK_DELIVERY_RECORDS, MOCK_PACING_ALERTS } from "../../data/mockData.js";
 import { formatCompact, formatNumber } from "../../api/utils/format.js";
 
 const CHANNEL_TONE = { Display: "badge-blue", Video: "badge-navy", Social: "badge-green", Search: "badge-amber", OOH: "badge-gray" };
 
 export default function Analytics() {
   const { data: k, loading, isMock } = useApiData(ENDPOINTS.analyticsKpis, MOCK_ANALYTICS_KPIS);
-  const impressions = MOCK_IMPRESSIONS_TREND;
-  const spendByChannel = MOCK_SPEND_BY_CHANNEL;
+  
   const perf = MOCK_CHANNEL_PERF;
+
+   const {  data: delivery_records,   loading: lr,  isMock : isMockRecords,   reload: reloadRecords,
+    } = useApiData(ENDPOINTS.deliveryRecords, MOCK_DELIVERY_RECORDS);
+  
+    const { data: alerts, loading: laa , reload: reloadAlerts} = 
+    useApiData(  ENDPOINTS.pacingAlerts,
+      MOCK_PACING_ALERTS  );
+
+  const { data: lineItems, loading: laba , reload: reloadLLineItems} =  useApiData(  "api/line-items/all",[]  );
+
+const CHANNELS = ["Display", "Video", "Social", "Search", "OOH"];
+
+function getSpendByChannel(lineItems) {
+  // seed every channel with 0 first
+  const totals = CHANNELS.reduce((acc, ch) => ({ ...acc, [ch]: 0 }), {});
+
+  for (const { channel, plannedBudget } of lineItems || []) {
+    if (totals[channel] === undefined) continue; // ignore unknown/unexpected channel values
+    totals[channel] += plannedBudget || 0;
+  }
+
+  return CHANNELS.map((label) => ({
+    label,
+    value: Math.round(totals[label] * 100) / 100,
+  }));
+}
+
+const spendByChannel = getSpendByChannel(lineItems);
+  console.log(lineItems);
+       
+
+  // delivery part stats
+  const totalImp = (delivery_records || []).reduce((s, r) => s + r.deliveredImpressions, 0);
+  const totalClicks = (delivery_records || []).reduce((s, r) => s + r.clicks, 0);
+  const totalSpend = (delivery_records || []).reduce((s, r) => s + r.spend, 0);
+  const openAlerts = (alerts || []).filter((a) => String(a.status).toUpperCase() === "OPEN").length;
 
   if (loading || !k) return <Loader label="Crunching analytics…" />;
 
   const kpis = [
-    { Icon: IcEye, label: "Impressions", value: formatCompact(k.totalImpressions) },
-    { Icon: IcPointer, label: "Clicks", value: formatNumber(k.totalClicks) },
-    { Icon: IcPercent, label: "CTR", value: `${k.ctr}%` },
-    { Icon: IcWallet, label: "Spend", value: formatCompact(k.totalSpend, { money: true }) },
-    { Icon: IcMoney, label: "CPM", value: `$${k.cpm.toFixed(2)}` },
-    { Icon: IcMoney, label: "CPC", value: `$${k.cpc.toFixed(2)}` },
-    { Icon: IcCheckCircle, label: "Delivery Rate", value: `${k.deliveryRate}%` },
-    { Icon: IcTrendUp, label: "Agency ROI", value: `${k.agencyRoi}×` },
+    { Icon: IcEye, label: "Impressions", value: formatCompact(totalImp) },
+    { Icon: IcPointer, label: "Clicks", value: formatNumber(totalClicks) },
+    { Icon: IcPercent, label: "CTR", value: `${((totalClicks / totalImp) *100).toFixed(2)}%` },
+    { Icon: IcWallet, label: "Spend", value: formatCompact(totalSpend, { money: true }) },
+    { Icon: IcCheckCircle, label: "Open Alerts", value: `${openAlerts}` },
   ];
 
   const perfColumns = [
@@ -50,7 +81,6 @@ export default function Analytics() {
         Icon={IcAnalytics}
         title="Campaign Analytics & Reporting"
         subtitle="Impressions, spend pacing, CPM, CTR and ROI across channels and brands"
-        actions={<>{isMock && <MockFlag />}<button className="btn btn-outline btn-sm"><IcDownload /> Export report</button></>}
       />
 
       <div className="kpi-strip">
@@ -66,20 +96,13 @@ export default function Analytics() {
       </div>
 
       <div className="dash-grid mt">
-        <div className="card">
-          <div className="card-head">
-            <div><h3>Impressions over time</h3><div className="sub">Weekly delivered impressions (millions)</div></div>
-            <span className="badge badge-green"><span className="dot" /> On pace</span>
-          </div>
-          <div className="card-pad"><LineChart data={impressions} unit="M" height={250} /></div>
-        </div>
 
         <div className="card">
           <div className="card-head">
             <div><h3>Spend by channel</h3><div className="sub">Total media spend ($K)</div></div>
             <IcChart size={20} style={{ color: "var(--navy-400)" }} />
           </div>
-          <div className="card-pad"><BarChart data={spendByChannel} unit="K" prefix="$" height={250} alternate /></div>
+          <div className="card-pad"><BarChart data={spendByChannel} unit="" prefix="₹" height={250} alternate /></div>
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import React from "react";
 import StatCard from "../../../components/StatCard.jsx";
 import ProgressBar from "../../../components/ProgressBar.jsx";
 import { IcWallet, IcMoney, IcReceipt } from "../../../assets/icons.jsx";
-import { formatCompact, formatCurrency } from "../../../api/utils/format.js";
+import { formatCompact } from "../../../api/utils/format.js";
 
 export default function PaymentTrackerTab({ data }) {
   if (!data) return null;

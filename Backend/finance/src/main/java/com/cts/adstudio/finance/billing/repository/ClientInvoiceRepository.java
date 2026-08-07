@@ -39,4 +39,18 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, Lo
             where c.advertiserId = :advertiserId
             """)
     BigDecimal sumNetBillableByAdvertiser(@Param("advertiserId") Long advertiserId);
+
+
+    @Query("""
+        SELECT
+            COALESCE(SUM(CASE WHEN ci.status <> 'DRAFT' THEN ci.invoiceAmount ELSE 0 END), 0) AS totalBilled,
+            COALESCE(SUM(CASE WHEN ci.status = 'PAID' THEN ci.invoiceAmount ELSE 0 END), 0) AS collected,
+            COALESCE(SUM(CASE WHEN ci.status = 'ISSUED' THEN ci.invoiceAmount ELSE 0 END), 0) AS outstanding,
+            COALESCE(SUM(CASE WHEN ci.status = 'OVERDUE' THEN ci.invoiceAmount ELSE 0 END), 0) AS overdue,
+            COALESCE(SUM(CASE WHEN ci.status = 'PAID' THEN 1 ELSE 0 END), 0) AS paidCount,
+            COALESCE(SUM(CASE WHEN ci.status = 'OVERDUE' THEN 1 ELSE 0 END), 0) AS overdueCount,
+            COALESCE(SUM(CASE WHEN ci.status = 'DISPUTED' THEN 1 ELSE 0 END), 0) AS disputedCount
+        FROM ClientInvoice ci
+        """)
+    ClientInvoiceSummary getPaymentSummary();
 }

@@ -85,4 +85,8 @@ public class ClientInvoiceController {
     public ApiResponse<PaymentSummaryResponse> paymentSummary(@RequestParam Long advertiserId) {
         return ApiResponse.ok(service.paymentSummary(advertiserId), "Payment summary");
     }
+    @GetMapping("/payment-tracker")
+    public ApiResponse<PaymentTrackerDTO> getPaymentTracker() {
+        return ApiResponse.ok(service.getPaymentTracker(), "Payment tracker");
+    }
 }

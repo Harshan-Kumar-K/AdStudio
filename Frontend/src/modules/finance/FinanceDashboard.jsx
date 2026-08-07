@@ -3,8 +3,8 @@ import PageHeader from "../../components/PageHeader.jsx";
 import Tabs from "../../components/Tabs.jsx";
 import { MockFlag } from "../../components/Loader.jsx";
 import { useApiData } from "../../api/useApiData.js";
-import { API_BASE, ENDPOINTS } from "../../api/endpoints.js";
-import { IcFinance, IcPlus } from "../../assets/icons.jsx";
+import { ENDPOINTS } from "../../api/endpoints.js";
+import { IcFinance } from "../../assets/icons.jsx";
 import {
   MOCK_CLIENT_INVOICES,
   MOCK_PUBLISHER_RECON,
@@ -14,13 +14,9 @@ import {
 import ClientInvoicesTab from "./tabs/ClientInvoicesTab.jsx";
 import PublisherReconciliationTab from "./tabs/PublisherReconciliationTab.jsx";
 import PaymentTrackerTab from "./tabs/PaymentTrackerTab.jsx";
-import GenerateInvoiceForm from "./GenerateInvoiceForm.jsx";
-import { useAuth } from "../../context/AuthContext.jsx";
-import { getToken } from "../../api/apiClient.js";
 
 export default function FinanceDashboard() {
   const [tab, setTab] = useState("client");
-  const {user}= useAuth();
 
   const { data: client, loading: lc, isMock, reload: clientInvoicesReload } = useApiData(
     ENDPOINTS.clientInvoices,
@@ -60,7 +56,7 @@ export default function FinanceDashboard() {
       </div>
 
       {tab === "client" && <ClientInvoicesTab data={client} loading={lc}  reload_doer={clientInvoicesReload}/>}
-      {tab === "recon" && <PublisherReconciliationTab data={recon} loading={lr} />}
+      {tab === "recon" && <PublisherReconciliationTab data={recon} loading={lr} reload_doer={reconreload}/>}
       {tab === "payments" && <PaymentTrackerTab data={pay} />}
 
       

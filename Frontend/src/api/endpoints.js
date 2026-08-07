@@ -50,7 +50,7 @@ export const ENDPOINTS = {
   // --- finance ---
   clientInvoices: "api/client-invoices",
   publisherInvoiceRecon: "api/publisher-invoices",
-  // paymentTracker: "finance/payment-tracker",
+  paymentTracker: "api/client-invoices/payment-tracker",
 
   // --- analytics ---
   analyticsKpis: "analytics/kpis",
@@ -65,10 +65,9 @@ export const ENDPOINTS = {
   notificationsUnreadCount: "api/notifications/unread-count",
 
   // --- admin ---
-  adminUsers: "admin/users",
-  adminAuditLogs: "admin/audit-logs",
+  adminUsers: "api/auth/users",
+  adminAuditLogs: "api/audit-logs",
   adminChannels: "admin/channels",
-  adminRateCards: "admin/rate-cards",
 };
 
 export default ENDPOINTS;

@@ -140,7 +140,6 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
         response.setBrandId(brief.getBrandId());
         response.setCampaignName(brief.getCampaignName());
         response.setObjective(brief.getObjective() != null ? brief.getObjective().name() : null);
-        response.setTargetDemographic(brief.getTargetDemographic());
         response.setStartDate(brief.getStartDate());
         response.setEndDate(brief.getEndDate());
         response.setTotalBudget(brief.getTotalBudget());

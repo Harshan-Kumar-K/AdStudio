@@ -135,7 +135,7 @@ adstudio-frontend/
     ├── data/
     │   └── mockData.js          # eligibility + sample data for every module
     ├── utils/
-    │   └── format.js            # currency / number helpers
+    │   └── format.js     
     ├── assets/
     │   ├── icons.jsx            # custom inline SVG icon set
     │   ├── Logo.jsx             # AdStudio logo mark

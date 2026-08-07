@@ -45,6 +45,13 @@ public class MediaLineItemController {
                 "Line item fetched", lineItemService.getLineItemById(id)));
     }
 
+    @GetMapping("/api/line-items/all")
+    public ResponseEntity<ApiResponse<List<MediaLineItemResponse>>> getAllLineItems() {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Line items fetched", lineItemService.getAllLineItems()));
+    }
+
+
     // UPDATE a line item
     @PutMapping("/api/line-items/{id}")
     public ResponseEntity<ApiResponse<MediaLineItemResponse>> update(

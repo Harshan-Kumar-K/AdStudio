@@ -77,6 +77,13 @@ public class MediaLineItemServiceImpl implements MediaLineItemService {
     }
 
     @Override
+    public List<MediaLineItemResponse> getAllLineItems() {
+        return lineItemRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public MediaLineItemResponse getLineItemById(Integer lineItemId) {
         MediaLineItem item = lineItemRepository.findById(lineItemId)
                 .orElseThrow(() -> new ResourceNotFoundException(

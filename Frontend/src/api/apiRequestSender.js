@@ -1,3 +1,13 @@
+
+
+
+ //  this gets custom re-defined URL instead of just taking endpoint.. 
+ // usefule for complecated urls having query params. 
+
+
+
+
+
 /* ============================================================
    AdStudio · apiRequest helper
    Generic fetch wrapper for POST / PUT / PATCH / DELETE calls.

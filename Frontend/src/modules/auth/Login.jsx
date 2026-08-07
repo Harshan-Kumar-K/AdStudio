@@ -24,6 +24,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // email and password entered at frontend will come to here
   const submit = async (e) => {
     e.preventDefault();
     setError("");
@@ -32,7 +33,7 @@ export default function Login() {
       return;
     }
     setBusy(true);
-    const res = await login(email, password);
+    const res = await login(email, password); // this login is from auth-context
     setBusy(false);
     if (res.ok) navigate("/dashboard");
     else setError("Sign in failed. Please check your details and try again.");
@@ -51,13 +52,13 @@ export default function Login() {
           <LoginArt className="ab-art" />
           <h2>Run every campaign from one <span className="hl">command center</span>.</h2>
           <p>
-            Plan media, manage creative, track delivery and reconcile billing — all in a single
+            Plan media, manage creative, track delivery and reconcile billing. all in a single
             workspace built for advertising teams, planners and publishers.
           </p>
           <div className="ab-stats">
-            <div className="s"><div className="v">8K+</div><div className="l">Concurrent users</div></div>
-            <div className="s"><div className="v">184M</div><div className="l">Impressions tracked</div></div>
-            <div className="s"><div className="v">99.9%</div><div className="l">Uptime</div></div>
+            <div className="s"><div className="v">19+</div><div className="l">Tables</div></div>
+            <div className="s"><div className="v">7</div><div className="l">Channels</div></div>
+            <div className="s"><div className="v">6</div><div className="l">Team roles</div></div>
           </div>
         </div>
 
@@ -113,13 +114,6 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="auth-row-between">
-              <label className="check">
-                <input type="checkbox" defaultChecked /> Remember me
-              </label>
-              <a href="#forgot" className="link-muted" onClick={(e) => e.preventDefault()}>Forgot password?</a>
-            </div>
-
             <button type="submit" className="btn btn-primary auth-submit" disabled={busy}>
               {busy ? "Signing in…" : "Sign in"}
             </button>
@@ -144,10 +138,8 @@ export default function Login() {
 
           <div className="demo-note">
             <IcInfo />
-            <span>
-              Demo mode: any email/password works. The app calls <b>localhost:9090</b> and falls
-              back to sample data if no backend is running.
-            </span>
+            <span>Make sure to run the backend on <b> localhost:9090 </b>
+             to get the portal access.</span>
           </div>
 
           <div className="auth-alt">

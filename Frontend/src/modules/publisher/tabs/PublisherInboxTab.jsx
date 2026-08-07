@@ -13,22 +13,27 @@ import apiClient from "../../../api/apiClient.js";
  * call the backend directly via apiClient, then ask the parent to
  * refresh (onChanged) so the row's status picks up the new value.
  *
- * Expected backend routes (adjust to match your Spring controller):
- *   POST {API_BASE}/{ENDPOINTS.publisherInbox}/{id}/confirm
- *   POST {API_BASE}/{ENDPOINTS.publisherInbox}/{id}/reject
+ * This list is fetched from ENDPOINTS.insertionOrders, and the real
+ * Insertion Order service only exposes a single status-change route
+ * (not separate /confirm and /reject endpoints), so both actions go
+ * through the same PUT with the target status as the payload:
+ *   PUT {API_BASE}/{ENDPOINTS.insertionOrders}/{ioId}/status
+ *   body: { status: "Confirmed" | "Rejected" }
  */
 export default function PublisherInboxTab({ data, loading, onChanged }) {
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState("");
 
   async function handleDecision(row, decision) {
-    setBusyId(row.id);
+    const id = row.ioId ?? row.id;
+    const status = decision === "confirm" ? "Confirmed" : "Rejected";
+    setBusyId(id);
     setError("");
     try {
-      await apiClient.post(`${ENDPOINTS.publisherInbox}/${row.id}/${decision}`);
+      await apiClient.put(`${ENDPOINTS.insertionOrders}/${id}/status`, { status });
       onChanged && onChanged();
     } catch (err) {
-      setError(err.message || `Could not ${decision} ${row.id}. Please try again.`);
+      setError(err.message || `Could not ${decision} ${id}. Please try again.`);
     } finally {
       setBusyId(null);
     }
@@ -40,10 +45,12 @@ export default function PublisherInboxTab({ data, loading, onChanged }) {
       label: "Insert ord ID",
       render: (r) => (
         <span className="meta">
-          <div className="strong">{r.ioId}</div>
-          <div className="sb cell-muted">
-            #Publisher {r.publisherId}
-          </div>
+          <div className="strong">{r.ioId ?? r.id}</div>
+          {r.publisherId != null && (
+            <div className="sb cell-muted">
+              #Publisher {r.publisherId}
+            </div>
+          )}
         </span>
       ),
     },
@@ -99,7 +106,7 @@ export default function PublisherInboxTab({ data, loading, onChanged }) {
             <button
               type="button"
               className="btn btn-success btn-sm"
-              disabled={busyId === r.id}
+              disabled={busyId === (r.ioId ?? r.id)}
               onClick={() => handleDecision(r, "confirm")}
             >
               <IcCheck size={14} /> Confirm
@@ -107,7 +114,7 @@ export default function PublisherInboxTab({ data, loading, onChanged }) {
             <button
               type="button"
               className="btn btn-danger btn-sm"
-              disabled={busyId === r.id}
+              disabled={busyId === (r.ioId ?? r.id)}
               onClick={() => handleDecision(r, "reject")}
             >
               <IcClose size={14} /> Reject

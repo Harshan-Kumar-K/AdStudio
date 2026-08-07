@@ -1,6 +1,7 @@
 package com.cts.adstudio.iam.service.impl;
 
 import com.cts.adstudio.iam.enums.Role;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -66,6 +67,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long userId, UserStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException( "User not found with id: " + userId));
+
+        user.setStatus(status);
+        userRepository.save(user);
+    }
+
+    @Override
     public List<String> getEligibleModules(Role role) {
         List<String> modules = new ArrayList<>();
 
@@ -102,6 +118,7 @@ public class AuthServiceImpl implements AuthService {
 
         } else if (role == Role.DELIVERY_PUBLISHER) {
             modules.add("delivery");
+            modules.add("publisher");
             // NOTE: publisher intentionally excluded, matching your mock's "red gate" demo
             modules.add("analytics");
 
@@ -138,6 +155,10 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found: " + request.getEmail()));
+
+        if(user.getStatus() != UserStatus.ACTIVE) {
+            throw new IllegalStateException("User account is not active: " + user.getEmail());
+        }
 
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getUserId());
 

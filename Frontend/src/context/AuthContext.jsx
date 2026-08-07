@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
         userId : payload.userId,
         token : payload.token
       };
-      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      localStorage.setItem(USER_KEY, JSON.stringify(u)); // this is how we are storing into the browser local storage
       setUser(u);
       return { ok: true };
     } catch {
@@ -98,19 +98,11 @@ const register = useCallback(async (name, email, phone, role, password) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, phone, role, password }),
     });
-    console.log("heyy pppppp ",res);
-    
 
     if (!res.ok) throw new Error("backend registration failed");
 
     const json = await res.json();
     const payload = json.data || json;
-
-    setToken(payload.token);
-
-    const u = payload.user;
-    localStorage.setItem(USER_KEY, JSON.stringify(u));
-    setUser(u);
 
     return { ok: true };
  } catch (err) {

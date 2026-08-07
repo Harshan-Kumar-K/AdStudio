@@ -69,12 +69,12 @@ export const MOCK_RECENT_CAMPAIGNS = [
 
 /* ---------------- Advertisers & Brands ---------------- */
 export const MOCK_ADVERTISERS = [
-  { id: "ADV-1001", companyName: "Voltio Motors", industry: "Automotive", accountManager: "Marcus Reed", annualBudget: 4200000, currency: "USD", status: "Active" },
-  { id: "ADV-1002", companyName: "Nimbus Tech", industry: "Consumer Electronics", accountManager: "Priya Nair", annualBudget: 2800000, currency: "USD", status: "Active" },
-  { id: "ADV-1003", companyName: "Lumière Beauty", industry: "Cosmetics", accountManager: "Sofia Marchetti", annualBudget: 1950000, currency: "USD", status: "Active" },
-  { id: "ADV-1004", companyName: "Heritage Bank", industry: "Financial Services", accountManager: "Daniel Cho", annualBudget: 3600000, currency: "USD", status: "Active" },
-  { id: "ADV-1005", companyName: "AquaPure", industry: "Beverages", accountManager: "Marcus Reed", annualBudget: 1200000, currency: "USD", status: "Inactive" },
-  { id: "ADV-1006", companyName: "Trailhead Outdoors", industry: "Retail", accountManager: "Priya Nair", annualBudget: 880000, currency: "USD", status: "Suspended" },
+  { id: "ADV-1001", companyName: "Voltio Motors", industry: "Automotive", accountManager: "Marcus Reed", annualBudget: 4200000, status: "Active" },
+  { id: "ADV-1002", companyName: "Nimbus Tech", industry: "Consumer Electronics", accountManager: "Priya Nair", annualBudget: 2800000,   status: "Active" },
+  { id: "ADV-1003", companyName: "Lumière Beauty", industry: "Cosmetics", accountManager: "Sofia Marchetti", annualBudget: 1950000,   status: "Active" },
+  { id: "ADV-1004", companyName: "Heritage Bank", industry: "Financial Services", accountManager: "Daniel Cho", annualBudget: 3600000,   status: "Active" },
+  { id: "ADV-1005", companyName: "AquaPure", industry: "Beverages", accountManager: "Marcus Reed", annualBudget: 1200000,   status: "Inactive" },
+  { id: "ADV-1006", companyName: "Trailhead Outdoors", industry: "Retail", accountManager: "Priya Nair", annualBudget: 880000,   status: "Suspended" },
 ];
 
 export const MOCK_BRANDS = [
@@ -89,13 +89,13 @@ export const MOCK_BRANDS = [
 
 /* ---------------- Campaign briefs & audiences ---------------- */
 export const MOCK_BRIEFS = [
-  { id: "BRF-5001", campaignName: "Drive Electric", brand: "Voltio EV", objective: "Awareness", geography: "United States", startDate: "2025-06-01", endDate: "2025-09-30", totalBudget: 780000, channels: "Video, Display, Social", submittedBy: "Marcus Reed", status: "Active" },
-  { id: "BRF-5002", campaignName: "Charge Ahead", brand: "Voltio Charge", objective: "Consideration", geography: "California, Texas", startDate: "2025-07-15", endDate: "2025-10-15", totalBudget: 320000, channels: "Search, Display", submittedBy: "Marcus Reed", status: "Approved" },
-  { id: "BRF-5003", campaignName: "Flagship Launch", brand: "Nimbus Phone", objective: "Conversion", geography: "North America", startDate: "2025-08-01", endDate: "2025-11-30", totalBudget: 640000, channels: "Social, Video, Search", submittedBy: "Priya Nair", status: "Submitted" },
-  { id: "BRF-5004", campaignName: "Festive Glow", brand: "Lumière Skin", objective: "Retention", geography: "United States, Canada", startDate: "2025-10-01", endDate: "2025-12-24", totalBudget: 420000, channels: "Social, Display", submittedBy: "Sofia Marchetti", status: "Active" },
-  { id: "BRF-5005", campaignName: "Wealth Builder", brand: "Heritage Wealth", objective: "Consideration", geography: "United States", startDate: "2025-09-01", endDate: "2025-12-31", totalBudget: 560000, channels: "Display, Search, OOH", submittedBy: "Daniel Cho", status: "Draft" },
-  { id: "BRF-5006", campaignName: "Summer Splash", brand: "AquaPure Sparkling", objective: "Awareness", geography: "United States", startDate: "2025-05-01", endDate: "2025-08-31", totalBudget: 240000, channels: "OOH, Social", submittedBy: "Marcus Reed", status: "Completed" },
-  { id: "BRF-5007", campaignName: "Pure Hydration", brand: "AquaPure Sparkling", objective: "Conversion", geography: "Florida", startDate: "2025-06-15", endDate: "2025-08-15", totalBudget: 96000, channels: "Social", submittedBy: "Marcus Reed", status: "Rejected" },
+  { id: "BRF-5001", campaignName: "Drive Electric", brand: "Voltio EV", objective: "Awareness",  startDate: "2025-06-01", endDate: "2025-09-30", totalBudget: 780000, channels: "Video, Display, Social", submittedBy: "Marcus Reed", status: "Active" },
+  { id: "BRF-5002", campaignName: "Charge Ahead", brand: "Voltio Charge", objective: "Consideration", startDate: "2025-07-15", endDate: "2025-10-15", totalBudget: 320000, channels: "Search, Display", submittedBy: "Marcus Reed", status: "Approved" },
+  { id: "BRF-5003", campaignName: "Flagship Launch", brand: "Nimbus Phone", objective: "Conversion",  startDate: "2025-08-01", endDate: "2025-11-30", totalBudget: 640000, channels: "Social, Video, Search", submittedBy: "Priya Nair", status: "Submitted" },
+  { id: "BRF-5004", campaignName: "Festive Glow", brand: "Lumière Skin", objective: "Retention", startDate: "2025-10-01", endDate: "2025-12-24", totalBudget: 420000, channels: "Social, Display", submittedBy: "Sofia Marchetti", status: "Active" },
+  { id: "BRF-5005", campaignName: "Wealth Builder", brand: "Heritage Wealth", objective: "Consideration", startDate: "2025-09-01", endDate: "2025-12-31", totalBudget: 560000, channels: "Display, Search, OOH", submittedBy: "Daniel Cho", status: "Draft" },
+  { id: "BRF-5006", campaignName: "Summer Splash", brand: "AquaPure Sparkling", objective: "Awareness", startDate: "2025-05-01", endDate: "2025-08-31", totalBudget: 240000, channels: "OOH, Social", submittedBy: "Marcus Reed", status: "Completed" },
+  { id: "BRF-5007", campaignName: "Pure Hydration", brand: "AquaPure Sparkling", objective: "Conversion", startDate: "2025-06-15", endDate: "2025-08-15", totalBudget: 96000, channels: "Social", submittedBy: "Marcus Reed", status: "Rejected" },
 ];
 
 export const MOCK_AUDIENCES = [

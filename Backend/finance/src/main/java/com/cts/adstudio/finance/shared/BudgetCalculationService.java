@@ -16,6 +16,4 @@ public interface BudgetCalculationService {
     /** Total accepted delivered spend for a campaign brief (basis for the client invoice). */
     BigDecimal deliveredSpendForCampaign(Long campaignBriefId);
 
-    /** Accepted delivered value for an insertion order (basis for publisher reconciliation). */
-    BigDecimal deliveredValueForInsertionOrder(Long ioId);
 }

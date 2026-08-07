@@ -15,7 +15,7 @@ import CreativeStudio from "./modules/creative/CreativeStudio.jsx";
 import DeliveryTracking from "./modules/delivery/DeliveryTracking.jsx";
 import PublisherPortal from "./modules/publisher/PublisherPortal.jsx";
 import FinanceDashboard from "./modules/finance/FinanceDashboard.jsx";
-import Analytics from "./modules/analytics/Analytics.jsx";
+import Analytics from "./modules/analytics/AnalyticsPage.jsx";
 import Notifications from "./modules/notifications/Notifications.jsx";
 import AdminConsole from "./modules/admin/AdminConsole.jsx";
 import UserProfileCard from "./modules/profile/UserProfileCard.jsx";

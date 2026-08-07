@@ -2,57 +2,65 @@ import DataTable from "../../../components/DataTable.jsx";
 import StatusBadge from "../../../components/StatusBadge.jsx";
 import { Loader } from "../../../components/Loader.jsx";
 import { IcCheck, IcClose, IcTarget } from "../../../assets/icons.jsx";
-
+import { useState } from "react";
+import DecisionFeedbackModal from "../forms/DecisionFeedbackModal.jsx";
 import apiRequest from "../../../api/apiRequestSender.js";
 import { useAuth } from "../../../context/AuthContext.jsx";
 import { API_BASE } from "../../../api/endpoints.js";
 
+// The backend sends status as SCREAMING_SNAKE_CASE (e.g. "PENDING_APPROVAL"),
+// but StatusBadge's colour map + "Pending" mock fallback both use PascalCase
+// with no separators (e.g. "PendingApproval"). Normalize here so the badge
+// picks the right colour and label regardless of which shape it's fed.
+function toPascalNoSep(str) {
+  if (!str) return str;
+  return String(str)
+    .toLowerCase()
+    .split(/[_\s]+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join("");
+}
 
-export default function ApprovalsTab({ approvals, loading }) {
+
+export default function ApprovalsTab({ approvals, loading, onRequestLink, links = [] }) {
 
   const { user } = useAuth();
 
-const handleReject = async (row) => {
-    const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
-    const feedbackVal =  prompt("Enter your Feedback to reject:");
-    await apiRequest(url, {
-      method: "PUT",
-      body: {
-        reviewerId: user.userId,
-        decision: "REJECTED",
-        feedback: feedbackVal
-      },
-    });
-    window.location.reload();
+  // Which row + decision ("APPROVED"/"REJECTED") is currently being
+  // confirmed, so the modal knows what to show and what to submit.
+  // null = modal closed.
+  const [pending, setPending] = useState(null); // { row, decision } | null
+  const [submitting, setSubmitting] = useState(false);
+
+  const submitDecision = async (feedbackVal) => {
+    if (!pending) return;
+    const { row, decision } = pending;
+
+    setSubmitting(true);
+    try {
+      const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
+      await apiRequest(url, {
+        method: "PUT",
+        body: {
+          reviewerId: user.userId,
+          decision,
+          feedback: feedbackVal,
+        },
+      });
+      window.location.reload();
+    } finally {
+      setSubmitting(false);
+      setPending(null);
+    }
   };
 
-  const handleLinkThis = async (row) => {
-    const url = `${API_BASE}/api/asset-links`;
-    const LinkId =  Number(prompt("Enter the Line Item ID:"));
-    await apiRequest(url, {
-      method: "POST",
-      body: {
-        assetId: row.assetId,
-        lineItemId: LinkId
-      },
-    });
-    window.location.reload();
+  const handleReject = (row) => setPending({ row, decision: "REJECTED" });
+
+  const handleLinkThis = (row) => {
+    onRequestLink?.(row.assetId ?? row.id);
   };
 
-
-  const handleApproval = async (row) => {
-    const url = `${API_BASE}/api/creative-approvals/${row.assetId}/decision`;
-    const feedbackVal =  prompt("Enter your Feedback to approve:");
-    await apiRequest(url, {
-      method: "PUT",
-      body: {
-        reviewerId: user.userId,
-        decision: "APPROVED",
-        feedback: feedbackVal
-      },
-    });
-    window.location.reload();
-  };
+  const handleApproval = (row) => setPending({ row, decision: "APPROVED" });
 
 const approvalColumns =[
   {
@@ -86,35 +94,66 @@ const approvalColumns =[
   {
     key: "status",
     label: "Status",
-    render: (r) => <StatusBadge status={r.status} />,
+    render: (r) => <StatusBadge status={toPascalNoSep(r.status)} />,
   },
    {
     key: "Link It",
-    label: "Link It",
-    render: (r) =>  (r.status === "APPROVED" && !r.isLinked)?  (
-       <div className="t-actions">
-          <button className="btn btn-primary btn-sm" onClick={() => handleLinkThis(r)} >  Link This</button>
+    label: "Linked To",
+    render: (r) => {
+      const status = String(r.status).toUpperCase();
+      const isApproved = status === "APPROVED";
+      if (!isApproved) {
+        // Only a rejected asset gets an explicit "not applicable" dash.
+        // Anything else that isn't approved yet (e.g. still in Draft) just
+        // shows nothing here rather than a misleading dash.
+        return status === "REJECTED" ? <span className="cell-muted txt-sm">—</span> : null;
+      }
+
+      const assetId = r.assetId ?? r.id;
+      // isLinked is just a boolean from the backend - it doesn't say *which*
+      // line item(s), so resolve that from the actual asset-links list
+      // (the same data AssetLinksTab renders) instead of just showing a dash.
+      const linkedTo = links.filter((l) => String(l.assetId) === String(assetId));
+
+      return (
+        <div className="t-actions" style={{ flexWrap: "wrap", gap: 6 }}>
+          {linkedTo.map((l) => (
+            <span key={l.linkId ?? l.lineItemId} className="badge badge-navy">
+              {l.lineItemId}
+            </span>
+          ))}
+          <button className="btn btn-outline btn-sm" onClick={() => handleLinkThis(r)}>
+            {linkedTo.length > 0 ? "+ Link another" : "Link This"}
+          </button>
         </div>
-      ) : (
-        <span className="cell-muted txt-sm">—</span>
-      ),
+      );
+    },
   },
   {
     key: "actions",
     label: "",
     align: "right",
     render: (r) =>
-      r.status === "DRAFT" ? (
+      String(r.status).toUpperCase() === "DRAFT" ? (
         <div className="t-actions">
           <button className="btn btn-success btn-sm" onClick={() => handleApproval(r)} >   Approve</button>
           <button className="btn btn-danger btn-sm"  onClick={() => handleReject(r)} > Reject</button>
         </div>
-      ) : (
-        <span className="cell-muted txt-sm">—</span>
-      ),
+      ) : null,
   },
 ];
 
   if (loading) return <Loader />;
-  return <DataTable columns={approvalColumns} rows={approvals} />;
+  return (
+    <>
+      <DataTable columns={approvalColumns} rows={approvals} />
+      <DecisionFeedbackModal
+        decision={pending?.decision ?? null}
+        assetName={pending?.row?.assetName}
+        submitting={submitting}
+        onCancel={() => setPending(null)}
+        onSubmit={submitDecision}
+      />
+    </>
+  );
 }

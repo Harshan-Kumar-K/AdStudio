@@ -1,5 +1,7 @@
 package com.cts.adstudio.finance.billing.service;
 
+import com.cts.adstudio.finance.billing.client.DeliveryFeignClient;
+import com.cts.adstudio.finance.billing.dto.DeliveryRecordResponse;
 import com.cts.adstudio.finance.billing.dto.PublisherInvoiceResponse;
 import com.cts.adstudio.finance.billing.dto.ReconciliationResultResponse;
 import com.cts.adstudio.finance.billing.dto.SubmitPublisherInvoiceRequest;
@@ -20,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,7 @@ public class PublisherInvoiceService {
     private final AuditLogService auditLog;
     private final BudgetCalculationService budgetCalc;
     private final NotificationClient notificationClient;
+    private final DeliveryFeignClient deliveryFeignClient;
 
     public PublisherInvoice getEntity(Long id) {
         return repository.findById(id)
@@ -43,22 +48,23 @@ public class PublisherInvoiceService {
         return PublisherInvoiceResponse.from(getEntity(id));
     }
 
-    public Page<PublisherInvoiceResponse> list(
+    public List<PublisherInvoiceResponse> list(
             Long publisherId,
-            PublisherInvoiceStatus status,
-            Pageable pageable) {
+            PublisherInvoiceStatus status) {
 
-        Page<PublisherInvoice> page;
+        List<PublisherInvoice> page;
 
         if (publisherId != null) {
-            page = repository.findByPublisherId(publisherId, pageable);
+            page = repository.findByPublisherId(publisherId);
         } else if (status != null) {
-            page = repository.findByStatus(status, pageable);
+            page = repository.findByStatus(status);
         } else {
-            page = repository.findAll(pageable);
+            page = repository.findAll();
         }
 
-        return page.map(PublisherInvoiceResponse::from);
+        return page.stream()
+                .map(PublisherInvoiceResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -99,6 +105,10 @@ public class PublisherInvoiceService {
     /**
      * Reconcile against delivered value; sets variance and
      * RECONCILED / DISCREPANCY.
+     *
+     * it pulls actual delivery numbers from another service, compares them against what
+     * the publisher invoiced, decides if they match within tolerance, updates the
+     * invoice's status/variance accordingly
      */
     @Transactional
     public ReconciliationResultResponse reconcile(
@@ -106,16 +116,16 @@ public class PublisherInvoiceService {
             Long actingUserId) {
 
         PublisherInvoice invoice = getEntity(id);
+        List<DeliveryRecordResponse> record = deliveryFeignClient.getDeliveryRecordsByIoId(invoice.getIoId());
+        // Sum the spend values of all delivery records, or return zero if the list is null
+        BigDecimal deliverySpend = record != null ? record.stream().map(DeliveryRecordResponse::spend).reduce(BigDecimal.ZERO, BigDecimal::add) : BigDecimal.ZERO;
 
-        BigDecimal deliveredValue =
-                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
+//        BigDecimal deliveredValue =
+//                budgetCalc.deliveredValueForInsertionOrder(invoice.getIoId());
 
-        if (deliveredValue == null) {
-            deliveredValue = BigDecimal.ZERO;
-        }
-
+        // variance = (what the publisher billed you) − (what your delivery data says was actually delivered)
         BigDecimal variance =
-                invoice.getInvoiceAmount().subtract(deliveredValue);
+                invoice.getInvoiceAmount().subtract(deliverySpend);
 
         PublisherInvoiceStatus target =
                 variance.abs().compareTo(RECONCILE_TOLERANCE) <= 0
@@ -124,7 +134,7 @@ public class PublisherInvoiceService {
 
         statusValidator.validate(invoice.getStatus(), target);
 
-        invoice.setDeliveredValue(deliveredValue);
+        invoice.setDeliveredValue(deliverySpend);
         invoice.setVarianceAmount(variance);
         invoice.setStatus(target);
 

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { IcClose, IcUpload } from "../../../assets/icons.jsx";
+import { useAuth } from "../../../context/AuthContext.jsx";
 
 const ASSET_TYPES = ["BANNER", "VIDEO", "IMAGE", "NATIVE", "AUDIO", "RICH_MEDIA"];
-const STATUSES = ["DRAFT"];
 
 const INITIAL_FORM = {
   brandId: "",
@@ -11,20 +11,23 @@ const INITIAL_FORM = {
   filePath: "",
   fileSizeKB: "",
   version: 1,
-  uploadedById: "",
   width: "",
   height: "",
   assetType: "BANNER",
-  status: "DRAFT",
 };
 
-export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
+export default function UploadAssetForm({ isOpen, onClose, onSubmit, brands = [], briefs = [] }) {
+  const { user } = useAuth();
   const [form, setForm] = useState(INITIAL_FORM);
   const [file, setFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
+
+  const briefsForBrand = form.brandId
+    ? briefs.filter((b) => String(b.brandId ?? b.brand) === String(form.brandId))
+    : briefs;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,9 +49,12 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
     const next = {};
     if (!form.assetName.trim()) next.assetName = "Asset name is required";
     if (!form.brandId) next.brandId = "Brand is required";
+    if (!form.campaignBriefId) next.campaignBriefId = "Campaign brief is required";
     if (!form.filePath) next.filePath = "Please select a file";
+    if (!form.width) next.width = "Width is required";
+    if (!form.height) next.height = "Height is required";
     if (!form.assetType) next.assetType = "Asset type is required";
-    if (!form.status) next.status = "Status is required";
+    if (!user?.userId) next.submit = "You must be signed in to upload an asset";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -64,11 +70,11 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
       filePath: form.filePath,
       fileSizeKB: form.fileSizeKB ? Number(form.fileSizeKB) : null,
       version: form.version ? Number(form.version) : 1,
-      uploadedById: form.uploadedById ? Number(form.uploadedById) : null,
+      uploadedById: user.userId,
       width: form.width ? Number(form.width) : null,
       height: form.height ? Number(form.height) : null,
       assetType: form.assetType,
-      status: form.status,
+      status: "DRAFT",
     };
 
     try {
@@ -78,7 +84,7 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
       setFile(null);
       onClose();
     } catch (err) {
-      setErrors({ submit: "Failed to upload asset. Please try again." });
+      setErrors({ submit: err.message || "Failed to upload asset. Please try again." });
     } finally {
       setSubmitting(false);
     }
@@ -122,28 +128,46 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
 
           <div className="universal-field-row">
             <div className="universal-field">
-              <label className="universal-label">Brand ID</label>
-              <input
-                className="universal-input"
-                type="number"
+              <label className="universal-label">Brand</label>
+              <select
+                className="universal-select"
                 name="brandId"
                 value={form.brandId}
-                onChange={handleChange}
-                placeholder="Brand ID"
-              />
+                onChange={(e) => {
+                  handleChange(e);
+                  setForm((prev) => ({ ...prev, campaignBriefId: "" }));
+                }}
+              >
+                <option value="">Select brand…</option>
+                {brands.map((b) => (
+                  <option key={b.brandId ?? b.id} value={b.brandId ?? b.id}>
+                    {(b.brandId ?? b.id)} — {b.brandName ?? b.name}
+                  </option>
+                ))}
+              </select>
               {errors.brandId && <span className="universal-field-error">{errors.brandId}</span>}
             </div>
 
             <div className="universal-field">
-              <label className="universal-label">Campaign Brief ID</label>
-              <input
-                className="universal-input"
-                type="number"
+              <label className="universal-label">Campaign Brief</label>
+              <select
+                className="universal-select"
                 name="campaignBriefId"
                 value={form.campaignBriefId}
                 onChange={handleChange}
-                placeholder="Optional"
-              />
+                disabled={!form.brandId}
+              >
+                <option value="">Select campaign brief…</option>
+                {briefsForBrand.map((brf) => (
+                  <option key={brf.briefId ?? brf.id} value={brf.briefId ?? brf.id}>
+                    {(brf.briefId ?? brf.id)} — {brf.campaignName ?? brf.name}
+                  </option>
+                ))}
+              </select>
+              {!form.brandId && (
+                <span className="universal-hint">Pick a brand first</span>
+              )}
+              {errors.campaignBriefId && <span className="universal-field-error">{errors.campaignBriefId}</span>}
             </div>
           </div>
 
@@ -164,6 +188,7 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
                 onChange={handleChange}
                 placeholder="e.g. 300"
               />
+              {errors.width && <span className="universal-field-error">{errors.width}</span>}
             </div>
 
             <div className="universal-field">
@@ -176,6 +201,7 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
                 onChange={handleChange}
                 placeholder="e.g. 250"
               />
+              {errors.height && <span className="universal-field-error">{errors.height}</span>}
             </div>
           </div>
 
@@ -190,17 +216,6 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
             </div>
 
             <div className="universal-field">
-              <label className="universal-label">Status</label>
-              <select className="universal-select" name="status" value={form.status} onChange={handleChange}>
-                {STATUSES.map((status) => (
-                  <option key={status} value={status}>{status.replace(/_/g, " ")}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="universal-field-row">
-            <div className="universal-field">
               <label className="universal-label">Version</label>
               <input
                 className="universal-input"
@@ -209,18 +224,6 @@ export default function UploadAssetForm({ isOpen, onClose, onSubmit }) {
                 value={form.version}
                 onChange={handleChange}
                 min={1}
-              />
-            </div>
-
-            <div className="universal-field">
-              <label className="universal-label">Uploaded By (User ID)</label>
-              <input
-                className="universal-input"
-                type="number"
-                name="uploadedById"
-                value={form.uploadedById}
-                onChange={handleChange}
-                placeholder="Optional"
               />
             </div>
           </div>

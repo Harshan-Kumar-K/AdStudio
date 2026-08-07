@@ -14,6 +14,7 @@ import {
 import PublisherInboxTab from "./tabs/PublisherInboxTab.jsx";
 import DeliveryReportsTab from "./tabs/DeliveryReportsTab.jsx";
 import PublisherInvoicesTab from "./tabs/PublisherInvoicesTab.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 // import DeliveryReportForm from "./DeliveryReportForm.jsx";
 
 /**
@@ -26,12 +27,14 @@ export default function PublisherPortal() {
   const [tab, setTab] = useState("inbox");
   const [showReportForm, setShowReportForm] = useState(false);
 
+  const {user} = useAuth();
+
   const {
     data: inbox,
     loading: inboxLoading,
     isMock: inboxIsMock,
     reload: reloadInbox,
-  } = useApiData(ENDPOINTS.insertionOrders, MOCK_PUBLISHER_INBOX);
+  } = useApiData(`${ENDPOINTS.insertionOrders}?publisherId=${user.userId}`, MOCK_PUBLISHER_INBOX);
 
   const {
     data: reports,
@@ -44,13 +47,13 @@ export default function PublisherPortal() {
     data: invoices,
     loading: invoicesLoading,
     isMock: invoicesIsMock,
-  } = useApiData(ENDPOINTS.publisherInvoices, MOCK_PUBLISHER_INVOICES);
+  } = useApiData(`${ENDPOINTS.publisherInvoices}?publisherId=${user.userId}`, MOCK_PUBLISHER_INVOICES);
 
   const isMock = inboxIsMock || reportsIsMock || invoicesIsMock;
 
   const tabs = [
     { key: "inbox", label: "IO Inbox", count: (inbox || []).length },
-    { key: "reports", label: "Delivery Reports", count: (reports || []).length },
+    { key: "reports", label: "Delivery Reports", count: null },
     { key: "invoices", label: "Invoices", count: (invoices || []).length },
   ];
 
@@ -92,7 +95,7 @@ export default function PublisherPortal() {
       )}
 
       {tab === "reports" && (
-        <DeliveryReportsTab data={reports} loading={reportsLoading} />
+        <DeliveryReportsTab data={reports} loading={reportsLoading}  invoices={invoices}/>
       )}
 
       {tab === "invoices" && (

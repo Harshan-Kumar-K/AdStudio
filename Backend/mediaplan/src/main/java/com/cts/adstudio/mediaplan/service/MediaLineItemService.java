@@ -11,4 +11,5 @@ public interface MediaLineItemService {
     MediaLineItemResponse updateLineItem(Integer lineItemId, MediaLineItemRequest request);
     MediaLineItemResponse updateLineItemStatus(Integer lineItemId, String status);
     void deleteLineItem(Integer lineItemId);
+    List<MediaLineItemResponse> getAllLineItems();
 }

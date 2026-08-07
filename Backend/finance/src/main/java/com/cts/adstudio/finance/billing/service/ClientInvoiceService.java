@@ -6,6 +6,7 @@ import com.cts.adstudio.finance.billing.enums.ClientInvoiceStatus;
 import com.cts.adstudio.finance.billing.exception.BillingRuleException;
 import com.cts.adstudio.finance.billing.exception.InvoiceNotFoundException;
 import com.cts.adstudio.finance.billing.repository.ClientInvoiceRepository;
+import com.cts.adstudio.finance.billing.repository.ClientInvoiceSummary;
 import com.cts.adstudio.finance.shared.AuditLogService;
 import com.cts.adstudio.finance.shared.BudgetCalculationService;
 import com.cts.adstudio.finance.billing.shared.NotificationClient;
@@ -212,6 +213,61 @@ public class ClientInvoiceService {
     }
 
     // ---- payment tracker -----------------------------------------------------
+
+    public PaymentTrackerDTO getPaymentTracker() {
+        ClientInvoiceSummary summary = repository.getPaymentSummary();
+
+        PaymentTrackerDTO dto = new PaymentTrackerDTO();
+
+        // TOTAL BILLED — Gross Accounts Receivable actually issued to advertisers.
+        // Sum of InvoiceAmount for every invoice EXCEPT status = DRAFT.
+        // A DRAFT invoice has been created internally but never sent to the
+        // advertiser — no obligation to pay exists yet, so it isn't "billed"
+        // in the accounting sense. The moment status moves to ISSUED, it
+        // becomes a real receivable and enters this total.
+        dto.setTotalBilled(summary.getTotalBilled());
+
+        // COLLECTED — Realized Receivables (cash actually received).
+        // Sum of InvoiceAmount where status = PAID. The only bucket here
+        // representing money that has physically landed, not just an
+        // obligation to pay.
+        dto.setCollected(summary.getCollected());
+
+        // OUTSTANDING — Current Receivables (billed, unpaid, still within terms).
+        // Sum of InvoiceAmount where status = ISSUED: the advertiser owes this,
+        // but it hasn't crossed into "late" yet.
+        // NOTE: totalBilled = outstanding + collected + overdue + disputedAmount.
+        // DISPUTED invoices are a separate bucket (see below) — they are
+        // neither "current" nor "overdue," they're held pending resolution.
+        dto.setOutstanding(summary.getOutstanding());
+
+        // OVERDUE — Past-Due Receivables / delinquent AR.
+        // Sum of InvoiceAmount where status = OVERDUE. This is the amount
+        // genuinely at risk of becoming bad debt, and drives AR-aging
+        // (30/60/90+ day) reporting.
+        dto.setOverdue(summary.getOverdue());
+
+        // PAID COUNT — volume of fully settled invoices, alongside the
+        // "collected" dollar figure.
+        dto.setPaidCount(summary.getPaidCount().intValue());
+
+        // OVERDUE COUNT — how many individual invoices are currently late.
+        // Distinct from the overdue dollar total: 3 overdue invoices worth
+        // 60,200 tells a different collections story than 30 tiny ones.
+        dto.setOverdueCount(summary.getOverdueCount().intValue());
+
+        // DISPUTED COUNT — invoices formally contested by the advertiser
+        // (billing error, rate mismatch, under-delivery claim, etc).
+        // DISPUTED is its own status value here — mutually exclusive with
+        // ISSUED/OVERDUE/PAID. While an invoice sits in DISPUTED, it is
+        // NOT counted in outstanding or overdue above, even though it is
+        // still technically part of totalBilled. Someone must resolve the
+        // dispute and move status back to ISSUED/OVERDUE/PAID manually.
+        dto.setDisputedCount(summary.getDisputedCount().intValue());
+
+        return dto;
+    }
+
 
     public PaymentSummaryResponse paymentSummary(Long advertiserId) {
 
