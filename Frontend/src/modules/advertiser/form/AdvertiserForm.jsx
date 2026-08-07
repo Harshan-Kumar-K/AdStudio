@@ -11,8 +11,9 @@ export default function AdvertiserForm({ initial, onCancel, onSaved }) {
   const [form, setForm] = useState({
     companyName: initial?.companyName || "",
     industry: initial?.industry || "",
-   accountManagerId: user.userId,
+    accountManagerId: user.userId,
     annualBudget: initial?.annualBudget ?? "",
+    status: initial?.status || "Active",
   });
    
   const [saving, setSaving] = useState(false);
@@ -112,9 +113,9 @@ export default function AdvertiserForm({ initial, onCancel, onSaved }) {
           <div className="universal-field">
             <label className="universal-label">Status</label>
             <select className="universal-select" value={form.status} onChange={set("status")}>
-              <option value="ACTIVE">Active</option>
-              <option value="PAUSED">Paused</option>
-              <option value="INACTIVE">Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
             </select>
           </div>
 

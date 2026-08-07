@@ -7,7 +7,7 @@ import { formatCompact } from "../../api/utils/format.js";
 import "./forms-and-modal.css";
 
 const OBJECTIVE_TONE = {
-  Awareness: "badge-blue", 
+  Awareness: "badge-blue",
   Consideration: "badge-navy",
   Conversion: "badge-green",
   Retention: "badge-amber",
@@ -21,8 +21,10 @@ const OBJECTIVE_TONE = {
  *  - rows: array of brief objects
  *  - loading: boolean
  *  - onSubmit: (row) => void   -> called when "Submit" is clicked (Draft -> Submitted)
- *  - onApprove: (row) => void  -> called when "Approve" is clicked
- *  - onReject: (row) => void   -> called when "Reject" is clicked
+ *  - onApprove: (row) => void  -> called when "Approve" is clicked. Pass
+ *      undefined to hide the button entirely (e.g. non-Admin users).
+ *  - onReject: (row) => void   -> called when "Reject" is clicked. Pass
+ *      undefined to hide the button entirely (e.g. non-Admin users).
  */
 export default function BriefsTable({ rows, loading, onSubmit, onApprove, onReject }) {
   const columns = [
@@ -83,14 +85,23 @@ export default function BriefsTable({ rows, loading, onSubmit, onApprove, onReje
           );
         }
         if (r.status === "Submitted") {
+          // Approve/Reject only render when a handler was actually passed
+          // in — CampaignBriefs.jsx only passes them for Admin users.
+          if (!onApprove && !onReject) {
+            return <span className="cell-muted txt-sm">Awaiting review</span>;
+          }
           return (
             <div className="t-actions">
-              <button className="btn btn-success btn-sm" onClick={() => onApprove?.(r)}>
-                <IcCheck size={14} /> Approve
-              </button>
-              <button className="btn btn-danger btn-sm" onClick={() => onReject?.(r)}>
-                <IcClose size={14} /> Reject
-              </button>
+              {onApprove && (
+                <button className="btn btn-success btn-sm" onClick={() => onApprove(r)}>
+                  <IcCheck size={14} /> Approve
+                </button>
+              )}
+              {onReject && (
+                <button className="btn btn-danger btn-sm" onClick={() => onReject(r)}>
+                  <IcClose size={14} /> Reject
+                </button>
+              )}
             </div>
           );
         }

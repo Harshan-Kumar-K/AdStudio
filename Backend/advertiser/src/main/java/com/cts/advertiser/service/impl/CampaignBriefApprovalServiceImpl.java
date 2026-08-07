@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalService {
-    
+
     // Injected automatically by Spring
     private final CampaignBriefRepository campaignBriefRepository;
     private final CampaignBriefApprovalRepository campaignBriefApprovalRepository;
@@ -35,9 +35,9 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
     @Override
     @Transactional
     public CampaignBriefResponse submitForApproval(Integer briefId) {
-        
+
         CampaignBrief brief = campaignBriefRepository.findById(briefId)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
 
         // Only Draft briefs can be submitted
         statusTransitionValidator.validate(brief.getStatus(), CampaignBrief.CampaignStatus.Submitted);
@@ -58,9 +58,15 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
     @Override
     @Transactional
     public CampaignBriefApprovalResponse makeDecision(Integer briefId, CampaignBriefApprovalRequest request) {
-        
+
         CampaignBrief brief = campaignBriefRepository.findById(briefId)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
+
+        // A reviewer cannot approve/reject the brief they themselves submitted
+        if (brief.getSubmittedById() != null
+                && brief.getSubmittedById().equals(request.getReviewerId())) {
+            throw new IllegalStateException("A reviewer cannot approve or reject their own submission.");
+        }
 
         // Convert string decision to enum
         CampaignBriefApproval.ApprovalDecision decision = CampaignBriefApproval.ApprovalDecision.valueOf(request.getDecision());
@@ -78,11 +84,11 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
 
         // Save the approval record
         CampaignBriefApproval approval = CampaignBriefApproval.builder()
-            .briefId(briefId)
-            .reviewerId(request.getReviewerId())
-            .decision(decision)
-            .comments(request.getComments())
-            .build();
+                .briefId(briefId)
+                .reviewerId(request.getReviewerId())
+                .decision(decision)
+                .comments(request.getComments())
+                .build();
 
         CampaignBriefApproval saved = campaignBriefApprovalRepository.save(approval);
 
@@ -98,9 +104,9 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
     @Override
     @Transactional
     public CampaignBriefResponse activateBrief(Integer briefId) {
-        
+
         CampaignBrief brief = campaignBriefRepository.findById(briefId)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign brief not found with ID: " + briefId));
 
         // Only Approved briefs can be activated
         statusTransitionValidator.validate(brief.getStatus(), CampaignBrief.CampaignStatus.Active);
@@ -114,20 +120,20 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
                 "Brief");
 
         return mapBriefToResponse(updated);
-        
+
     }
 
     // Returns full approval history for a specific campaign brief
     @Override
     public List<CampaignBriefApprovalResponse> getApprovalHistory(Integer briefId) {
-        
+
         // Verify the brief exists first
         if(!campaignBriefRepository.existsById(briefId)) throw new ResourceNotFoundException("Campaign brief not found with ID: " + briefId);
 
         return campaignBriefApprovalRepository.findByBriefId(briefId)
-            .stream()
-            .map(this::mapApprovalToResponse)
-            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapApprovalToResponse)
+                .collect(Collectors.toList());
 
     }
 
@@ -165,9 +171,9 @@ public class CampaignBriefApprovalServiceImpl implements CampaignBriefApprovalSe
         response.setComments(approval.getComments());
         response.setReviewedAt(approval.getReviewedAt());
         response.setCreatedAt(approval.getCreatedAt());
-        
+
         return response;
 
     }
-    
+
 }

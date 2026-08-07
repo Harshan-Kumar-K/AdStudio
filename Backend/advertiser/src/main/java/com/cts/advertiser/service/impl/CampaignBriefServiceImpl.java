@@ -39,15 +39,15 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
         validateBudgetHeadroom(request.getBrandId(), request.getTotalBudget());
 
         CampaignBrief brief = CampaignBrief.builder()
-            .brandId(request.getBrandId())
-            .campaignName(request.getCampaignName())
-            .objective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null)
-            .startDate(request.getStartDate())
-            .endDate(request.getEndDate())
-            .totalBudget(request.getTotalBudget())
-            .channelPreferences(request.getChannelPreferences())
-            .submittedById(request.getSubmittedById())
-            .build();
+                .brandId(request.getBrandId())
+                .campaignName(request.getCampaignName())
+                .objective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null)
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .totalBudget(request.getTotalBudget())
+                .channelPreferences(request.getChannelPreferences())
+                .submittedById(request.getSubmittedById())
+                .build();
 
         CampaignBrief saved = campaignBriefRepository.save(brief);
 
@@ -56,16 +56,16 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
                 "Brief");
 
         return mapToResponse(saved);
-        
+
     }
- 
+
     // Retrieves all campaign briefs and maps them to response DTOs
     @Override
     public List<CampaignBriefResponse> getAllCampaignBriefs() {
         return campaignBriefRepository.findAll()
-            .stream()
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     // Finds campaign brief by ID or throws exception if not found
@@ -81,21 +81,21 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     // Returns all campaign briefs belonging to a specific brand
     @Override
     public List<CampaignBriefResponse> getAllBriefsByBrandId(Integer brandId) {
-        
+
         return campaignBriefRepository.findByBrandId(brandId)
-            .stream()
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
-        
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
     }
 
     // Updates existing campaign brief fields and saves changes
     @Override
     @Transactional
     public CampaignBriefResponse updateCampaignBrief(Integer id, CampaignBriefRequest request) {
-        
+
         CampaignBrief brief = campaignBriefRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
 
         brief.setCampaignName(request.getCampaignName());
         brief.setObjective(request.getObjective() != null ? CampaignBrief.CampaignObjective.valueOf(request.getObjective()) : null);
@@ -118,11 +118,20 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
     @Override
     @Transactional
     public CampaignBriefResponse updateCampaignBriefStatus(Integer id, String status) {
-        
+
         CampaignBrief brief = campaignBriefRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Campaign Brief not found with ID: " + id));
 
         CampaignBrief.CampaignStatus targetStatus = CampaignBrief.CampaignStatus.valueOf(status);
+
+        // Approve/Reject must go through the dedicated decision workflow
+        // (POST /{id}/decision), which records a reviewer and blocks self-approval.
+        // This generic endpoint is only for other transitions (e.g. Active -> Completed).
+        if (targetStatus == CampaignBrief.CampaignStatus.Approved
+                || targetStatus == CampaignBrief.CampaignStatus.Rejected) {
+            throw new IllegalArgumentException(
+                    "Approve/Reject must be done via the decision endpoint (POST /{id}/decision), not a direct status update.");
+        }
 
         // Validates the transition is allowed before applying it
         statusTransitionValidator.validate(brief.getStatus(), targetStatus);
@@ -136,7 +145,7 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
                 "Brief");
 
         return mapToResponse(updated);
-        
+
     }
 
     // Deletes campaign brief by ID or throws exception if not found
@@ -165,7 +174,7 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
         BigDecimal alreadyAllocated;
 
 //        if(excludeBrandId != null) alreadyAllocated = brandRepository.sumAllocatedBudgetByAdvertiserExcludingBrand(advertiserId, excludeBrandId);
-         alreadyAllocated = brand.getSpentToDate() != null ? brand.getSpentToDate() : BigDecimal.ZERO;
+        alreadyAllocated = brand.getSpentToDate() != null ? brand.getSpentToDate() : BigDecimal.ZERO;
 
         BigDecimal remainingBudget = brand.getAllocatedBudget().subtract(alreadyAllocated);
 
@@ -199,5 +208,5 @@ public class CampaignBriefServiceImpl implements CampaignBriefService {
         return response;
 
     }
-    
+
 }
